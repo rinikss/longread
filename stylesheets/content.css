@@ -9,7 +9,7 @@ body {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #111111;
+  background-color: #111010;
   color: #fff;
   font-family: "Iosevka Charon", monospace;
   font-weight: 400;
@@ -18,4 +18,469 @@ body {
 section {
   position: relative;
   width: 100%;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block1 — обложка */
+
+/* экран всегда равен высоте окна браузера */
+.block1 {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* сцена с кругами — макет 1440×1024, ужимается по высоте окна.
+   внутри сцены размеры в cqw: 1cqw = 1% ширины сцены (14.4px макета) */
+.block1_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+.line_horiz {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 0.14vw;
+  margin-top: -0.07vw;
+  transform: scaleX(0);
+}
+
+.line_vertic {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0.14vw;
+  height: 100%;
+  margin-left: -0.07vw;
+  transform: scaleY(0);
+}
+
+.circle_img {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.circle1 {
+  left: -2.92cqw;
+  top: -17.36cqw;
+  width: 105.83cqw;
+  height: 105.83cqw;
+}
+
+.circle2 {
+  left: 3.99cqw;
+  top: 0;
+  width: 92.01cqw;
+  height: 71.11cqw;
+}
+
+.circle3 {
+  left: 10.76cqw;
+  top: 0;
+  width: 78.47cqw;
+  height: 71.11cqw;
+}
+
+.circle4 {
+  left: 16.67cqw;
+  top: 2.22cqw;
+  width: 66.67cqw;
+  height: 66.67cqw;
+}
+
+.circle5 {
+  left: 22.36cqw;
+  top: 7.92cqw;
+  width: 55.28cqw;
+  height: 55.28cqw;
+}
+
+.circle6 {
+  left: 27.43cqw;
+  top: 12.99cqw;
+  width: 45.14cqw;
+  height: 45.14cqw;
+}
+
+/* орбита — точка вращения в центре сцены.
+   угол = положение точки на макете, с него точка стартует и в него возвращается */
+.orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+.orbit1 {
+  transform: rotate(-52.4deg);
+}
+.orbit2 {
+  transform: rotate(-20.9deg);
+}
+.orbit3 {
+  transform: rotate(18.4deg);
+}
+.orbit4 {
+  transform: rotate(90.3deg);
+}
+.orbit5 {
+  transform: rotate(157.1deg);
+}
+.orbit6 {
+  transform: rotate(-44.8deg);
+}
+
+.orbit_spin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.dot {
+  position: absolute;
+  top: -1.46cqw;
+  width: 2.92cqw;
+  height: 2.92cqw;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 1.4cqw rgba(255, 255, 255, 0.6);
+  opacity: 0;
+}
+
+/* радиус орбиты минус половина точки */
+.orbit1 .dot {
+  left: 34.03cqw;
+}
+.orbit2 .dot {
+  left: 27.12cqw;
+}
+.orbit3 .dot {
+  left: 20.35cqw;
+}
+.orbit4 .dot {
+  left: 14.44cqw;
+}
+.orbit5 .dot {
+  left: 8.75cqw;
+}
+.orbit6 .dot {
+  left: 3.68cqw;
+}
+
+.corner_txt {
+  position: absolute;
+  color: #fff;
+  font-family: "Geist Mono", monospace;
+  font-weight: 400;
+  font-size: 1.67vw;
+  line-height: 120%;
+  opacity: 0;
+}
+
+.side_txt {
+  left: 2.22vw;
+  top: 2.22vw;
+  text-decoration: underline;
+  text-underline-offset: 0.3vw;
+  text-decoration-thickness: 0.1vw;
+}
+
+.rpm_txt {
+  right: 2.22vw;
+  top: 2.22vw;
+}
+
+.timer_txt {
+  left: 2.22vw;
+  bottom: 2.22vw;
+}
+
+.longread_txt {
+  right: 2.22vw;
+  bottom: 2.22vw;
+}
+
+.main_title {
+  position: absolute;
+  left: 0;
+  top: 24.17cqw;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 14.17cqw;
+  line-height: 100%;
+  opacity: 0;
+  transform: translateY(3cqw);
+}
+
+.main_subtitle {
+  position: absolute;
+  left: 0;
+  top: 37.08cqw;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 2.5cqw;
+  line-height: 100%;
+  opacity: 0;
+  transform: translateY(3cqw);
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* анимация обложки, запускается классом is_playing из screens.js
+ 
+   0 – 0.8с     линии вырастают из центра
+   0.8 – 2.3с   круги появляются от маленького к большому
+   2.3 – 3.1с   точки проявляются на своих местах, начиная с большой орбиты
+   3 – 6.9с     точки делают полный оборот и возвращаются на те же места
+   7с           все точки, кроме большой, гаснут
+   7.4с         круги и линии затемняются
+   8с           заголовок и подзаголовок */
+
+.block1.is_playing .circle_img {
+  animation:
+    circleIn 0.8s ease forwards,
+    fadeDim 0.9s ease 7.4s forwards;
+}
+
+.block1.is_playing .circle6 {
+  animation-delay: 0.8s, 7.4s;
+}
+.block1.is_playing .circle5 {
+  animation-delay: 0.95s, 7.4s;
+}
+.block1.is_playing .circle4 {
+  animation-delay: 1.1s, 7.4s;
+}
+.block1.is_playing .circle3 {
+  animation-delay: 1.25s, 7.4s;
+}
+.block1.is_playing .circle2 {
+  animation-delay: 1.4s, 7.4s;
+}
+.block1.is_playing .circle1 {
+  animation-delay: 1.55s, 7.4s;
+}
+
+.block1.is_playing .line_horiz,
+.block1.is_playing .line_vertic {
+  animation-name: lineGrowX, fadeDim;
+  animation-duration: 0.8s, 0.9s;
+  animation-delay: 0s, 7.4s;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+}
+
+.block1.is_playing .line_vertic {
+  animation-name: lineGrowY, fadeDim;
+}
+
+/* точки проявляются на месте, начиная с самой большой орбиты */
+.block1.is_playing .dot {
+  animation:
+    dotIn 0.4s ease forwards,
+    dotOut 0.5s ease 7s forwards;
+}
+
+.block1.is_playing .orbit1 .dot {
+  animation: dotIn 0.4s ease 2.3s forwards;
+}
+.block1.is_playing .orbit2 .dot {
+  animation-delay: 2.4s, 7s;
+}
+.block1.is_playing .orbit3 .dot {
+  animation-delay: 2.5s, 7s;
+}
+.block1.is_playing .orbit4 .dot {
+  animation-delay: 2.6s, 7s;
+}
+.block1.is_playing .orbit5 .dot {
+  animation-delay: 2.7s, 7s;
+}
+.block1.is_playing .orbit6 .dot {
+  animation-delay: 2.8s, 7s;
+}
+
+/* полный оборот: 0 → 360°, поэтому точка заканчивает там же, где начала */
+.block1.is_playing .orbit_spin {
+  animation: orbitSpin 3.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.block1.is_playing .orbit1 .orbit_spin {
+  animation-delay: 3s;
+}
+.block1.is_playing .orbit2 .orbit_spin {
+  animation-delay: 3.15s;
+}
+.block1.is_playing .orbit3 .orbit_spin {
+  animation-delay: 3.3s;
+}
+.block1.is_playing .orbit4 .orbit_spin {
+  animation-delay: 3.45s;
+}
+.block1.is_playing .orbit5 .orbit_spin {
+  animation-delay: 3.6s;
+}
+.block1.is_playing .orbit6 .orbit_spin {
+  animation-delay: 3.75s;
+}
+
+.block1.is_playing .corner_txt {
+  animation: fadeIn 0.6s ease 0.4s forwards;
+}
+
+.block1.is_playing .main_title {
+  animation: slideUpTitle 0.8s ease 8s forwards;
+}
+
+.block1.is_playing .main_subtitle {
+  animation: slideUpTitle 0.8s ease 8.3s forwards;
+}
+
+/* запуск таймера — короткое мигание */
+.block1.is_playing .timer_txt.is_running {
+  opacity: 1;
+  animation: timerStart 0.3s steps(1) 4;
+}
+
+/* без анимации: сразу финальное состояние обложки */
+@media (prefers-reduced-motion: reduce) {
+  .block1.is_playing .circle_img,
+  .block1.is_playing .line_horiz,
+  .block1.is_playing .line_vertic,
+  .block1.is_playing .dot,
+  .block1.is_playing .orbit_spin,
+  .block1.is_playing .corner_txt,
+  .block1.is_playing .main_title,
+  .block1.is_playing .main_subtitle {
+    animation: none;
+  }
+
+  .block1.is_playing .circle_img,
+  .block1.is_playing .line_horiz,
+  .block1.is_playing .line_vertic {
+    opacity: 0.35;
+    transform: none;
+  }
+
+  .block1.is_playing .orbit1 .dot,
+  .block1.is_playing .corner_txt,
+  .block1.is_playing .main_title,
+  .block1.is_playing .main_subtitle {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lineGrowX {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes lineGrowY {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes circleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeDim {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes dotIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dotOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+@keyframes orbitSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpTitle {
+  0% {
+    opacity: 0;
+    transform: translateY(3cqw);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes timerStart {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
 }
