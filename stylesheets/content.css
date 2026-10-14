@@ -9,7 +9,7 @@ body {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #111010;
+  background-color: #111111;
   color: #fff;
   font-family: "Iosevka Charon", monospace;
   font-weight: 400;
@@ -26,7 +26,9 @@ section {
 /* экран всегда равен высоте окна браузера */
 .block1 {
   height: 100vh;
-  overflow: hidden;
+  margin-bottom: 8vh;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 /* сцена с кругами — макет 1440×1024, ужимается по высоте окна.
@@ -111,40 +113,25 @@ section {
 }
 
 /* орбита — точка вращения в центре сцены.
-   угол = положение точки на макете, с него точка стартует и в него возвращается */
+   в начале все точки стоят друг под другом на вертикальной линии сверху */
 .orbit {
   position: absolute;
   left: 50%;
   top: 50%;
   width: 0;
   height: 0;
+  transform: rotate(-90deg);
 }
 
-.orbit1 {
-  transform: rotate(-52.4deg);
-}
-.orbit2 {
-  transform: rotate(-20.9deg);
-}
-.orbit3 {
-  transform: rotate(18.4deg);
-}
-.orbit4 {
-  transform: rotate(90.3deg);
-}
-.orbit5 {
-  transform: rotate(157.1deg);
-}
-.orbit6 {
-  transform: rotate(-44.8deg);
-}
-
-.orbit_spin {
+/* orbit_spin — общий оборот, orbit_fan — сдвиг каждой точки веером */
+.orbit_spin,
+.orbit_fan {
   position: absolute;
   left: 0;
   top: 0;
   width: 0;
   height: 0;
+  will-change: transform;
 }
 
 .dot {
@@ -178,12 +165,14 @@ section {
   left: 3.68cqw;
 }
 
+/* подписи по углам закреплены и видны на всех экранах */
 .corner_txt {
-  position: absolute;
+  position: fixed;
+  z-index: 10;
   color: #fff;
   font-family: "Geist Mono", monospace;
   font-weight: 400;
-  font-size: 1.67vw;
+  font-size: 1.39vw;
   line-height: 120%;
   opacity: 0;
 }
@@ -196,9 +185,105 @@ section {
   text-decoration-thickness: 0.1vw;
 }
 
-.rpm_txt {
+/* кнопка с плюсом + надпись 33⅓ RPM */
+.rpm_wrap {
   right: 2.22vw;
   top: 2.22vw;
+  display: flex;
+  align-items: center;
+  gap: 0.69vw;
+}
+
+.rpm_btn,
+.rpm_close {
+  width: 2.01vw;
+  height: 2.01vw;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.rpm_btn img,
+.rpm_close img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rpm_btn:hover,
+.rpm_close:hover {
+  transform: scale(1.08);
+}
+
+.rpm_btn:focus-visible,
+.rpm_close:focus-visible {
+  outline: 0.14vw solid #fff;
+  outline-offset: 0.2vw;
+}
+
+.rpm_close:focus-visible {
+  outline-color: #111111;
+}
+
+/* кнопка закрытия в плашке крупнее плюса: 40px */
+.rpm_close {
+  width: 2.78vw;
+  height: 2.78vw;
+}
+
+/* плашка с пояснением, 1194×306 */
+.rpm_panel {
+  position: fixed;
+  right: 2.22vw;
+  top: 2.22vw;
+  width: 82.92vw;
+  height: 21.25vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+  color: #111111;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67vw;
+  line-height: 133%;
+  z-index: 11;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    opacity 0.4s ease,
+    clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0s linear 0.6s;
+}
+
+.rpm_panel.is_open {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity 0.4s ease,
+    clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0s linear 0s;
+}
+
+.rpm_panel_txt {
+  padding: 1.39vw 1.39vw 0 1.39vw;
+}
+
+.rpm_panel_bottom {
+  display: flex;
+  align-items: center;
+  gap: 1.11vw;
+  height: 5.97vw;
+  padding: 0 1.39vw;
+  border-top: 0.07vw solid #111111;
+}
+
+.rpm_panel_title {
+  font-weight: 400;
 }
 
 .timer_txt {
@@ -214,7 +299,7 @@ section {
 .main_title {
   position: absolute;
   left: 0;
-  top: 24.17cqw;
+  top: 23.47cqw;
   width: 100%;
   text-align: center;
   color: #fff;
@@ -242,46 +327,185 @@ section {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block2 — график «253 000 000 → 1 диск» и лид.
+   анимация привязана к скроллу: секция высотой 500vh, внутри неё экран
+   «прилипает» (sticky), а screens.js по прокрутке двигает элементы */
+
+.block2 {
+  height: 500vh;
+}
+
+.block2_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* сцена 1440×1024, как на первом экране: 1cqw = 14.4px макета */
+.block2_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* весь график — один слой, его уменьшаем и уводим вверх */
+.block2_graph {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* прямая: в svg линия от x=250 до x=1627, ставим её на 32px от краёв */
+.graph_line {
+  position: absolute;
+  left: -15.17cqw;
+  top: 18.1cqw;
+  width: 130.35cqw;
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+}
+
+/* засечка у начала прямой */
+.graph_tick {
+  position: absolute;
+  left: -2.39cqw;
+  top: 30.18cqw;
+  width: 9.17cqw;
+  transform: scaleY(0);
+}
+
+/* кривая из двух слоёв в одном месте:
+   картинка со свечением открывается мягкой маской чуть позади кончика,
+   а чёткая линия поверх неё рисуется точно по пути (stroke-dashoffset) */
+.graph_curve {
+  position: absolute;
+  left: 1.67cqw;
+  top: 9.51cqw;
+  width: 111.39cqw;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 0%);
+  mask-image: linear-gradient(to right, #000 0%, transparent 0%);
+}
+
+.graph_curve_line {
+  height: auto;
+  aspect-ratio: 1604 / 750;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* путь в svg идёт справа налево, поэтому рисуем его с конца:
+   смещение -1 — линии нет, 0 — линия целиком */
+.graph_curve_line path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: -1;
+}
+
+/* точка «1 диск» в конце кривой, 64px */
+.graph_dot {
+  position: absolute;
+  left: 92.92cqw;
+  top: 33.33cqw;
+  width: 4.44cqw;
+  height: 4.44cqw;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 1.4cqw rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.graph_label {
+  position: absolute;
+  color: #fff;
+  font-family: "Geist Mono", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 120%;
+  opacity: 0;
+}
+
+/* подписи не уменьшаются вместе с графиком: screens.js их компенсирует,
+   поэтому у каждой своя точка опоры — угол, ближний к линии */
+.label_tracks {
+  left: 2.22cqw;
+  top: 29.86cqw;
+  transform-origin: 0% 100%;
+}
+
+.label_disc {
+  right: 2.22cqw;
+  top: 38.47cqw;
+  transform-origin: 100% 0%;
+}
+
+/* лид — появляется под уменьшенным графиком */
+.block2_text {
+  position: absolute;
+  left: 25.9cqw;
+  top: 36.18cqw;
+  width: 46.94cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 132%;
+  opacity: 0;
+  transform: translateY(2cqw);
+}
+
+.block2_text p + p {
+  margin-top: 1.04cqw;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* анимация обложки, запускается классом is_playing из screens.js
- 
+
    0 – 0.8с     линии вырастают из центра
    0.8 – 2.3с   круги появляются от маленького к большому
-   2.3 – 3.1с   точки проявляются на своих местах, начиная с большой орбиты
-   3 – 6.9с     точки делают полный оборот и возвращаются на те же места
-   7с           все точки, кроме большой, гаснут
-   7.4с         круги и линии затемняются
-   8с           заголовок и подзаголовок */
+   1.9 – 2.9с   точки мягко проявляются друг под другом на вертикали сверху
+   2.6 – 8.1с   все точки одновременно делают один оборот: расходятся ровным веером
+                (маленькие орбиты впереди) и вместе возвращаются на вертикаль
+   8.1с         точка большой орбиты не останавливается и дальше крутится медленно
+   8 – 9.2с     остальные точки плавно гаснут
+   8.4с         круги и линии затемняются
+   9с           заголовок и подзаголовок */
 
 .block1.is_playing .circle_img {
   animation:
     circleIn 0.8s ease forwards,
-    fadeDim 0.9s ease 7.4s forwards;
+    fadeDim 1.2s ease 8.4s forwards;
 }
 
 .block1.is_playing .circle6 {
-  animation-delay: 0.8s, 7.4s;
+  animation-delay: 0.8s, 8.4s;
 }
 .block1.is_playing .circle5 {
-  animation-delay: 0.95s, 7.4s;
+  animation-delay: 0.95s, 8.4s;
 }
 .block1.is_playing .circle4 {
-  animation-delay: 1.1s, 7.4s;
+  animation-delay: 1.1s, 8.4s;
 }
 .block1.is_playing .circle3 {
-  animation-delay: 1.25s, 7.4s;
+  animation-delay: 1.25s, 8.4s;
 }
 .block1.is_playing .circle2 {
-  animation-delay: 1.4s, 7.4s;
+  animation-delay: 1.4s, 8.4s;
 }
 .block1.is_playing .circle1 {
-  animation-delay: 1.55s, 7.4s;
+  animation-delay: 1.55s, 8.4s;
 }
 
 .block1.is_playing .line_horiz,
 .block1.is_playing .line_vertic {
   animation-name: lineGrowX, fadeDim;
-  animation-duration: 0.8s, 0.9s;
-  animation-delay: 0s, 7.4s;
+  animation-duration: 0.8s, 1.2s;
+  animation-delay: 0s, 8.4s;
   animation-timing-function: ease;
   animation-fill-mode: forwards;
 }
@@ -290,54 +514,61 @@ section {
   animation-name: lineGrowY, fadeDim;
 }
 
-/* точки проявляются на месте, начиная с самой большой орбиты */
+/* точки проявляются и гаснут только прозрачностью, без рывка размера */
 .block1.is_playing .dot {
   animation:
-    dotIn 0.4s ease forwards,
-    dotOut 0.5s ease 7s forwards;
+    dotIn 1s ease 1.9s forwards,
+    dotOut 1.2s ease 8s forwards;
 }
 
 .block1.is_playing .orbit1 .dot {
-  animation: dotIn 0.4s ease 2.3s forwards;
-}
-.block1.is_playing .orbit2 .dot {
-  animation-delay: 2.4s, 7s;
-}
-.block1.is_playing .orbit3 .dot {
-  animation-delay: 2.5s, 7s;
-}
-.block1.is_playing .orbit4 .dot {
-  animation-delay: 2.6s, 7s;
-}
-.block1.is_playing .orbit5 .dot {
-  animation-delay: 2.7s, 7s;
-}
-.block1.is_playing .orbit6 .dot {
-  animation-delay: 2.8s, 7s;
+  animation: dotIn 1s ease 1.9s forwards;
 }
 
-/* полный оборот: 0 → 360°, поэтому точка заканчивает там же, где начала */
+/* движение точки = общий оборот + веер.
+   orbit_spin: все точки вместе делают один оборот (0 → 360°) с мягким разгоном
+   и торможением и одновременно возвращаются на вертикаль.
+   orbit_fan: поверх оборота каждая точка плавно уходит вперёд и к концу
+   возвращается обратно. чем меньше орбита, тем дальше она уходит, поэтому
+   в середине движения точки стоят ровным веером через 36° и не обгоняют друг друга.
+   большая орбита почти не сдвигается, поэтому трогается вместе со всеми, без паузы */
 .block1.is_playing .orbit_spin {
-  animation: orbitSpin 3.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: orbitSpin 5.5s cubic-bezier(0.25, 0, 0.75, 1) 2.6s forwards;
 }
 
+.block1.is_playing .orbit_fan {
+  animation-duration: 5.5s;
+  animation-timing-function: cubic-bezier(0.35, 0, 0.65, 1);
+  animation-delay: 2.6s;
+  animation-fill-mode: forwards;
+}
+
+.block1.is_playing .orbit1 .orbit_fan {
+  animation-name: fan1;
+}
+.block1.is_playing .orbit2 .orbit_fan {
+  animation-name: fan2;
+}
+.block1.is_playing .orbit3 .orbit_fan {
+  animation-name: fan3;
+}
+.block1.is_playing .orbit4 .orbit_fan {
+  animation-name: fan4;
+}
+.block1.is_playing .orbit5 .orbit_fan {
+  animation-name: fan5;
+}
+.block1.is_playing .orbit6 .orbit_fan {
+  animation-name: fan6;
+}
+
+/* точка большой орбиты к концу оборота не тормозит до нуля, а выходит
+   ровно на скорость бесконечного вращения (один оборот за 20с),
+   поэтому переход в постоянное вращение не заметен */
 .block1.is_playing .orbit1 .orbit_spin {
-  animation-delay: 3s;
-}
-.block1.is_playing .orbit2 .orbit_spin {
-  animation-delay: 3.15s;
-}
-.block1.is_playing .orbit3 .orbit_spin {
-  animation-delay: 3.3s;
-}
-.block1.is_playing .orbit4 .orbit_spin {
-  animation-delay: 3.45s;
-}
-.block1.is_playing .orbit5 .orbit_spin {
-  animation-delay: 3.6s;
-}
-.block1.is_playing .orbit6 .orbit_spin {
-  animation-delay: 3.75s;
+  animation:
+    orbitSpin 5.5s cubic-bezier(0.25, 0, 0.75, 0.93) 2.6s forwards,
+    orbitSpin 20s linear 8.1s infinite;
 }
 
 .block1.is_playing .corner_txt {
@@ -345,11 +576,11 @@ section {
 }
 
 .block1.is_playing .main_title {
-  animation: slideUpTitle 0.8s ease 8s forwards;
+  animation: slideUpTitle 1s ease 9s forwards;
 }
 
 .block1.is_playing .main_subtitle {
-  animation: slideUpTitle 0.8s ease 8.3s forwards;
+  animation: slideUpTitle 1s ease 9.3s forwards;
 }
 
 /* запуск таймера — короткое мигание */
@@ -365,6 +596,8 @@ section {
   .block1.is_playing .line_vertic,
   .block1.is_playing .dot,
   .block1.is_playing .orbit_spin,
+  .block1.is_playing .orbit1 .orbit_spin,
+  .block1.is_playing .orbit_fan,
   .block1.is_playing .corner_txt,
   .block1.is_playing .main_title,
   .block1.is_playing .main_subtitle {
@@ -428,22 +661,18 @@ section {
 @keyframes dotIn {
   0% {
     opacity: 0;
-    transform: scale(0.6);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 @keyframes dotOut {
   0% {
     opacity: 1;
-    transform: scale(1);
   }
   100% {
     opacity: 0;
-    transform: scale(0);
   }
 }
 
@@ -453,6 +682,78 @@ section {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes fan1 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fan2 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(16deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fan3 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(52deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fan4 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(88deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fan5 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(124deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes fan6 {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(160deg);
+  }
+  100% {
+    transform: rotate(0deg);
   }
 }
 

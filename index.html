@@ -20,22 +20,34 @@
         <img class="circle_img circle6" src="./images/ellipse_6.svg" alt="" />
 
         <div class="orbit orbit1">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
         <div class="orbit orbit2">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
         <div class="orbit orbit3">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
         <div class="orbit orbit4">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
         <div class="orbit orbit5">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
         <div class="orbit orbit6">
-          <div class="orbit_spin"><div class="dot"></div></div>
+          <div class="orbit_spin">
+            <div class="orbit_fan"><div class="dot"></div></div>
+          </div>
         </div>
 
         <h1 class="main_title">33⅓</h1>
@@ -46,12 +58,85 @@
       </div>
 
       <p class="corner_txt side_txt">SIDE A</p>
-      <p class="corner_txt rpm_txt">33⅓ RPM</p>
+      <div class="corner_txt rpm_wrap">
+        <button
+          class="rpm_btn"
+          type="button"
+          aria-expanded="false"
+          aria-controls="rpm_panel"
+          aria-label="Что такое 33⅓ RPM"
+        >
+          <img src="./images/plus.svg" alt="" />
+        </button>
+        <p class="rpm_txt">33⅓ RPM</p>
+      </div>
       <p class="corner_txt timer_txt">00:00:00</p>
       <p class="corner_txt longread_txt">ЛОНГРИД</p>
+
+      <div class="rpm_panel" id="rpm_panel" aria-hidden="true">
+        <p class="rpm_panel_txt">
+          Скорость вращения пластинки: 33⅓ оборота в минуту (по-английски rpm,
+          revolutions per minute) <br />
+          С этой скоростью играет долгоиграющая пластинка (LP). Тот самый
+          12-дюймовый диск с альбомом, около 20 минут на сторону. Формат ввела
+          компания Columbia в 1948 году, и с тех пор «33» для меломана почти
+          синоним слова «альбом». Для сравнения: на 45 оборотах играют синглы,
+          маленькие пластинки на одну-две песни, а 78 оборотов — скорость старых
+          шеллаковых пластинок начала XX века.
+        </p>
+        <div class="rpm_panel_bottom">
+          <button class="rpm_close" type="button" aria-label="Закрыть">
+            <img src="./images/minus.svg" alt="" />
+          </button>
+          <p class="rpm_panel_title">33⅓ RPM что это?</p>
+        </div>
+      </div>
     </section>
 
-    <section class="block2"></section>
+    <section class="block2">
+      <div class="block2_sticky">
+        <div class="block2_stage">
+          <div class="block2_graph">
+            <img class="graph_line" src="./images/line_blck2.svg" alt="" />
+            <img class="graph_tick" src="./images/line_2_blck2.svg" alt="" />
+            <img class="graph_curve" src="./images/curve_blck2.svg" alt="" />
+            <svg
+              class="graph_curve graph_curve_line"
+              viewBox="0 0 1604 750"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1352.4 374.988C1291.24 210.322 1230.07 210.322 1168.9 374.988C1107.74 539.655 1046.57 539.655 985.404 374.988C924.238 210.322 863.071 210.322 801.904 374.988C740.738 539.655 679.571 539.655 618.404 374.988C557.238 210.322 496.071 210.322 434.904 374.988C373.738 539.655 312.571 539.655 251.404 374.988"
+                stroke="white"
+                stroke-width="2.69945"
+                pathLength="1"
+              />
+            </svg>
+            <div class="graph_dot"></div>
+            <p class="graph_label label_tracks">253 000 000</p>
+            <p class="graph_label label_disc">1 диск</p>
+          </div>
+
+          <div class="block2_text">
+            <p>
+              Сегодня в любом кармане помещается почти вся записанная музыка
+              человечества. К концу 2025 года на стриминговых сервисах лежало
+              253 миллиона треков, и каждый день в среднем добавлялось ещё 106
+              тысяч. И всё же в том же году американцы потратили на виниловые
+              пластинки больше миллиарда долларов впервые с 1983 года.
+            </p>
+            <p>
+              Одни уверены, что всё дело в звуке: тёплом, живом, настоящем.
+              Другие отвечают, что цифровой формат звучит точнее и чище. Этот
+              лонгрид — попытка разобраться, кто прав, и понять, почему при
+              огромном разнообразии цифрового звука люди всё равно тянутся к
+              физическим носителям.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="block3"></section>
 
