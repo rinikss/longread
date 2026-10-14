@@ -20,13 +20,33 @@ section {
   width: 100%;
 }
 
+/* пока на обложке идёт интро, страницу нельзя прокрутить */
+html.is_locked,
+html.is_locked body {
+  overflow: hidden;
+}
+
+/* зерно поверх всей страницы: прячет «ступеньки» в мягком свете
+   и даёт плёночную фактуру, как в макете. картинка шума — images/grain.svg */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  background-image: url("../images/grain.svg");
+  background-size: 240px 240px;
+  opacity: 0.07;
+  mix-blend-mode: screen;
+}
+
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* block1 — обложка */
 
 /* экран всегда равен высоте окна браузера */
 .block1 {
   height: 100vh;
-  margin-bottom: 8vh;
+  margin-bottom: 12vh;
   overflow-x: clip;
   overflow-y: visible;
 }
@@ -63,49 +83,93 @@ section {
   transform: scaleY(0);
 }
 
+/* круг = обёртка на всю сцену (её центр совпадает с центром круга, поэтому
+   масштаб в анимации идёт ровно от центра) + два слоя внутри:
+   ring_glow — свечение из Figma (webp), ring_line — чёткая линия (svg) */
 .circle_img {
   position: absolute;
+  inset: 0;
   opacity: 0;
   transform: scale(0.9);
+  transform-origin: 50% 50%;
   pointer-events: none;
 }
 
-.circle1 {
+.ring_glow,
+.ring_line {
+  position: absolute;
+}
+
+/* свечение трёх больших кругов в Figma обрезано рамкой кадра сверху и снизу —
+   мягко гасим края, чтобы не было ровной линии среза */
+.circle1 .ring_glow,
+.circle2 .ring_glow,
+.circle3 .ring_glow {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 18%,
+    #000 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 18%,
+    #000 82%,
+    transparent 100%
+  );
+}
+
+/* свечение большого круга экспортировано по размеру кадра 1440×1024 */
+.circle1 .ring_glow {
+  left: 0;
+  top: 0;
+  width: 100cqw;
+  height: 71.11cqw;
+}
+
+.circle1 .ring_line {
   left: -2.92cqw;
   top: -17.36cqw;
   width: 105.83cqw;
   height: 105.83cqw;
 }
 
-.circle2 {
+.circle2 .ring_glow,
+.circle2 .ring_line {
   left: 3.99cqw;
   top: 0;
   width: 92.01cqw;
   height: 71.11cqw;
 }
 
-.circle3 {
+.circle3 .ring_glow,
+.circle3 .ring_line {
   left: 10.76cqw;
   top: 0;
   width: 78.47cqw;
   height: 71.11cqw;
 }
 
-.circle4 {
+.circle4 .ring_glow,
+.circle4 .ring_line {
   left: 16.67cqw;
   top: 2.22cqw;
   width: 66.67cqw;
   height: 66.67cqw;
 }
 
-.circle5 {
+.circle5 .ring_glow,
+.circle5 .ring_line {
   left: 22.36cqw;
   top: 7.92cqw;
   width: 55.28cqw;
   height: 55.28cqw;
 }
 
-.circle6 {
+.circle6 .ring_glow,
+.circle6 .ring_line {
   left: 27.43cqw;
   top: 12.99cqw;
   width: 45.14cqw;
@@ -367,8 +431,17 @@ section {
   left: -15.17cqw;
   top: 18.1cqw;
   width: 130.35cqw;
+  aspect-ratio: 1877 / 503;
   transform: scaleX(0);
   transform-origin: 50% 50%;
+}
+
+/* внутри: свечение (webp) и чёткая линия (svg) одного размера */
+.graph_line img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* засечка у начала прямой */
@@ -381,8 +454,8 @@ section {
 }
 
 /* кривая из двух слоёв в одном месте:
-   картинка со свечением открывается мягкой маской чуть позади кончика,
-   а чёткая линия поверх неё рисуется точно по пути (stroke-dashoffset) */
+   свечение (webp) открывается мягкой маской чуть позади кончика,
+   а чёткая линия поверх него рисуется точно по пути (stroke-dashoffset) */
 .graph_curve {
   position: absolute;
   left: 1.67cqw;
@@ -420,12 +493,14 @@ section {
   transform: scale(0.6);
 }
 
+/* подписи графика: в начале 32px, к финалу плавно уменьшаются до 20px
+   (масштаб считает screens.js) */
 .graph_label {
   position: absolute;
   color: #fff;
   font-family: "Geist Mono", monospace;
   font-weight: 400;
-  font-size: 1.39cqw;
+  font-size: 2.22cqw;
   line-height: 120%;
   opacity: 0;
 }
@@ -434,13 +509,13 @@ section {
    поэтому у каждой своя точка опоры — угол, ближний к линии */
 .label_tracks {
   left: 2.22cqw;
-  top: 29.86cqw;
+  top: 28.93cqw;
   transform-origin: 0% 100%;
 }
 
 .label_disc {
   right: 2.22cqw;
-  top: 38.47cqw;
+  top: 41cqw;
   transform-origin: 100% 0%;
 }
 

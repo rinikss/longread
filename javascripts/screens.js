@@ -6,6 +6,23 @@ document.addEventListener("DOMContentLoaded", function () {
   const timerTxt = document.querySelector(".timer_txt");
   const subtitle = document.querySelector(".main_subtitle");
 
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  // блокируем скролл до конца интро и всегда начинаем с самого верха
+  function lockScroll() {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+    document.documentElement.classList.add("is_locked");
+  }
+
+  function unlockScroll() {
+    document.documentElement.classList.remove("is_locked");
+  }
+
+  if (!reduceMotion) lockScroll();
+
   function startIntro() {
     if (block1) block1.classList.add("is_playing");
   }
@@ -84,12 +101,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // таймер запускается, когда заголовок закончил появляться
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  // когда заголовок закончил появляться: запускаем таймер и открываем скролл
+  if (reduceMotion) {
     startTimer();
   } else if (subtitle) {
     subtitle.addEventListener("animationend", function (e) {
-      if (e.animationName === "slideUpTitle") startTimer();
+      if (e.animationName === "slideUpTitle") {
+        startTimer();
+        unlockScroll();
+      }
     });
   }
 
@@ -125,8 +145,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const GRAPH_SCALE = 0.505;
   const GRAPH_SHIFT = 16.94;
 
-  // точка в финале 45px (а не 64 × 0.505), подписи — своего размера
+  // точка в финале 45px (а не 64 × 0.505)
   const DOT_FINAL = 45 / 64;
+
+  // подписи: 32px → 20px
+  const LABEL_FINAL = 20 / 32;
 
   // часть отрезка [from, to], которую уже прошёл прогресс: 0…1
   function part(progress, from, to) {
@@ -185,8 +208,10 @@ document.addEventListener("DOMContentLoaded", function () {
     graph.style.transform =
       "translateY(" + -GRAPH_SHIFT * shrinkK + "cqw) scale(" + scale + ")";
 
-    // подписи сохраняют свой размер: делим на масштаб графика
-    const labelScale = 1 / scale;
+    // подписи: 32px в начале → 20px в финале, плавно вместе с графиком.
+    // делим на масштаб графика, чтобы размер зависел только от shrinkK
+    const labelSize = 1 - (1 - LABEL_FINAL) * shrinkK;
+    const labelScale = labelSize / scale;
     labelTracks.style.transform =
       "translateY(" + (1 - tracksK) * 1 + "cqw) scale(" + labelScale + ")";
     labelDisc.style.transform = "scale(" + labelScale + ")";
