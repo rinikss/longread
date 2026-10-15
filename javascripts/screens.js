@@ -494,4 +494,385 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     { passive: true },
   );
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block4 — слова по очереди, абзацы выезжают сбоку, затем волна и точки
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.6    слова и абзацы по очереди, длинными перекрывающимися отрезками
+  // 0.56 – 0.78   рисуется волна слева направо (со свечением)
+  // 0.7  – 0.86   точки по очереди появляются на волне
+  //
+  // точки сами по себе (не от скролла) бесконечно едут по волне слева направо
+  // друг за другом: доезжают до правого края за экраном и снова выезжают слева.
+  // скорость — DOT_LOOP (секунд на один проезд всей волны)
+  //
+  // прогресс не прыгает за скроллом, а догоняет его каждый кадр (SMOOTH_4),
+  // поэтому текст доплывает до места, даже когда колесо уже остановилось
+
+  const block4 = document.querySelector(".block4");
+  const bigWords = document.querySelectorAll(".big_word");
+  const wordTxts = document.querySelectorAll(".word_txt");
+  const waveMasks = document.querySelectorAll(".wave_mask_path");
+  const waveDots = document.querySelectorAll(".wave_dot");
+
+  // линия волны, по которой едут точки
+  const waveLine = document.querySelector(".wave_line_path");
+  const waveLen = waveLine ? waveLine.getTotalLength() : 0;
+
+  // секунд на один проезд точки по всей волне (меньше — быстрее)
+  const DOT_LOOP = 16;
+  // на каком отрезке у краёв волны точка гаснет/проявляется (в единицах svg)
+  const DOT_EDGE = 80;
+  // видимость каждой точки от скролла (0–1), обновляется в drawBlock4
+  const dotShow = [];
+  waveDots.forEach(function () {
+    dotShow.push(0);
+  });
+
+  const waveLengths = [];
+  waveMasks.forEach(function (path) {
+    waveLengths.push(path.getTotalLength());
+  });
+
+  // порядок появления: слово → его абзац → следующее слово
+  // [элемент, начало, конец] в долях прогресса
+  const block4Steps = [
+    [bigWords[0], 0.0, 0.12],
+    [bigWords[1], 0.06, 0.18],
+    [wordTxts[0], 0.1, 0.26],
+    [bigWords[2], 0.18, 0.3],
+    [wordTxts[1], 0.22, 0.38],
+    [bigWords[3], 0.3, 0.42],
+    [bigWords[4], 0.36, 0.48],
+    [wordTxts[2], 0.4, 0.56],
+    [bigWords[5], 0.48, 0.6],
+  ];
+
+  // насколько абзацы выезжают сбоку (справа), в cqw
+  const SIDE_SHIFT = 4;
+  // насколько быстро показанный прогресс догоняет скролл за кадр (0–1)
+  const SMOOTH_4 = 0.09;
+
+  // мягкое торможение без рывка в начале — для текста
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function getProgress4() {
+    const rect = block4.getBoundingClientRect();
+    const scrollable = block4.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  let shown4 = 0;
+  let running4 = false;
+
+  function drawBlock4(progress) {
+    block4Steps.forEach(function (step) {
+      const el = step[0];
+      const k = easeOut(part(progress, step[1], step[2]));
+      el.style.opacity = k;
+      if (el.classList.contains("word_txt")) {
+        el.style.transform = "translate(" + (1 - k) * SIDE_SHIFT + "cqw, -50%)";
+      } else {
+        el.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+      }
+    });
+
+    // волна: путь в svg идёт справа налево, поэтому открываем его с конца
+    const waveK = ease(part(progress, 0.56, 0.78));
+    waveMasks.forEach(function (path, i) {
+      const len = waveLengths[i];
+      const shown = waveK * len;
+      path.style.strokeDasharray = shown + " " + (len - shown + 1);
+      path.style.strokeDashoffset = -(len - shown);
+    });
+
+    // точки проявляются по очереди, когда волна почти дорисована
+    waveDots.forEach(function (dot, i) {
+      const from = 0.7 + i * 0.04;
+      dotShow[i] = ease(part(progress, from, from + 0.04));
+    });
+    startDots();
+  }
+
+  // \\\\\\\\\\\\\\  // бесконечное движение точек по волне.
+  // точки стоят на равном расстоянии друг от друга и едут вместе, как бусины на нитке
+  let dotsRunning = false;
+  let block4Visible = false;
+  const dotsStart = performance.now();
+
+  function moveDots(now) {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const t = reduce ? 0 : (now - dotsStart) / 1000;
+    const shift = (t / DOT_LOOP) * waveLen;
+    const n = waveDots.length;
+
+    waveDots.forEach(function (dot, i) {
+      // сколько точка проехала от левого края волны
+      const d =
+        (shift + ((n - 1 - i) / n) * waveLen + waveLen * 0.08) % waveLen;
+      // путь в svg идёт справа налево: левый край — конец пути
+      const pt = waveLine.getPointAtLength(waveLen - d);
+      dot.setAttribute("cx", pt.x);
+      dot.setAttribute("cy", pt.y);
+      // у краёв волны (за экраном) точка гаснет, чтобы перескок был незаметен
+      const edge = Math.min(1, d / DOT_EDGE, (waveLen - d) / DOT_EDGE);
+      dot.style.opacity = dotShow[i] * edge;
+    });
+  }
+
+  function dotsFrame(now) {
+    moveDots(now);
+    const anyShown = dotShow.some(function (v) {
+      return v > 0;
+    });
+    if (block4Visible && anyShown) {
+      window.requestAnimationFrame(dotsFrame);
+    } else {
+      dotsRunning = false;
+    }
+  }
+
+  function startDots() {
+    if (dotsRunning || !waveLine) return;
+    dotsRunning = true;
+    window.requestAnimationFrame(dotsFrame);
+  }
+
+  // каждый кадр подтягиваем показанный прогресс к настоящему,
+  // пока не догоним — потом цикл засыпает до следующего скролла
+  function tick4() {
+    const target = getProgress4();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown4 = reduce ? target : shown4 + (target - shown4) * SMOOTH_4;
+    if (Math.abs(target - shown4) < 0.0005) shown4 = target;
+    drawBlock4(shown4);
+    if (shown4 !== target) {
+      window.requestAnimationFrame(tick4);
+    } else {
+      running4 = false;
+    }
+  }
+
+  function onScroll4() {
+    if (running4) return;
+    running4 = true;
+    window.requestAnimationFrame(tick4);
+  }
+
+  if (block4) {
+    window.addEventListener("scroll", onScroll4, { passive: true });
+    window.addEventListener("resize", onScroll4);
+    // точки крутятся, только пока экран виден — чтобы не грузить страницу зря
+    new IntersectionObserver(function (entries) {
+      block4Visible = entries[0].isIntersecting;
+      if (block4Visible) startDots();
+    }).observe(block4);
+
+    shown4 = getProgress4();
+    drawBlock4(shown4);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block5 — «сторона б: цифра точнее». логика как на 4 экране
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.36   заголовок и два абзаца по очереди
+  // 0.32 – 0.7    ступени рисуются слева направо (со свечением)
+  // 0.7  – 0.89   точки по очереди появляются, когда ступени дорисованы
+  //
+  // точки сами по себе бесконечно едут по ступеням слева направо друг за другом:
+  // уезжают за правый край окна и снова выезжают слева.
+  // скорость — STEP_LOOP (секунд на один проезд по видимой части ступеней)
+
+  const block5 = document.querySelector(".block5");
+  const block5Title = document.querySelector(".block5_title");
+  const block5Ps = document.querySelectorAll(".block5_text p");
+  const steps = document.querySelector(".steps");
+  const stepsLine = document.querySelector(".steps_line");
+  const stepsWipe = document.querySelector("#steps_wipe");
+  // ширина мягкого края шторки свечения (в единицах svg)
+  const WIPE_SOFT = 160;
+  const stepsDots = document.querySelectorAll(".steps_dot");
+  const stepsLen = stepsLine ? stepsLine.getTotalLength() : 0;
+
+  const STEP_LOOP = 24;
+  const STEP_EDGE = 80;
+  const SMOOTH_5 = 0.09;
+
+  // таблица «x → длина пути до этой точки», чтобы знать,
+  // какой кусок линии сейчас виден в окне
+  const stepsTable = [];
+  if (stepsLine) {
+    for (let l = 0; l <= stepsLen; l += 4) {
+      stepsTable.push([stepsLine.getPointAtLength(l).x, l]);
+    }
+  }
+
+  function lengthAtX(x) {
+    // первая точка пути, у которой x не меньше нужного
+    for (let i = 0; i < stepsTable.length; i++) {
+      if (stepsTable[i][0] >= x) return stepsTable[i][1];
+    }
+    return stepsLen;
+  }
+
+  const block5Steps = [
+    [block5Title, 0.0, 0.14],
+    [block5Ps[0], 0.08, 0.26],
+    [block5Ps[1], 0.18, 0.36],
+  ];
+
+  const stepsShow = [];
+  stepsDots.forEach(function () {
+    stepsShow.push(0);
+  });
+
+  function getProgress5() {
+    const rect = block5.getBoundingClientRect();
+    const scrollable = block5.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  let shown5 = 0;
+  let running5 = false;
+
+  function drawBlock5(progress) {
+    block5Steps.forEach(function (step) {
+      const el = step[0];
+      const k = easeOut(part(progress, step[1], step[2]));
+      el.style.opacity = k;
+      el.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+    });
+
+    // ступени: путь идёт слева направо, открываем его с начала
+    const k = ease(part(progress, 0.32, 0.7));
+    // концы линии далеко за окном — рисуем только видимую часть, чтобы
+    // скорость рисования не уходила на невидимые хвосты
+    const vis = visibleRange();
+    let dash = vis[0] + (vis[1] - vis[0]) * k;
+    if (k <= 0) dash = 0;
+    if (k >= 1) dash = stepsLen;
+    stepsLine.style.strokeDasharray = dash + " " + (stepsLen + 1);
+
+    // свечение: шторка доходит ровно до кончика линии
+    let tipX = stepsLine.getPointAtLength(dash).x;
+    if (k <= 0) tipX = -2000;
+    if (k >= 1) tipX = 4000;
+    stepsWipe.setAttribute("x1", tipX - WIPE_SOFT);
+    stepsWipe.setAttribute("x2", tipX);
+
+    stepsDots.forEach(function (dot, i) {
+      const from = 0.7 + i * 0.03;
+      stepsShow[i] = ease(part(progress, from, from + 0.04));
+    });
+    startSteps();
+  }
+
+  // какой отрезок пути (по длине) сейчас попадает в окно
+  function visibleRange() {
+    const rect = steps.getBoundingClientRect();
+    const scale = rect.width / 1644;
+    const xMin = (0 - rect.left) / scale;
+    const xMax = (window.innerWidth - rect.left) / scale;
+    return [lengthAtX(xMin), lengthAtX(xMax)];
+  }
+
+  function tick5() {
+    const target = getProgress5();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown5 = reduce ? target : shown5 + (target - shown5) * SMOOTH_5;
+    if (Math.abs(target - shown5) < 0.0005) shown5 = target;
+    drawBlock5(shown5);
+    if (shown5 !== target) {
+      window.requestAnimationFrame(tick5);
+    } else {
+      running5 = false;
+    }
+  }
+
+  function onScroll5() {
+    if (running5) return;
+    running5 = true;
+    window.requestAnimationFrame(tick5);
+  }
+
+  // бесконечное движение точек по ступеням
+  let stepsRunning = false;
+  let block5Visible = false;
+  const stepsStart = performance.now();
+
+  function moveSteps(now) {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const t = reduce ? 0 : (now - stepsStart) / 1000;
+    const vis = visibleRange();
+    // чуть шире окна, чтобы точка уезжала за край целиком
+    const from = Math.max(0, vis[0] - 60);
+    const span = Math.min(stepsLen, vis[1] + 60) - from;
+    const n = stepsDots.length;
+
+    stepsDots.forEach(function (dot, i) {
+      const d = ((t / STEP_LOOP + (n - 1 - i) / n + 0.05) % 1) * span;
+      const pt = stepsLine.getPointAtLength(from + d);
+      dot.setAttribute("cx", pt.x);
+      dot.setAttribute("cy", pt.y);
+      const edge = Math.min(1, d / STEP_EDGE, (span - d) / STEP_EDGE);
+      dot.style.opacity = stepsShow[i] * edge;
+    });
+  }
+
+  function stepsFrame(now) {
+    moveSteps(now);
+    const anyShown = stepsShow.some(function (v) {
+      return v > 0;
+    });
+    if (block5Visible && anyShown) {
+      window.requestAnimationFrame(stepsFrame);
+    } else {
+      stepsRunning = false;
+    }
+  }
+
+  function startSteps() {
+    if (stepsRunning || !stepsLine) return;
+    stepsRunning = true;
+    window.requestAnimationFrame(stepsFrame);
+  }
+
+  if (block5 && stepsLine) {
+    window.addEventListener("scroll", onScroll5, { passive: true });
+    window.addEventListener("resize", onScroll5);
+
+    new IntersectionObserver(function (entries) {
+      block5Visible = entries[0].isIntersecting;
+      if (block5Visible) startSteps();
+    }).observe(block5);
+
+    shown5 = getProgress5();
+    drawBlock5(shown5);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // подпись в левом верхнем углу: SIDE A → SIDE B,
+  // когда 5 экран («сторона б») доходит до середины окна
+  const sideTxt = document.querySelector(".side_txt");
+
+  function updateSide() {
+    if (!sideTxt || !block5) return;
+    const sideB = block5.getBoundingClientRect().top < window.innerHeight / 2;
+    const txt = sideB ? "SIDE B" : "SIDE A";
+    if (sideTxt.textContent !== txt) sideTxt.textContent = txt;
+  }
+
+  window.addEventListener("scroll", updateSide, { passive: true });
+  updateSide();
 });

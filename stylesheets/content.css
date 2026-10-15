@@ -805,6 +805,214 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block4 — «пластинку не включают фоном. её ставят.»
+   по скроллу: слова появляются по очереди, абзацы выезжают сбоку,
+   затем рисуется волна и появляются точки */
+
+.block4 {
+  height: 500vh;
+}
+
+.block4_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block4_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* большие слова: Bebas 128px, 30px от левого края окна */
+.big_word {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 8.89cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.word1 {
+  top: 6.47cqw;
+}
+.word2 {
+  top: 15.15cqw;
+}
+.word3 {
+  top: 23.97cqw;
+}
+.word4 {
+  top: 32.65cqw;
+}
+.word5 {
+  top: 41.33cqw;
+}
+.word6 {
+  top: 41.33cqw;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw + 56.88cqw);
+}
+
+/* абзацы: 20px, в 30px справа от своего слова, по центру слова по высоте */
+.word_txt {
+  position: absolute;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 125%;
+  opacity: 0;
+  transform: translateY(-50%);
+  will-change: transform, opacity;
+}
+
+.word_txt1 {
+  left: calc((100cqw - 100vw) / 2 + 2.08vw + 8.47cqw);
+  top: 19.04cqw;
+  width: 36.11cqw;
+}
+
+.word_txt2 {
+  left: calc((100cqw - 100vw) / 2 + 2.08vw + 33.89cqw);
+  top: 27.86cqw;
+  width: 61.11cqw;
+}
+
+.word_txt3 {
+  left: calc((100cqw - 100vw) / 2 + 2.08vw + 8.47cqw);
+  top: 45.22cqw;
+  width: 45.56cqw;
+}
+
+/* волна внизу экрана во всю ширину окна и чуть шире (по 2vw за края).
+   по высоте сжата до 60% от макета, чтобы освободить место тексту */
+.wave {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 - 2vw);
+  top: 60cqw;
+  width: 104vw;
+  transform: translateY(-50%);
+  height: auto;
+  overflow: visible;
+}
+
+/* точки на своём слое: их движение не перерисовывает свечение */
+.wave_dots {
+  will-change: transform;
+}
+
+.wave_dot {
+  fill: #fff;
+  opacity: 0;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block5 — «сторона б: цифра точнее»
+   по скроллу: заголовок и абзацы, затем рисуются ступени со свечением,
+   потом точки едут по ступеням по кругу (как на 4 экране) */
+
+.block5 {
+  height: 400vh;
+}
+
+.block5_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block5_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* заголовок как на 3 экране: Bebas 64px, 30px от левого края окна */
+.block5_title {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 6.94cqw;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 4.44cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* текст 24px */
+.block5_text {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 13.75cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 130%;
+}
+
+.block5_text p {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.block5_p1 {
+  width: 67cqw;
+}
+
+.block5_p2 {
+  width: 43cqw;
+  margin-top: 1.3cqw;
+}
+
+/* ступени: 1644×656 по макету, рисунок по центру сцены, низ у нижнего края.
+   концы линии уходят далеко за svg, чтобы на широком окне их не было видно */
+.steps {
+  position: absolute;
+  left: -10.24cqw;
+  top: 31.28cqw;
+  width: 114.17cqw;
+  height: auto;
+  overflow: visible;
+}
+
+/* точки на своём слое: их движение не перерисовывает свечение */
+.steps_dots {
+  will-change: transform;
+}
+
+.steps_line {
+  stroke-dasharray: 0 99999;
+}
+
+.steps_dot {
+  fill: #fff;
+  opacity: 0;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* анимация обложки, запускается классом is_playing из screens.js
 
    0 – 0.8с     линии вырастают из центра
