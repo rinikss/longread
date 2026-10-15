@@ -515,7 +515,7 @@ body::after {
 
 .label_disc {
   right: 2.22cqw;
-  top: 41cqw;
+  top: 39.17cqw;
   transform-origin: 100% 0%;
 }
 
@@ -536,6 +536,248 @@ body::after {
 
 .block2_text p + p {
   margin-top: 1.04cqw;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block3 — «формат, который похоронили дважды».
+   анимация по скроллу, как на втором экране: эллипсы рисуются, диск уезжает
+   вправо вниз и уменьшается, появляются заголовок, текст и точки с годами */
+
+.block3 {
+  height: 700vh;
+}
+
+.block3_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block3_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* весь диск — один слой, общий центр эллипсов = центр сцены */
+.block3_disk {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* в каждом svg: свечение (webp) и линия, обе открываются по одному контуру —
+   линия тонкой маской, свечение широкой размытой */
+.disk_line {
+  position: absolute;
+  overflow: visible;
+  height: auto;
+}
+
+/* маска рисует линию: screens.js меняет длину видимого отрезка */
+.disk_mask_path {
+  stroke-dasharray: 0 100000;
+}
+
+.disk_line1 {
+  left: 7.64cqw;
+  top: 3.96cqw;
+  width: 84.72cqw;
+}
+
+.disk_line2 {
+  left: 16.28cqw;
+  top: 10.42cqw;
+  width: 67.43cqw;
+}
+
+.disk_line3 {
+  left: 24.13cqw;
+  top: 16.25cqw;
+  width: 51.74cqw;
+}
+
+.disk_line4 {
+  left: 32.22cqw;
+  top: 22.29cqw;
+  width: 35.56cqw;
+}
+
+/* точки с годами, 44px; появляются по очереди от 1948 к 2025 */
+.year_dot {
+  position: absolute;
+  width: 3.06cqw;
+  height: 3.06cqw;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 1.4cqw rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.year_label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.56cqw);
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: "Geist Mono", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 120%;
+  white-space: nowrap;
+}
+
+/* карточка года: 308px, открывается по клику на точку и перекрывает её,
+   нижний край стоит над подписью года. положение считает screens.js */
+.year_card {
+  position: absolute;
+  width: 21.39cqw;
+  padding: 1.11cqw 1.11cqw 1.25cqw;
+  background: #fff;
+  color: #111111;
+  z-index: 3;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(0.56cqw);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+
+.year_card.is_open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    visibility 0s linear 0s;
+}
+
+.year_card_title {
+  padding-right: 2.5cqw;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 700;
+  font-size: 1.67cqw;
+  line-height: 110%;
+}
+
+.year_card_txt {
+  margin-top: 0.56cqw;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 0.97cqw;
+  line-height: 130%;
+}
+
+.year_card_close {
+  position: absolute;
+  right: 0.83cqw;
+  top: 0.83cqw;
+  width: 1.67cqw;
+  height: 1.67cqw;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.year_card_close img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.year_card_close:hover {
+  transform: scale(1.08);
+}
+
+.year_card_close:focus-visible,
+.year_dot:focus-visible {
+  outline: 0.14vw solid #fff;
+  outline-offset: 0.2vw;
+}
+
+.year_card_close:focus-visible {
+  outline-color: #111111;
+}
+
+/* фактоиды: появляются на месте текста. цифры Bebas 128px, подписи 20px,
+   между группами 80px */
+.block3_facts {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5.56cqw;
+  color: #fff;
+  pointer-events: none;
+}
+
+.fact {
+  opacity: 0;
+}
+
+.fact_num {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 8.89cqw;
+  line-height: 85%;
+  text-transform: uppercase;
+}
+
+.fact_txt {
+  margin-top: 0.83cqw;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 120%;
+}
+
+.block3_title {
+  position: absolute;
+  /* 30px от левого края окна, даже если сцена уже окна */
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 6.94cqw;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 4.44cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+  opacity: 0;
+}
+
+.block3_text {
+  position: absolute;
+  /* 30px от левого края окна, даже если сцена уже окна */
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 13.75cqw;
+  width: 48.6cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 125%;
+  opacity: 0;
+}
+
+.block3_text p + p {
+  margin-top: 0.9cqw;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
