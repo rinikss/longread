@@ -116,7 +116,11 @@
         <div class="block2_stage">
           <div class="block2_graph">
             <div class="graph_line">
-              <img src="./images/line_blck2_glow.webp" alt="" />
+              <img
+                class="line_glow"
+                src="./images/line_blck2_glow.webp"
+                alt=""
+              />
               <img src="./images/line_blck2.svg" alt="" />
             </div>
             <img class="graph_tick" src="./images/line_2_blck2.svg" alt="" />
@@ -201,6 +205,34 @@
               >
                 <feGaussianBlur stdDeviation="40" />
               </filter>
+              <pattern
+                id="grain_pat1"
+                patternUnits="userSpaceOnUse"
+                width="200"
+                height="200"
+              >
+                <image
+                  href="./images/grain_mask.png"
+                  width="200"
+                  height="200"
+                />
+              </pattern>
+              <mask
+                id="grain_mask1"
+                maskUnits="userSpaceOnUse"
+                x="-396"
+                y="-396"
+                width="2013"
+                height="1703"
+              >
+                <rect
+                  x="-396"
+                  y="-396"
+                  width="2013"
+                  height="1703"
+                  fill="url(#grain_pat1)"
+                />
+              </mask>
               <mask
                 id="disk_gmask1"
                 maskUnits="userSpaceOnUse"
@@ -221,14 +253,16 @@
                   filter="url(#disk_soft1)"
                 />
               </mask>
-              <image
-                href="./images/disk_1_glow.webp"
-                x="-296.5"
-                y="-296.5"
-                width="1813"
-                height="1503"
-                mask="url(#disk_gmask1)"
-              />
+              <g mask="url(#disk_gmask1)">
+                <image
+                  href="./images/disk_1_glow.webp"
+                  x="-296.5"
+                  y="-296.5"
+                  width="1813"
+                  height="1503"
+                  mask="url(#grain_mask1)"
+                />
+              </g>
               <g mask="url(#disk_mask1)">
                 <ellipse
                   cx="633.37"
@@ -276,6 +310,34 @@
               >
                 <feGaussianBlur stdDeviation="40" />
               </filter>
+              <pattern
+                id="grain_pat2"
+                patternUnits="userSpaceOnUse"
+                width="200"
+                height="200"
+              >
+                <image
+                  href="./images/grain_mask.png"
+                  width="200"
+                  height="200"
+                />
+              </pattern>
+              <mask
+                id="grain_mask2"
+                maskUnits="userSpaceOnUse"
+                x="-396"
+                y="-396"
+                width="1763"
+                height="1517"
+              >
+                <rect
+                  x="-396"
+                  y="-396"
+                  width="1763"
+                  height="1517"
+                  fill="url(#grain_pat2)"
+                />
+              </mask>
               <mask
                 id="disk_gmask2"
                 maskUnits="userSpaceOnUse"
@@ -296,14 +358,16 @@
                   filter="url(#disk_soft2)"
                 />
               </mask>
-              <image
-                href="./images/disk_2_glow.webp"
-                x="-296.0"
-                y="-296.5"
-                width="1563"
-                height="1317"
-                mask="url(#disk_gmask2)"
-              />
+              <g mask="url(#disk_gmask2)">
+                <image
+                  href="./images/disk_2_glow.webp"
+                  x="-296.0"
+                  y="-296.5"
+                  width="1563"
+                  height="1317"
+                  mask="url(#grain_mask2)"
+                />
+              </g>
               <g mask="url(#disk_mask2)">
                 <ellipse
                   cx="503.411"
@@ -350,6 +414,34 @@
               >
                 <feGaussianBlur stdDeviation="40" />
               </filter>
+              <pattern
+                id="grain_pat3"
+                patternUnits="userSpaceOnUse"
+                width="200"
+                height="200"
+              >
+                <image
+                  href="./images/grain_mask.png"
+                  width="200"
+                  height="200"
+                />
+              </pattern>
+              <mask
+                id="grain_mask3"
+                maskUnits="userSpaceOnUse"
+                x="-396"
+                y="-396"
+                width="1538"
+                height="1349"
+              >
+                <rect
+                  x="-396"
+                  y="-396"
+                  width="1538"
+                  height="1349"
+                  fill="url(#grain_pat3)"
+                />
+              </mask>
               <mask
                 id="disk_gmask3"
                 maskUnits="userSpaceOnUse"
@@ -370,14 +462,16 @@
                   filter="url(#disk_soft3)"
                 />
               </mask>
-              <image
-                href="./images/disk_3_glow.webp"
-                x="-296.5"
-                y="-296.5"
-                width="1338"
-                height="1149"
-                mask="url(#disk_gmask3)"
-              />
+              <g mask="url(#disk_gmask3)">
+                <image
+                  href="./images/disk_3_glow.webp"
+                  x="-296.5"
+                  y="-296.5"
+                  width="1338"
+                  height="1149"
+                  mask="url(#grain_mask3)"
+                />
+              </g>
               <g mask="url(#disk_mask3)">
                 <ellipse
                   cx="386.266"
@@ -425,6 +519,34 @@
               >
                 <feGaussianBlur stdDeviation="40" />
               </filter>
+              <pattern
+                id="grain_pat4"
+                patternUnits="userSpaceOnUse"
+                width="200"
+                height="200"
+              >
+                <image
+                  href="./images/grain_mask.png"
+                  width="200"
+                  height="200"
+                />
+              </pattern>
+              <mask
+                id="grain_mask4"
+                maskUnits="userSpaceOnUse"
+                x="-396"
+                y="-396"
+                width="1304"
+                height="1174"
+              >
+                <rect
+                  x="-396"
+                  y="-396"
+                  width="1304"
+                  height="1174"
+                  fill="url(#grain_pat4)"
+                />
+              </mask>
               <mask
                 id="disk_gmask4"
                 maskUnits="userSpaceOnUse"
@@ -445,14 +567,16 @@
                   filter="url(#disk_soft4)"
                 />
               </mask>
-              <image
-                href="./images/disk_4_glow.webp"
-                x="-296.2"
-                y="-296.2"
-                width="1104.5"
-                height="974.5"
-                mask="url(#disk_gmask4)"
-              />
+              <g mask="url(#disk_gmask4)">
+                <image
+                  href="./images/disk_4_glow.webp"
+                  x="-296.2"
+                  y="-296.2"
+                  width="1104.5"
+                  height="974.5"
+                  mask="url(#grain_mask4)"
+                />
+              </g>
               <g mask="url(#disk_mask4)">
                 <ellipse
                   cx="264.654"

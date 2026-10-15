@@ -26,20 +26,6 @@ html.is_locked body {
   overflow: hidden;
 }
 
-/* зерно поверх всей страницы: прячет «ступеньки» в мягком свете
-   и даёт плёночную фактуру, как в макете. картинка шума — images/grain.svg */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  pointer-events: none;
-  background-image: url("../images/grain.svg");
-  background-size: 240px 240px;
-  opacity: 0.07;
-  mix-blend-mode: screen;
-}
-
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* block1 — обложка */
 
@@ -100,25 +86,49 @@ body::after {
   position: absolute;
 }
 
+/* зерно только на свечении: маска из шума (images/grain_mask.png) */
+.ring_glow,
+.graph_line .line_glow,
+.graph_curve {
+  -webkit-mask-image: url("../images/grain_mask.png");
+  mask-image: url("../images/grain_mask.png");
+  -webkit-mask-size: 200px 200px;
+  mask-size: 200px 200px;
+}
+
 /* свечение трёх больших кругов в Figma обрезано рамкой кадра сверху и снизу —
    мягко гасим края, чтобы не было ровной линии среза */
 .circle1 .ring_glow,
 .circle2 .ring_glow,
 .circle3 .ring_glow {
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
+  -webkit-mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 18%,
+      #000 82%,
+      transparent 100%
+    );
+  mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 18%,
+      #000 82%,
+      transparent 100%
+    );
+  -webkit-mask-size:
+    200px 200px,
+    100% 100%;
+  mask-size:
+    200px 200px,
+    100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 /* свечение большого круга экспортировано по размеру кадра 1440×1024 */
@@ -461,8 +471,22 @@ body::after {
   left: 1.67cqw;
   top: 9.51cqw;
   width: 111.39cqw;
-  -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 0%);
-  mask-image: linear-gradient(to right, #000 0%, transparent 0%);
+  -webkit-mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(to right, transparent, transparent);
+  mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(to right, transparent, transparent);
+  -webkit-mask-size:
+    200px 200px,
+    100% 100%;
+  mask-size:
+    200px 200px,
+    100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .graph_curve_line {

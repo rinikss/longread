@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (typeof Lenis !== "undefined" && !reduceMotion) {
     const lenis = new Lenis({
-      lerp: 0.03,
+      lerp: 0.01,
       wheelMultiplier: 1,
     });
 

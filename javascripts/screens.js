@@ -15,10 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
     document.documentElement.classList.add("is_locked");
+    if (window.lenis) window.lenis.stop();
   }
 
   function unlockScroll() {
     document.documentElement.classList.remove("is_locked");
+    if (window.lenis) window.lenis.start();
   }
 
   if (!reduceMotion) lockScroll();
@@ -142,6 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const CURVE_START = 15.67;
   const CURVE_END = 84.32;
 
+  // зерно на свечении (путь от index.html)
+  const GRAIN_MASK = 'url("./images/grain_mask.png")';
+
   // финал графика: масштаб 0.505 и подъём на 244px макета
   const GRAPH_SCALE = 0.505;
   const GRAPH_SHIFT = 16.94;
@@ -193,16 +198,21 @@ document.addEventListener("DOMContentLoaded", function () {
     graphCurvePath.style.strokeDashoffset = -1 + curveK;
 
     const edge = CURVE_START + (CURVE_END - CURVE_START) * curveK;
-    const mask =
-      curveK >= 1
-        ? "none"
-        : curveK <= 0
-          ? "linear-gradient(to right, transparent, transparent)"
-          : "linear-gradient(to right, #000 " +
-            (edge - 8) +
-            "%, transparent " +
-            edge +
-            "%)";
+    let reveal;
+    if (curveK >= 1) {
+      reveal = "linear-gradient(#000, #000)";
+    } else if (curveK <= 0) {
+      reveal = "linear-gradient(to right, transparent, transparent)";
+    } else {
+      reveal =
+        "linear-gradient(to right, #000 " +
+        (edge - 8) +
+        "%, transparent " +
+        edge +
+        "%)";
+    }
+    // первый слой — зерно, второй открывает свечение слева направо
+    const mask = GRAIN_MASK + ", " + reveal;
     graphCurve.style.webkitMaskImage = mask;
     graphCurve.style.maskImage = mask;
 
