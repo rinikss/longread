@@ -20,6 +20,16 @@ section {
   width: 100%;
 }
 
+/* свечение всех линий рисуется на одном canvas под контентом (java-script.js) */
+.glow_canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
 /* пока на обложке идёт интро, страницу нельзя прокрутить */
 html.is_locked,
 html.is_locked body {
@@ -70,8 +80,8 @@ html.is_locked body {
 }
 
 /* круг = обёртка на всю сцену (её центр совпадает с центром круга, поэтому
-   масштаб в анимации идёт ровно от центра) + два слоя внутри:
-   ring_glow — свечение из Figma (webp), ring_line — чёткая линия (svg) */
+   масштаб в анимации идёт ровно от центра). внутри — чёткая линия (svg),
+   свечение рисует canvas (см. java-script.js) */
 .circle_img {
   position: absolute;
   inset: 0;
@@ -81,62 +91,8 @@ html.is_locked body {
   pointer-events: none;
 }
 
-.ring_glow,
 .ring_line {
   position: absolute;
-}
-
-/* зерно только на свечении: маска из шума (images/grain_mask.png) */
-.ring_glow,
-.graph_line .line_glow,
-.graph_curve {
-  -webkit-mask-image: url("../images/grain_mask.png");
-  mask-image: url("../images/grain_mask.png");
-  -webkit-mask-size: 200px 200px;
-  mask-size: 200px 200px;
-}
-
-/* свечение трёх больших кругов в Figma обрезано рамкой кадра сверху и снизу —
-   мягко гасим края, чтобы не было ровной линии среза */
-.circle1 .ring_glow,
-.circle2 .ring_glow,
-.circle3 .ring_glow {
-  -webkit-mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      #000 18%,
-      #000 82%,
-      transparent 100%
-    );
-  mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      #000 18%,
-      #000 82%,
-      transparent 100%
-    );
-  -webkit-mask-size:
-    200px 200px,
-    100% 100%;
-  mask-size:
-    200px 200px,
-    100% 100%;
-  -webkit-mask-repeat: repeat, no-repeat;
-  mask-repeat: repeat, no-repeat;
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-/* свечение большого круга экспортировано по размеру кадра 1440×1024 */
-.circle1 .ring_glow {
-  left: 0;
-  top: 0;
-  width: 100cqw;
-  height: 71.11cqw;
 }
 
 .circle1 .ring_line {
@@ -146,7 +102,6 @@ html.is_locked body {
   height: 105.83cqw;
 }
 
-.circle2 .ring_glow,
 .circle2 .ring_line {
   left: 3.99cqw;
   top: 0;
@@ -154,7 +109,6 @@ html.is_locked body {
   height: 71.11cqw;
 }
 
-.circle3 .ring_glow,
 .circle3 .ring_line {
   left: 10.76cqw;
   top: 0;
@@ -162,7 +116,6 @@ html.is_locked body {
   height: 71.11cqw;
 }
 
-.circle4 .ring_glow,
 .circle4 .ring_line {
   left: 16.67cqw;
   top: 2.22cqw;
@@ -170,7 +123,6 @@ html.is_locked body {
   height: 66.67cqw;
 }
 
-.circle5 .ring_glow,
 .circle5 .ring_line {
   left: 22.36cqw;
   top: 7.92cqw;
@@ -178,7 +130,6 @@ html.is_locked body {
   height: 55.28cqw;
 }
 
-.circle6 .ring_glow,
 .circle6 .ring_line {
   left: 27.43cqw;
   top: 12.99cqw;
@@ -446,7 +397,7 @@ html.is_locked body {
   transform-origin: 50% 50%;
 }
 
-/* внутри: свечение (webp) и чёткая линия (svg) одного размера */
+/* внутри — чёткая линия (svg); свечение рисует canvas */
 .graph_line img {
   position: absolute;
   inset: 0;
@@ -463,37 +414,15 @@ html.is_locked body {
   transform: scaleY(0);
 }
 
-/* кривая из двух слоёв в одном месте:
-   свечение (webp) открывается мягкой маской чуть позади кончика,
-   а чёткая линия поверх него рисуется точно по пути (stroke-dashoffset) */
-.graph_curve {
+/* кривая: чёткая линия рисуется точно по пути (stroke-dashoffset),
+   свечение рисует canvas */
+.graph_curve_line {
   position: absolute;
   left: 1.67cqw;
   top: 9.51cqw;
   width: 111.39cqw;
-  -webkit-mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(to right, transparent, transparent);
-  mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(to right, transparent, transparent);
-  -webkit-mask-size:
-    200px 200px,
-    100% 100%;
-  mask-size:
-    200px 200px,
-    100% 100%;
-  -webkit-mask-repeat: repeat, no-repeat;
-  mask-repeat: repeat, no-repeat;
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-.graph_curve_line {
   height: auto;
   aspect-ratio: 1604 / 750;
-  -webkit-mask-image: none;
-  mask-image: none;
 }
 
 /* путь в svg идёт справа налево, поэтому рисуем его с конца:
@@ -1157,45 +1086,7 @@ html.is_locked body {
   transform-origin: 50% 50%;
 }
 
-/* свечение линии: 1940×502 при линии 1440 — шире линии на 250px с каждой стороны.
-   открывается от центра вместе с линией (--open задаёт screens.js) */
-.b6_line_glow {
-  --open: 0%;
-  position: absolute;
-  opacity: 0;
-  left: -17.36vw;
-  top: -17.43cqw;
-  width: 134.72vw;
-  height: 34.86cqw;
-  -webkit-mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(
-      to right,
-      transparent calc(50% - var(--open) - 6%),
-      #000 calc(50% - var(--open)),
-      #000 calc(50% + var(--open)),
-      transparent calc(50% + var(--open) + 6%)
-    );
-  mask-image:
-    url("../images/grain_mask.png"),
-    linear-gradient(
-      to right,
-      transparent calc(50% - var(--open) - 6%),
-      #000 calc(50% - var(--open)),
-      #000 calc(50% + var(--open)),
-      transparent calc(50% + var(--open) + 6%)
-    );
-  -webkit-mask-size:
-    200px 200px,
-    100% 100%;
-  mask-size:
-    200px 200px,
-    100% 100%;
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-/* кружок 48px по центру линии, свечение 270px */
+/* кружок 48px по центру линии */
 .b6_point {
   position: absolute;
   left: 50cqw;
@@ -1212,19 +1103,6 @@ html.is_locked body {
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.b6_point_glow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18.75cqw;
-  height: 18.75cqw;
-  transform: translate(-50%, -50%);
-  -webkit-mask-image: url("../images/grain_mask.png");
-  mask-image: url("../images/grain_mask.png");
-  -webkit-mask-size: 200px 200px;
-  mask-size: 200px 200px;
 }
 
 /* вопрос: Bebas 128px, по центру */
@@ -1246,6 +1124,255 @@ html.is_locked body {
   display: block;
   opacity: 0;
   will-change: transform, opacity;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block7 — «50 %»
+   по скроллу: рисуется круг, цифра считает от 0 до 50, подпись, затем абзацы */
+
+.block7 {
+  height: 400vh;
+}
+
+.block7_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block7_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* круг r=447 с центром в (250, 512) макета; svg во всю сцену */
+.b7_circle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.b7_circle_line {
+  stroke-dasharray: 0 1;
+}
+
+/* фактоид: Bebas 336px, подпись 20px #B5B5B5, между ними 15px.
+   вместе стоят по центру видимой части круга: по высоте — центр круга
+   (y = 512 макета), по горизонтали — середина между краем экрана
+   и правым краем круга (x = 348 макета). цифра и подпись — по центру друг друга */
+.b7_fact {
+  position: absolute;
+  left: 18cqw;
+  top: 35.56cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.b7_num {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 23.33cqw;
+  line-height: 100%;
+  /* срезаем пустоту над и под цифрами: блок = ровно высота цифр */
+  margin: -0.05em 0 -0.25em;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* число: ширина задаётся из screens.js, цифры прижаты вправо к «%» */
+.b7_count {
+  display: inline-block;
+  text-align: right;
+}
+
+.b7_cap {
+  margin-top: 1.04cqw;
+  color: #b5b5b5;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 300;
+  font-size: 1.39cqw;
+  line-height: 125%;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* наборный текст 24px справа */
+.block7_text {
+  position: absolute;
+  left: 53.89cqw;
+  top: 27.6cqw;
+  /* до правого края окна, с отступом 30px, как у подписей в углах */
+  width: calc((100vw - 100cqw) / 2 + 100cqw - 53.89cqw - 2.08vw);
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 125%;
+}
+
+.b7_p {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.b7_p + .b7_p {
+  margin-top: 1.67cqw;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block8 — «двадцать минут, которые нельзя пролистать»
+   по скроллу: заголовок и подзаголовок, затем 6 шагов по очереди в центре:
+   рисунок прорисовывается, появляются подпись и описание, шаг уезжает вверх */
+
+.block8 {
+  height: 1100vh;
+}
+
+.block8_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block8_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* заголовок Bebas 64px по центру */
+.block8_title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12.2cqw;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 4.44cqw;
+  line-height: 100%;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* подзаголовок 20px */
+.block8_sub {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 17.36cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 125%;
+  text-align: center;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* шаг: рисунок 447×447 по центру, под ним подпись и описание */
+.b8_step {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.b8_pic {
+  position: absolute;
+  left: 34.48cqw;
+  top: 24.31cqw;
+  width: 31.04cqw;
+  height: 31.04cqw;
+  overflow: visible;
+}
+
+.b8_draw {
+  stroke-dasharray: 0 1;
+}
+
+.b8_fill {
+  opacity: 0;
+}
+
+/* подпись с номером: моно 20px, светится */
+.b8_label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50.1cqw;
+  color: #fff;
+  font-family: "Geist Mono", monospace;
+  font-weight: 400;
+  font-size: 1.39cqw;
+  line-height: 120%;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 0.6cqw rgba(255, 255, 255, 0.7),
+    0 0 1.8cqw rgba(255, 255, 255, 0.35);
+  opacity: 0;
+}
+
+/* итоговый текст 24px: колонка по центру экрана, строки по левому краю */
+.block8_text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 125%;
+  transform: translate(-50%, -50%);
+}
+
+.b8_p {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.b8_p + .b8_p {
+  margin-top: 1.67cqw;
+}
+
+/* описание 24px */
+.b8_txt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 54.6cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 125%;
+  text-align: center;
+  opacity: 0;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */

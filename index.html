@@ -13,27 +13,21 @@
 
       <div class="block1_stage">
         <div class="circle_img circle1">
-          <img class="ring_glow" src="./images/ellipse_1_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_1.svg" alt="" />
         </div>
         <div class="circle_img circle2">
-          <img class="ring_glow" src="./images/ellipse_2_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_2.svg" alt="" />
         </div>
         <div class="circle_img circle3">
-          <img class="ring_glow" src="./images/ellipse_3_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_3.svg" alt="" />
         </div>
         <div class="circle_img circle4">
-          <img class="ring_glow" src="./images/ellipse_4_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_4.svg" alt="" />
         </div>
         <div class="circle_img circle5">
-          <img class="ring_glow" src="./images/ellipse_5_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_5.svg" alt="" />
         </div>
         <div class="circle_img circle6">
-          <img class="ring_glow" src="./images/ellipse_6_glow.webp" alt="" />
           <img class="ring_line" src="./images/ellipse_6.svg" alt="" />
         </div>
 
@@ -116,19 +110,9 @@
         <div class="block2_stage">
           <div class="block2_graph">
             <div class="graph_line">
-              <img
-                class="line_glow"
-                src="./images/line_blck2_glow.webp"
-                alt=""
-              />
               <img src="./images/line_blck2.svg" alt="" />
             </div>
             <img class="graph_tick" src="./images/line_2_blck2.svg" alt="" />
-            <img
-              class="graph_curve"
-              src="./images/curve_blck2_glow.webp"
-              alt=""
-            />
             <svg
               class="graph_curve graph_curve_line"
               viewBox="0 0 1604 750"
@@ -196,75 +180,9 @@
                   stroke-width="8"
                 />
               </mask>
-              <filter
-                id="disk_soft1"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="140%"
-              >
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-              <pattern
-                id="grain_pat1"
-                patternUnits="userSpaceOnUse"
-                width="200"
-                height="200"
-              >
-                <image
-                  href="./images/grain_mask.png"
-                  width="200"
-                  height="200"
-                />
-              </pattern>
-              <mask
-                id="grain_mask1"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="2013"
-                height="1703"
-              >
-                <rect
-                  x="-396"
-                  y="-396"
-                  width="2013"
-                  height="1703"
-                  fill="url(#grain_pat1)"
-                />
-              </mask>
-              <mask
-                id="disk_gmask1"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="2013"
-                height="1703"
-              >
-                <ellipse
-                  class="disk_mask_path disk_glow_path"
-                  cx="633.37"
-                  cy="418.365"
-                  rx="633.37"
-                  ry="418.365"
-                  transform="matrix(-0.929475 0.368885 0.368885 0.929475 1044.3 -167.594)"
-                  stroke="white"
-                  stroke-width="260"
-                  filter="url(#disk_soft1)"
-                />
-              </mask>
-              <g mask="url(#disk_gmask1)">
-                <image
-                  href="./images/disk_1_glow.webp"
-                  x="-296.5"
-                  y="-296.5"
-                  width="1813"
-                  height="1503"
-                  mask="url(#grain_mask1)"
-                />
-              </g>
               <g mask="url(#disk_mask1)">
                 <ellipse
+                  class="disk_ellipse"
                   cx="633.37"
                   cy="418.365"
                   rx="633.37"
@@ -301,75 +219,9 @@
                   stroke-width="8"
                 />
               </mask>
-              <filter
-                id="disk_soft2"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="140%"
-              >
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-              <pattern
-                id="grain_pat2"
-                patternUnits="userSpaceOnUse"
-                width="200"
-                height="200"
-              >
-                <image
-                  href="./images/grain_mask.png"
-                  width="200"
-                  height="200"
-                />
-              </pattern>
-              <mask
-                id="grain_mask2"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1763"
-                height="1517"
-              >
-                <rect
-                  x="-396"
-                  y="-396"
-                  width="1763"
-                  height="1517"
-                  fill="url(#grain_pat2)"
-                />
-              </mask>
-              <mask
-                id="disk_gmask2"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1763"
-                height="1517"
-              >
-                <ellipse
-                  class="disk_mask_path disk_glow_path"
-                  cx="503.411"
-                  cy="332.522"
-                  rx="503.411"
-                  ry="332.522"
-                  transform="matrix(-0.929475 0.368885 0.368885 0.929475 830.27 -132.963)"
-                  stroke="white"
-                  stroke-width="260"
-                  filter="url(#disk_soft2)"
-                />
-              </mask>
-              <g mask="url(#disk_gmask2)">
-                <image
-                  href="./images/disk_2_glow.webp"
-                  x="-296.0"
-                  y="-296.5"
-                  width="1563"
-                  height="1317"
-                  mask="url(#grain_mask2)"
-                />
-              </g>
               <g mask="url(#disk_mask2)">
                 <ellipse
+                  class="disk_ellipse"
                   cx="503.411"
                   cy="332.522"
                   rx="503.411"
@@ -405,75 +257,9 @@
                   stroke-width="8"
                 />
               </mask>
-              <filter
-                id="disk_soft3"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="140%"
-              >
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-              <pattern
-                id="grain_pat3"
-                patternUnits="userSpaceOnUse"
-                width="200"
-                height="200"
-              >
-                <image
-                  href="./images/grain_mask.png"
-                  width="200"
-                  height="200"
-                />
-              </pattern>
-              <mask
-                id="grain_mask3"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1538"
-                height="1349"
-              >
-                <rect
-                  x="-396"
-                  y="-396"
-                  width="1538"
-                  height="1349"
-                  fill="url(#grain_pat3)"
-                />
-              </mask>
-              <mask
-                id="disk_gmask3"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1538"
-                height="1349"
-              >
-                <ellipse
-                  class="disk_mask_path disk_glow_path"
-                  cx="386.266"
-                  cy="255.143"
-                  rx="386.266"
-                  ry="255.143"
-                  transform="matrix(-0.929475 0.368885 0.368885 0.929475 637.328 -101.746)"
-                  stroke="white"
-                  stroke-width="260"
-                  filter="url(#disk_soft3)"
-                />
-              </mask>
-              <g mask="url(#disk_gmask3)">
-                <image
-                  href="./images/disk_3_glow.webp"
-                  x="-296.5"
-                  y="-296.5"
-                  width="1338"
-                  height="1149"
-                  mask="url(#grain_mask3)"
-                />
-              </g>
               <g mask="url(#disk_mask3)">
                 <ellipse
+                  class="disk_ellipse"
                   cx="386.266"
                   cy="255.143"
                   rx="386.266"
@@ -510,75 +296,9 @@
                   stroke-width="8"
                 />
               </mask>
-              <filter
-                id="disk_soft4"
-                x="-20%"
-                y="-20%"
-                width="140%"
-                height="140%"
-              >
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-              <pattern
-                id="grain_pat4"
-                patternUnits="userSpaceOnUse"
-                width="200"
-                height="200"
-              >
-                <image
-                  href="./images/grain_mask.png"
-                  width="200"
-                  height="200"
-                />
-              </pattern>
-              <mask
-                id="grain_mask4"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1304"
-                height="1174"
-              >
-                <rect
-                  x="-396"
-                  y="-396"
-                  width="1304"
-                  height="1174"
-                  fill="url(#grain_pat4)"
-                />
-              </mask>
-              <mask
-                id="disk_gmask4"
-                maskUnits="userSpaceOnUse"
-                x="-396"
-                y="-396"
-                width="1304"
-                height="1174"
-              >
-                <ellipse
-                  class="disk_mask_path disk_glow_path"
-                  cx="264.654"
-                  cy="174.814"
-                  rx="264.654"
-                  ry="174.814"
-                  transform="matrix(-0.929475 0.368885 0.368885 0.929475 437.053 -69.3398)"
-                  stroke="white"
-                  stroke-width="260"
-                  filter="url(#disk_soft4)"
-                />
-              </mask>
-              <g mask="url(#disk_gmask4)">
-                <image
-                  href="./images/disk_4_glow.webp"
-                  x="-296.2"
-                  y="-296.2"
-                  width="1104.5"
-                  height="974.5"
-                  mask="url(#grain_mask4)"
-                />
-              </g>
               <g mask="url(#disk_mask4)">
                 <ellipse
+                  class="disk_ellipse"
                   cx="264.654"
                   cy="174.814"
                   rx="264.654"
@@ -805,56 +525,6 @@
             fill="none"
             aria-hidden="true"
           >
-            <pattern
-              id="wave_grain_pat"
-              patternUnits="userSpaceOnUse"
-              width="200"
-              height="200"
-            >
-              <image href="./images/grain_mask.png" width="200" height="200" />
-            </pattern>
-            <mask
-              id="wave_grain"
-              maskUnits="userSpaceOnUse"
-              x="-350"
-              y="-350"
-              width="2151"
-              height="885"
-            >
-              <rect
-                x="-350"
-                y="-350"
-                width="2151"
-                height="885"
-                fill="url(#wave_grain_pat)"
-              />
-            </mask>
-            <filter
-              id="wave_soft"
-              filterUnits="userSpaceOnUse"
-              x="-350"
-              y="-350"
-              width="2151"
-              height="885"
-            >
-              <feGaussianBlur stdDeviation="40" />
-            </filter>
-            <mask
-              id="wave_glow_mask"
-              maskUnits="userSpaceOnUse"
-              x="-350"
-              y="-350"
-              width="2151"
-              height="885"
-            >
-              <path
-                class="wave_mask_path"
-                d="M1449.83 55.5C1369.33 -17.7 1288.83 -17.7 1208.33 55.5C1127.83 128.7 1047.33 128.7 966.834 55.5C886.334 -17.7 805.834 -17.7 725.334 55.5C644.834 128.7 564.334 128.7 483.834 55.5C403.334 -17.7 322.834 -17.7 242.334 55.5C161.834 128.7 81.334 128.7 0.834025 55.5"
-                stroke="white"
-                stroke-width="300"
-                filter="url(#wave_soft)"
-              />
-            </mask>
             <mask
               id="wave_line_mask"
               maskUnits="userSpaceOnUse"
@@ -870,17 +540,6 @@
                 stroke-width="8"
               />
             </mask>
-            <g mask="url(#wave_glow_mask)">
-              <image
-                href="./images/curve_blck4_glow.webp"
-                x="-250"
-                y="-150"
-                width="1951"
-                height="411"
-                preserveAspectRatio="none"
-                mask="url(#wave_grain)"
-              />
-            </g>
             <g mask="url(#wave_line_mask)">
               <path
                 class="wave_line_path"
@@ -937,138 +596,6 @@
             fill="none"
             aria-hidden="true"
           >
-            <pattern
-              id="steps_grain_pat"
-              patternUnits="userSpaceOnUse"
-              width="200"
-              height="200"
-            >
-              <image href="./images/grain_mask.png" width="200" height="200" />
-            </pattern>
-            <mask
-              id="steps_grain"
-              maskUnits="userSpaceOnUse"
-              x="-900"
-              y="-400"
-              width="3600"
-              height="1456"
-            >
-              <rect
-                x="-900"
-                y="-400"
-                width="3600"
-                height="1456"
-                fill="url(#steps_grain_pat)"
-              />
-            </mask>
-            <!-- свечение открывается шторкой слева направо ровно до кончика линии:
-                 мягкий край градиента (x1 → x2) двигается вместе с линией из screens.js -->
-            <linearGradient
-              id="steps_wipe"
-              gradientUnits="userSpaceOnUse"
-              x1="-2000"
-              y1="0"
-              x2="-1900"
-              y2="0"
-            >
-              <stop offset="0" stop-color="white" />
-              <stop offset="1" stop-color="black" />
-            </linearGradient>
-            <mask
-              id="steps_glow_mask"
-              maskUnits="userSpaceOnUse"
-              x="-900"
-              y="-500"
-              width="3600"
-              height="1656"
-            >
-              <rect
-                x="-900"
-                y="-500"
-                width="3600"
-                height="1656"
-                fill="url(#steps_wipe)"
-              />
-            </mask>
-            <!-- свечение делится на две половины с мягким стыком посередине:
-                 правую screens.js сжимает по высоте вместе со ступенями винила -->
-            <linearGradient
-              id="steps_left_fade"
-              gradientUnits="userSpaceOnUse"
-              x1="967"
-              y1="0"
-              x2="1047"
-              y2="0"
-            >
-              <stop offset="0" stop-color="white" />
-              <stop offset="1" stop-color="black" />
-            </linearGradient>
-            <linearGradient
-              id="steps_right_fade"
-              gradientUnits="userSpaceOnUse"
-              x1="967"
-              y1="0"
-              x2="1047"
-              y2="0"
-            >
-              <stop offset="0" stop-color="black" />
-              <stop offset="1" stop-color="white" />
-            </linearGradient>
-            <mask
-              id="steps_left_mask"
-              maskUnits="userSpaceOnUse"
-              x="-900"
-              y="-500"
-              width="3600"
-              height="1656"
-            >
-              <rect
-                x="-900"
-                y="-500"
-                width="3600"
-                height="1656"
-                fill="url(#steps_left_fade)"
-              />
-            </mask>
-            <mask
-              id="steps_right_mask"
-              maskUnits="userSpaceOnUse"
-              x="-900"
-              y="-500"
-              width="3600"
-              height="1656"
-            >
-              <rect
-                x="-900"
-                y="-500"
-                width="3600"
-                height="1656"
-                fill="url(#steps_right_fade)"
-              />
-            </mask>
-            <g mask="url(#steps_glow_mask)">
-              <g mask="url(#steps_left_mask)">
-                <image
-                  href="./images/steps_blck5_glow.webp"
-                  x="-862"
-                  y="-162"
-                  width="3456"
-                  height="980"
-                  mask="url(#steps_grain)"
-                />
-              </g>
-              <g mask="url(#steps_right_mask)">
-                <image
-                  href="./images/steps_blck5_glow.webp"
-                  x="-862"
-                  y="-162"
-                  width="3456"
-                  height="980"
-                  mask="url(#steps_grain)"
-                  class="steps_glow_right"
-                />
-              </g>
-            </g>
             <path class="steps_line" stroke="white" stroke-width="2" />
           </svg>
 
@@ -1135,22 +662,12 @@
 
           <!-- линия на всю ширину окна: рисуется от кружка к краям -->
           <div class="b6_line">
-            <img
-              class="b6_line_glow"
-              src="./images/line_blck6_glow.webp"
-              alt=""
-            />
             <!-- сама линия — простая полоска 2px: svg-картинка не растягивается
                  на окна шире 1440 -->
             <div class="b6_line_svg"></div>
           </div>
 
           <div class="b6_point">
-            <img
-              class="b6_point_glow"
-              src="./images/point_blck6_glow.webp"
-              alt=""
-            />
             <img class="b6_point_svg" src="./images/point_blck6.svg" alt="" />
           </div>
 
@@ -1162,9 +679,549 @@
       </div>
     </section>
 
-    <section class="block7"></section>
+    <section class="block7">
+      <div class="block7_sticky">
+        <div class="block7_stage">
+          <!-- круг: рисуется от верхней точки по часовой стрелке -->
+          <svg
+            class="b7_circle"
+            viewBox="0 0 1440 1024"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              class="b7_circle_line"
+              cx="250"
+              cy="512"
+              r="447"
+              stroke="white"
+              stroke-width="2"
+              pathLength="1"
+              transform="rotate(-90 250 512)"
+            />
+          </svg>
 
-    <section class="block8"></section>
+          <div class="b7_fact">
+            <p class="b7_num"><span class="b7_count">50</span>&nbsp;%</p>
+            <p class="b7_cap">
+              покупателей винила в США не имеют проигрывателя
+            </p>
+          </div>
+
+          <div class="block7_text">
+            <p class="b7_p">
+              Половина покупателей пластинок физически не может их послушать. И
+              это не случайность последних лет. Ещё в 2016 году британский опрос
+              ICM показал: 41% покупателей винила имеют проигрыватель, но не
+              пользуются им, а ещё 7% не имеют его вовсе.
+            </p>
+            <p class="b7_p">
+              Значит, человек покупает пластинку не только ради звука. Он
+              покупает саму вещь.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block8">
+      <div class="block8_sticky">
+        <div class="block8_stage">
+          <h2 class="block8_title">
+            Двадцать минут, которые нельзя пролистать
+          </h2>
+          <p class="block8_sub">
+            Чтобы послушать пластинку, нужно сделать<br />
+            несколько действий.
+          </p>
+
+          <!-- шаги сменяют друг друга в центре по скроллу -->
+          <div class="b8_step" data-step="1">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M55.875 357.596H391.125"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M100.57 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M125.16 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M149.744 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M174.324 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M198.918 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M223.5 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M248.082 335.255V106.168"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M248.082 113.985C252.403 113.985 255.905 110.483 255.905 106.162C255.905 101.842 252.403 98.3398 248.082 98.3398C243.762 98.3398 240.26 101.842 240.26 106.162C240.26 110.483 243.762 113.985 248.082 113.985Z"
+                fill="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M272.668 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M297.256 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M321.838 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M346.422 335.254V167.629"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M248.082 156.453V154.421M248.082 122.928V124.96M248.082 132.071V136.135M248.082 143.246V147.31"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+            </svg>
+            <p class="b8_label">1. Выбрать</p>
+            <p class="b8_txt">Найти нужный конверт на полке.</p>
+          </div>
+          <div class="b8_step" data-step="2">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M67.0469 122.922H268.197V324.072H67.0469V122.922Z"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M268.2 129.17A94.99 94.99 0 1 1 268.2 317.83"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M268.2 191.92A33.525 33.525 0 1 1 268.2 255.08"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M279.374 227.973C281.843 227.973 283.844 225.972 283.844 223.503C283.844 221.034 281.843 219.033 279.374 219.033C276.906 219.033 274.904 221.034 274.904 223.503C274.904 225.972 276.906 227.973 279.374 227.973Z"
+                fill="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M385.539 223.5H415.712"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M404.537 213.443L415.712 223.501L404.537 233.558"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+            </svg>
+            <p class="b8_label">2. Достать</p>
+            <p class="b8_txt">Вынуть диск</p>
+          </div>
+          <div class="b8_step" data-step="3">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M44.209 44.209H401.809V401.809H44.209V44.209Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M362.7 234.181C362.7 317.5 295.156 385.043 211.837 385.043C128.518 385.043 60.9746 317.5 60.9746 234.181C60.9746 150.862 128.518 83.3184 211.837 83.3184C295.156 83.3184 362.7 150.862 362.7 234.181Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M340.347 234.192C340.347 305.168 282.81 362.705 211.835 362.705C140.859 362.705 83.3223 305.168 83.3223 234.192C83.3223 163.217 140.859 105.68 211.835 105.68C282.81 105.68 340.347 163.217 340.347 234.192Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M317.771 227.238C317.92 229.535 317.995 231.853 317.995 234.188C317.995 236.523 317.92 238.84 317.771 241.138M315.974 213.469C315.067 208.883 313.864 204.403 312.387 200.051M307.068 187.223C305.008 183.054 302.683 179.04 300.113 175.202M291.651 164.19C288.594 160.707 285.313 157.426 281.831 154.369M270.818 145.907C266.98 143.338 262.966 141.012 258.797 138.952M245.97 133.633C241.617 132.156 237.137 130.953 232.551 130.046M218.782 128.249C216.485 128.101 214.167 128.025 211.832 128.025C209.497 128.025 207.18 128.101 204.882 128.249M191.114 130.046C186.528 130.953 182.048 132.156 177.695 133.633M164.868 138.952C160.699 141.012 156.684 143.338 152.847 145.907M141.834 154.369C138.351 157.426 135.07 160.707 132.014 164.19M123.551 175.202C120.982 179.04 118.657 183.054 116.597 187.223M111.278 200.051C109.8 204.403 108.598 208.883 107.691 213.469M105.894 227.238C105.745 229.535 105.67 231.853 105.67 234.188C105.67 236.523 105.745 238.84 105.894 241.138M107.691 254.907C108.598 259.493 109.8 263.972 111.278 268.325M116.597 281.153C118.657 285.322 120.982 289.336 123.551 293.173M132.014 304.186C135.07 307.669 138.351 310.95 141.834 314.007M152.847 322.469C156.684 325.038 160.699 327.364 164.868 329.424M177.695 334.743C182.048 336.22 186.528 337.422 191.114 338.33M204.882 340.127C207.18 340.275 209.497 340.35 211.832 340.35C214.167 340.35 216.485 340.275 218.782 340.127M232.551 338.33C237.137 337.422 241.617 336.22 245.97 334.743M258.797 329.424C262.966 327.364 266.98 325.038 270.818 322.469M281.831 314.006C285.313 310.95 288.594 307.669 291.651 304.186M300.114 293.173C302.683 289.336 305.008 285.322 307.068 281.153M312.387 268.325C313.864 263.972 315.067 259.493 315.974 254.907"
+                stroke-width="1.87799"
+                stroke-linecap="square"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M295.646 234.184C295.646 280.472 258.122 317.996 211.834 317.996C165.546 317.996 128.021 280.472 128.021 234.184C128.021 187.895 165.546 150.371 211.834 150.371C258.122 150.371 295.646 187.895 295.646 234.184Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M254.299 234.182C254.299 257.635 235.287 276.647 211.834 276.647C188.381 276.647 169.369 257.635 169.369 234.182C169.369 210.729 188.381 191.717 211.834 191.717C235.287 191.717 254.299 210.729 254.299 234.182Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M211.837 238.653C214.306 238.653 216.307 236.652 216.307 234.183C216.307 231.714 214.306 229.713 211.837 229.713C209.368 229.713 207.367 231.714 207.367 234.183C207.367 236.652 209.368 238.653 211.837 238.653Z"
+                fill="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M389.517 88.9106C389.517 97.5511 382.512 104.556 373.872 104.556C365.231 104.556 358.227 97.5511 358.227 88.9106C358.227 80.2701 365.231 73.2656 373.872 73.2656C382.512 73.2656 389.517 80.2701 389.517 88.9106Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M373.869 104.559L385.044 278.889L368.281 312.414"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M368.281 317.993C371.367 317.993 373.868 315.492 373.868 312.406C373.868 309.32 371.367 306.818 368.281 306.818C365.195 306.818 362.693 309.32 362.693 312.406C362.693 315.492 365.195 317.993 368.281 317.993Z"
+                fill="white"
+              />
+            </svg>
+            <p class="b8_label">3. Положить</p>
+            <p class="b8_txt">Смахнуть пыль и поставить на проигрыватель.</p>
+          </div>
+          <div class="b8_step" data-step="4">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M379.951 329.661C379.951 343.239 304.903 354.246 212.326 354.246C119.749 354.246 44.7012 343.239 44.7012 329.661C44.7012 316.083 119.749 305.076 212.326 305.076C304.903 305.076 379.951 316.083 379.951 329.661Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M363.186 318.49C363.186 329.599 295.642 338.605 212.323 338.605C129.004 338.605 61.4609 329.599 61.4609 318.49C61.4609 307.381 129.004 298.375 212.323 298.375C295.642 298.375 363.186 307.381 363.186 318.49Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M44.7012 329.668V355.37"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M379.951 329.668V355.37"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M44.7012 355.365C44.7012 361.886 62.3616 368.139 93.7974 372.749C125.233 377.36 167.869 379.95 212.326 379.95C256.783 379.95 299.419 377.36 330.855 372.749C362.291 368.139 379.951 361.886 379.951 355.365"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M401.185 167.625C401.185 176.266 394.18 183.27 385.54 183.27C376.899 183.27 369.895 176.266 369.895 167.625C369.895 158.985 376.899 151.98 385.54 151.98C394.18 151.98 401.185 158.985 401.185 167.625Z"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M385.531 183.273V335.253"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M372.124 174.326L122.922 254.786"
+                stroke-width="1.87799"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M122.924 267.083C127.244 267.083 130.747 263.58 130.747 259.26C130.747 254.94 127.244 251.438 122.924 251.438C118.604 251.438 115.102 254.94 115.102 259.26C115.102 263.58 118.604 267.083 122.924 267.083Z"
+                fill="white"
+              />
+              <path
+                class="b8_fill"
+                d="M123.861 273.789C123.861 273.27 123.44 272.85 122.922 272.85C122.403 272.85 121.983 273.27 121.983 273.789H122.922H123.861ZM121.983 310.667C121.983 311.185 122.403 311.606 122.922 311.606C123.44 311.606 123.861 311.185 123.861 310.667H122.922H121.983ZM121.983 276.862V277.801H123.861V276.862H122.922H121.983ZM123.861 283.008V282.069H121.983V283.008H122.922H123.861ZM121.983 289.155V290.094H123.861V289.155H122.922H121.983ZM123.861 295.301V294.362H121.983V295.301H122.922H123.861ZM121.983 301.447V302.386H123.861V301.447H122.922H121.983ZM123.861 307.593V306.654H121.983V307.593H122.922H123.861ZM122.922 273.789H121.983V276.862H122.922H123.861V273.789H122.922ZM122.922 283.008H121.983V289.155H122.922H123.861V283.008H122.922ZM122.922 295.301H121.983V301.447H122.922H123.861V295.301H122.922ZM122.922 307.593H121.983V310.667H122.922H123.861V307.593H122.922Z"
+                fill="white"
+              />
+            </svg>
+            <p class="b8_label">4. Опустить иглу</p>
+            <p class="b8_txt">
+              Услышать короткое потрескивание перед первой нотой.
+            </p>
+          </div>
+          <div class="b8_step" data-step="5">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M390.967 241.654C390.967 334.231 315.919 409.279 223.342 409.279C130.765 409.279 55.7168 334.231 55.7168 241.654C55.7168 149.078 130.765 74.0293 223.342 74.0293C315.919 74.0293 390.967 149.078 390.967 241.654Z"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M265.801 241.656C265.801 265.109 246.789 284.121 223.336 284.121C199.883 284.121 180.871 265.109 180.871 241.656C180.871 218.204 199.883 199.191 223.336 199.191C246.789 199.191 265.801 218.204 265.801 241.656Z"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M223.336 246.126C225.805 246.126 227.806 244.124 227.806 241.656C227.806 239.187 225.805 237.186 223.336 237.186C220.867 237.186 218.866 239.187 218.866 241.656C218.866 244.124 220.867 246.126 223.336 246.126Z"
+                fill="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M223.338 90.793L215.739 91.24L208.252 92.0222L200.765 93.1397L193.389 94.7042L186.126 96.604L178.974 98.9507L171.933 101.521L165.005 104.538L158.3 107.891L151.818 111.467L145.449 115.49L139.302 119.736L133.491 124.318L127.792 129.123L122.428 134.264L117.288 139.628L112.482 145.215L108.012 151.026L103.766 157.061L99.8547 163.319L96.2787 169.688L93.0379 176.282L90.1324 182.987L87.5622 189.915L85.3272 196.844L83.5392 203.884L81.9747 211.036L80.8572 218.188L80.0749 225.34L79.7397 232.604L79.6279 239.867L79.9632 247.019L80.6337 254.283L81.7512 261.323L83.0922 268.364L84.8802 275.404L87.0034 282.221L89.3502 288.926L92.1439 295.519L95.2729 301.889L98.6254 308.147L102.313 314.293L106.336 320.104L110.583 325.803L115.164 331.167L119.97 336.308L124.998 341.225L130.251 345.918L135.726 350.276L141.426 354.299L147.348 358.099L153.383 361.563L159.641 364.692L166.011 367.598L172.492 370.056L179.085 372.291L185.79 374.079L192.495 375.532L199.312 376.761L206.129 377.543L213.057 377.99L219.874 378.102L226.803 377.879L233.619 377.32L240.324 376.426L247.029 375.085L253.734 373.52L260.216 371.621L266.586 369.386L272.844 366.815L278.99 364.022L285.024 360.781L290.835 357.317L296.423 353.629L301.787 349.606L306.927 345.359L311.956 340.889L316.65 336.084L321.12 331.167L325.254 326.027L329.166 320.663L332.853 315.075L336.206 309.376L339.223 303.453L342.017 297.53L344.475 291.384L346.599 285.126L348.387 278.868L349.839 272.498L351.069 266.017L351.851 259.535L352.41 253.054L352.521 246.572L352.41 239.979L351.963 233.609L351.069 227.128L349.951 220.758L348.61 214.5L346.822 208.242L344.811 202.208L342.464 196.285L339.782 190.362L336.876 184.775L333.636 179.187L330.171 173.823L326.484 168.683L322.461 163.766L318.214 159.072L313.856 154.49L309.162 150.244L304.245 146.221L299.217 142.533L294.076 138.957L288.712 135.716L283.125 132.811L277.537 130.129L271.726 127.782L265.915 125.771L259.992 123.983L253.958 122.53L247.812 121.301L241.777 120.518L235.631 119.96L229.485 119.736H223.338L217.192 120.183L211.158 120.854L205.123 121.859L199.2 123.089L193.278 124.765L187.578 126.553L181.879 128.788L176.403 131.246L170.928 133.928L165.787 136.834L160.647 140.075L155.73 143.539L151.036 147.227L146.566 151.25L142.32 155.384L138.185 159.743L134.385 164.213L130.809 168.906L127.457 173.823L124.328 178.852L121.534 183.992L118.964 189.245L116.617 194.72L114.717 200.196L112.929 205.784L111.477 211.483L110.359 217.182L109.465 222.881L108.906 228.692L108.683 234.392V240.203L109.018 246.014L109.577 251.713L110.471 257.412L111.588 263L113.041 268.475L114.717 273.951L116.729 279.315L118.964 284.456L121.422 289.596L124.216 294.513L127.122 299.318L130.362 304.012L133.827 308.482L137.514 312.728L141.314 316.751L145.337 320.663L149.583 324.239L153.942 327.703L158.523 330.832L163.217 333.849L168.022 336.531L172.939 338.99L178.08 341.225L183.22 343.124L188.361 344.801L193.725 346.142L198.977 347.371L204.453 348.153L209.817 348.824L215.181 349.047L220.656 349.159L226.02 348.935L231.384 348.377L236.748 347.594L242.001 346.589L247.141 345.248L252.282 343.683L257.31 341.895L262.227 339.884L267.033 337.649L271.726 335.078L276.196 332.285L280.554 329.379L284.801 326.138L288.824 322.786L292.623 319.21L296.311 315.522L299.664 311.611L302.904 307.476L305.922 303.341L308.827 298.983L311.397 294.401L313.632 289.82L315.756 285.126L317.655 280.321L319.22 275.516L320.561 270.599L321.678 265.57L322.572 260.541L323.131 255.512L323.466 250.484L323.578 245.455L323.466 240.426L323.019 235.397L322.349 230.369L321.455 225.452L320.226 220.646L318.885 215.841L317.208 211.148L315.309 206.566L313.185 202.096L310.95 197.738L308.38 193.491L305.698 189.356L302.793 185.445L299.664 181.646L296.423 178.07L292.959 174.605L289.271 171.365L285.583 168.347L281.672 165.554L277.649 162.872L273.514 160.413L269.156 158.178L264.909 156.278L260.439 154.49L255.858 152.926L251.388 151.585L246.694 150.579L242.112 149.685L237.419 149.126L232.725 148.791L228.032 148.679L223.338 148.791L218.645 149.126L214.063 149.685L209.481 150.467L205.011 151.585L200.541 152.814L196.183 154.267L191.937 155.943L187.69 157.843L183.667 159.966L179.756 162.313L175.845 164.771L172.269 167.453L168.693 170.247L165.34 173.264L162.099 176.505L159.082 179.746L156.288 183.21L153.606 186.786L151.148 190.586L148.801 194.385L146.79 198.296L144.89 202.319L143.214 206.342L141.761 210.477L140.532 214.724L139.526 218.97L138.632 223.328L138.073 227.575L137.738 231.933L137.626 236.291V240.538L137.961 244.896L138.408 249.143L139.191 253.389L140.085 257.524L141.202 261.659L142.543 265.682L143.996 269.593L145.784 273.504L147.684 277.304L149.807 280.88L152.042 284.456L154.5 287.808L157.071 291.049L159.753 294.178L162.658 297.195L165.675 299.989L168.916 302.671L172.157 305.129L175.509 307.476L179.085 309.599L182.661 311.499L186.349 313.287L190.037 314.852L193.836 316.193L197.748 317.31L201.547 318.316L205.57 319.098L209.481 319.657L213.393 319.992L217.416 320.216L221.327 320.104L225.35 319.88L229.261 319.433L233.061 318.875L236.972 318.092L240.66 317.087L244.347 315.857L248.035 314.516L251.611 312.952L254.964 311.164L258.316 309.376L261.557 307.253L264.686 305.129L267.703 302.783L270.609 300.212L273.291 297.642L275.861 294.848L278.319 292.055L280.666 289.037L282.789 286.02L284.689 282.779L286.477 279.539L288.153 276.186L289.606 272.834L290.835 269.369L291.953 265.905L292.847 262.329L293.517 258.753L294.076 255.177L294.411 251.601L294.635 247.913V244.337L294.411 240.761L294.076 237.185L293.517 233.721L292.847 230.257L291.953 226.793L290.835 223.44L289.606 220.088L288.265 216.847L286.701 213.718L285.024 210.701L283.236 207.795L281.225 204.89L279.102 202.208L276.867 199.637L274.52 197.067L272.061 194.72L269.491 192.485L266.809 190.474L264.015 188.574L261.222 186.786L258.204 185.11L255.187 183.657L252.17 182.316L249.041 181.087L245.912 180.193L242.783 179.299L239.542 178.628L236.301 178.181L233.061 177.734L229.82 177.623H226.579L223.338 177.734L220.098 178.07L216.969 178.517L213.84 179.187L210.711 179.969L207.693 180.863L204.788 181.981L201.882 183.21L199.089 184.551L196.295 186.004L193.613 187.68L191.154 189.468L188.696 191.368L186.349 193.268L184.114 195.391L181.991 197.626L179.979 199.861L178.08 202.319L176.403 204.778L174.727 207.236L173.274 209.918L171.933 212.6L170.816 215.282L169.698 218.076L168.804 220.87L168.022 223.664"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M168.022 231.481C172.342 231.481 175.844 227.979 175.844 223.658C175.844 219.338 172.342 215.836 168.022 215.836C163.701 215.836 160.199 219.338 160.199 223.658C160.199 227.979 163.701 231.481 168.022 231.481Z"
+                fill="white"
+              />
+              <path
+                class="b8_fill"
+                d="M224.437 38.1816V37.0641H222.202V38.1816H223.319H224.437ZM222.202 40.3489V41.4664H224.437V40.3489H223.319H222.202ZM224.437 47.9344V46.8169H222.202V47.9344H223.319H224.437ZM222.202 52.2689V53.3864H224.437V52.2689H223.319H222.202ZM224.437 59.8544V58.7369H222.202V59.8544H223.319H224.437ZM222.202 64.1889V65.3064H224.437V64.1889H223.319H222.202ZM224.437 71.7744V70.6569H222.202V71.7744H223.319H224.437ZM223.319 38.1816H222.202V40.3489H223.319H224.437V38.1816H223.319ZM223.319 47.9344H222.202V52.2689H223.319H224.437V47.9344H223.319ZM223.319 59.8544H222.202V64.1889H223.319H224.437V59.8544H223.319ZM223.319 71.7744H222.202V73.9416H223.319H224.437V71.7744H223.319Z"
+                fill="white"
+              />
+            </svg>
+            <p class="b8_label">5. 20 минут</p>
+            <p class="b8_txt">
+              Столько длится одна сторона. Трек нельзя пропустить одним
+              касанием.
+            </p>
+          </div>
+          <div class="b8_step" data-step="6">
+            <svg
+              class="b8_pic"
+              viewBox="0 0 447 447"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M379.836 228.525C379.915 230.566 379.955 232.617 379.955 234.677C379.955 236.737 379.915 238.787 379.836 240.828M378.884 216.277C378.404 212.182 377.767 208.135 376.977 204.143M374.117 192.192C373.003 188.233 371.736 184.337 370.325 180.512M365.618 169.16C363.896 165.432 362.031 161.782 360.032 158.219M353.603 147.75C351.321 144.342 348.909 141.028 346.373 137.816M338.39 128.478C335.609 125.471 332.711 122.572 329.703 119.791M320.365 111.808C317.153 109.272 313.839 106.86 310.431 104.578M299.962 98.1497C296.399 96.15 292.75 94.2857 289.021 92.5638M277.67 87.8568C273.844 86.445 269.948 85.1784 265.989 84.0638M254.038 81.2044C250.046 80.4147 246 79.7769 241.905 79.2972M229.656 78.3453C227.615 78.2664 225.565 78.2266 223.505 78.2266C221.445 78.2266 219.394 78.2664 217.353 78.3453M205.105 79.2972C201.01 79.7769 196.963 80.4147 192.972 81.2044M181.02 84.0638C177.061 85.1784 173.165 86.445 169.34 87.8568M157.989 92.5638C154.26 94.2856 150.61 96.15 147.047 98.1497M136.579 104.578C133.17 106.86 129.856 109.272 126.644 111.808M117.306 119.791C114.299 122.572 111.4 125.471 108.619 128.478M100.636 137.816C98.1005 141.028 95.6882 144.342 93.4063 147.75M86.9779 158.219C84.9781 161.782 83.1138 165.432 81.3919 169.16M76.6849 180.512C75.2731 184.337 74.0066 188.233 72.8919 192.192M70.0326 204.143C69.2429 208.135 68.605 212.182 68.1253 216.276M67.1734 228.525C67.0945 230.566 67.0547 232.617 67.0547 234.677C67.0547 236.737 67.0945 238.787 67.1734 240.828M68.1253 253.077C68.605 257.171 69.2429 261.218 70.0326 265.21M72.8919 277.161C74.0065 281.12 75.2731 285.016 76.6849 288.842M81.3919 300.193C83.1138 303.922 84.9781 307.571 86.9778 311.134M93.4063 321.603C95.6882 325.011 98.1005 328.325 100.636 331.537M108.619 340.875C111.4 343.883 114.299 346.781 117.306 349.562M126.644 357.545C129.856 360.081 133.17 362.493 136.579 364.775M147.047 371.203C150.61 373.203 154.26 375.067 157.989 376.789M169.34 381.496C173.165 382.908 177.061 384.175 181.02 385.289M192.972 388.149C196.963 388.938 201.01 389.576 205.105 390.056M217.353 391.008C219.394 391.087 221.445 391.127 223.505 391.127C225.565 391.127 227.615 391.087 229.656 391.008M241.905 390.056C246 389.576 250.046 388.938 254.038 388.149M265.989 385.289C269.948 384.175 273.844 382.908 277.67 381.496M289.021 376.789C292.75 375.068 296.399 373.203 299.962 371.203M310.431 364.775C313.839 362.493 317.153 360.081 320.365 357.545M329.703 349.562C332.711 346.781 335.609 343.883 338.39 340.875M346.373 331.537C348.909 328.325 351.321 325.011 353.603 321.603M360.032 311.134C362.031 307.571 363.896 303.922 365.617 300.193M370.325 288.842C371.736 285.016 373.003 281.12 374.117 277.161M376.977 265.21C377.767 261.218 378.404 257.171 378.884 253.077"
+                stroke-width="1.87799"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M277.141 234.677C277.141 321.082 253.126 391.127 223.501 391.127C193.877 391.127 169.861 321.082 169.861 234.677C169.861 148.272 193.877 78.2266 223.501 78.2266C253.126 78.2266 277.141 148.272 277.141 234.677Z"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M239.143 234.677C239.143 259.364 232.138 279.377 223.498 279.377C214.857 279.377 207.853 259.364 207.853 234.677C207.853 209.989 214.857 189.977 223.498 189.977C232.138 189.977 239.143 209.989 239.143 234.677Z"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_fill"
+                d="M223.504 239.141C225.973 239.141 227.974 237.14 227.974 234.671C227.974 232.202 225.973 230.201 223.504 230.201C221.035 230.201 219.034 232.202 219.034 234.671C219.034 237.14 221.035 239.141 223.504 239.141Z"
+                fill="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M134.103 58.108C146.946 53.3746 162.531 49.7429 179.723 47.4773C196.915 45.2117 215.28 44.3694 233.48 45.0118C251.681 45.6542 269.258 47.765 284.931 51.1905C300.604 54.616 313.977 59.2699 324.078 64.813"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+              <path
+                class="b8_draw"
+                pathLength="1"
+                d="M321.474 49.7676L324.081 64.8159L310.832 71.9904"
+                stroke-width="2.235"
+                stroke-linecap="round"
+                stroke="white"
+              />
+            </svg>
+            <p class="b8_label">6. Сторона Б</p>
+            <p class="b8_txt">
+              Через двадцать минут придётся встать и перевернуть пластинку.
+            </p>
+          </div>
+
+          <!-- после всех шагов: итоговый текст -->
+          <div class="block8_text">
+            <p class="b8_p">
+              Чтобы послушать пластинку, нужно сделать несколько действий.
+              Достать конверт с&nbsp;полки. Вынуть диск, смахнуть пыль,
+              поставить на проигрыватель, опустить иглу и&nbsp;услышать короткое
+              потрескивание перед первой нотой.
+            </p>
+            <p class="b8_p">
+              Одна сторона длится около двадцати минут. Трек нельзя пропустить
+              одним касанием, а&nbsp;альбом нельзя превратить в&nbsp;фон для
+              ленты. Через двадцать минут придётся встать и&nbsp;перевернуть
+              пластинку. Музыка снова требует внимания.
+            </p>
+            <p class="b8_p">
+              Социологи Доминик Бартманский и&nbsp;Иэн Вудворд изучали, почему
+              винил вернулся в&nbsp;цифровую эпоху. Они отказались сводить всё
+              к&nbsp;ностальгии или фетишу и&nbsp;объясняли возрождение
+              пластинки через ритуал, ауру и&nbsp;культовость объекта. По их
+              наблюдению, винил даёт многочувственный опыт: его трогают,
+              разглядывают, слушают, и&nbsp;он тем самым становится
+              альтернативой миру экранов.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="block9"></section>
 

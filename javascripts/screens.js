@@ -132,20 +132,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const graph = document.querySelector(".block2_graph");
   const graphLine = document.querySelector(".graph_line");
   const graphTick = document.querySelector(".graph_tick");
-  const graphCurve = document.querySelector("img.graph_curve");
   const graphCurvePath = document.querySelector(".graph_curve_line path");
   const graphCurveLine = document.querySelector(".graph_curve_line");
   const graphDot = document.querySelector(".graph_dot");
   const labelTracks = document.querySelector(".label_tracks");
   const labelDisc = document.querySelector(".label_disc");
   const block2Text = document.querySelector(".block2_text");
-
-  // кривая в svg идёт от 15.67% до 84.32% ширины картинки
-  const CURVE_START = 15.67;
-  const CURVE_END = 84.32;
-
-  // зерно на свечении (путь от index.html)
-  const GRAIN_MASK = 'url("./images/grain_mask.png")';
 
   // финал графика: масштаб 0.505 и подъём на 244px макета
   const GRAPH_SCALE = 0.505;
@@ -192,29 +184,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const tracksK = ease(part(progress, 0.12, 0.18));
     labelTracks.style.opacity = tracksK;
 
-    // кривая: чёткая линия рисуется точно по пути,
-    // свечение открывается мягкой маской чуть позади кончика
+    // кривая рисуется точно по пути (свечение повторяет её само — canvas)
     const curveK = part(progress, 0.18, 0.5);
     graphCurvePath.style.strokeDashoffset = -1 + curveK;
-
-    const edge = CURVE_START + (CURVE_END - CURVE_START) * curveK;
-    let reveal;
-    if (curveK >= 1) {
-      reveal = "linear-gradient(#000, #000)";
-    } else if (curveK <= 0) {
-      reveal = "linear-gradient(to right, transparent, transparent)";
-    } else {
-      reveal =
-        "linear-gradient(to right, #000 " +
-        (edge - 8) +
-        "%, transparent " +
-        edge +
-        "%)";
-    }
-    // первый слой — зерно, второй открывает свечение слева направо
-    const mask = GRAIN_MASK + ", " + reveal;
-    graphCurve.style.webkitMaskImage = mask;
-    graphCurve.style.maskImage = mask;
 
     // график уменьшается и уходит вверх
     const shrinkK = ease(part(progress, 0.6, 0.78));
@@ -227,7 +199,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const dim = 1 - (1 - GRAPH_DIM) * shrinkK;
     graphLine.style.opacity = dim;
     graphTick.style.opacity = dim;
-    graphCurve.style.opacity = dim;
     graphCurveLine.style.opacity = dim;
 
     // подписи: 32px в начале → 20px в финале, плавно вместе с графиком.
@@ -307,9 +278,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const FACTS_FROM = 0.68;
   const block3Facts = document.querySelectorAll(".fact");
 
-  // насколько свечение отстаёт от кончика линии, в px svg
-  const GLOW_LAG = 80;
-
   function drawBlock3() {
     if (!block3) return;
 
@@ -324,15 +292,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // эллипсы: видимый отрезок растёт от 0 до всей длины.
     // смещение задаёт, откуда он начинается
     const drawK = ease(part(progress, 0, 0.38));
-    // у каждого эллипса две маски с одинаковым контуром: чётные — линия,
-    // нечётные — свечение. свечение идёт чуть позади кончика линии,
-    // чтобы размытый край не обгонял её
+    // свечение canvas читает эту же маску, поэтому рисуется вместе с линией
     diskMasks.forEach(function (path, i) {
       const len = diskLengths[i];
-      const start = DISK_STARTS[Math.floor(i / 2)];
-      const isGlow = i % 2 === 1;
-      let shown = drawK * len;
-      if (isGlow && drawK < 1) shown = Math.max(0, shown - GLOW_LAG);
+      const start = DISK_STARTS[i];
+      const shown = drawK * len;
       path.style.strokeDasharray = shown + " " + (len - shown + 1);
       path.style.strokeDashoffset = -start * len;
     });
@@ -702,8 +666,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const stepsSvgs = document.querySelectorAll(".steps");
   const steps = stepsSvgs[0];
   const stepsLine = document.querySelector(".steps_line");
-  const stepsGlowRight = document.querySelector(".steps_glow_right");
-  const stepsWipe = document.querySelector("#steps_wipe");
   const stepsDots = document.querySelectorAll(".steps_dot");
   const stepsGuides = document.querySelector(".steps_guides");
   const guideTxts = document.querySelectorAll(".guide_txt");
@@ -711,8 +673,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const factVinyl = document.querySelector(".b5_fact_vinyl");
   const moreBtn = document.querySelector(".b5_more");
 
-  // ширина мягкого края шторки свечения (в единицах svg)
-  const WIPE_SOFT = 160;
   const STEP_LOOP = 24;
   const STEP_EDGE = 80;
   const SMOOTH_5 = 0.09;
@@ -783,12 +743,6 @@ document.addEventListener("DOMContentLoaded", function () {
           })
           .join("L"),
     );
-    if (stepsGlowRight) {
-      stepsGlowRight.setAttribute(
-        "transform",
-        "translate(0 " + TOP + ") scale(1 " + f + ") translate(0 " + -TOP + ")",
-      );
-    }
   }
 
   // точка на ломаной по длине от её начала
@@ -921,6 +875,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   let shown5 = 0;
+  let stepsDrawn = 0; // доля нарисованных ступеней — для свечения
   let running5 = false;
 
   // появление снизу: прозрачность и сдвиг
@@ -955,13 +910,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (k <= 0) dash = 0;
     stepsLine.style.strokeDasharray =
       k >= 1 ? "none" : dash + " " + (total + 1);
-
-    // свечение: шторка доходит ровно до кончика линии
-    let tipX = pointAt(dash)[0];
-    if (k <= 0) tipX = -2000;
-    if (k >= 1) tipX = 4000;
-    stepsWipe.setAttribute("x1", tipX - WIPE_SOFT);
-    stepsWipe.setAttribute("x2", tipX);
+    stepsDrawn = k >= 1 ? 1 : dash / total;
 
     stepsDots.forEach(function (dot, i) {
       const from = 0.35 + i * 0.015;
@@ -1079,7 +1028,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const b6Txt = document.querySelector(".block6_txt");
   const b6Point = document.querySelector(".b6_point");
   const b6LineSvg = document.querySelector(".b6_line_svg");
-  const b6LineGlow = document.querySelector(".b6_line_glow");
   const b6Lines = document.querySelectorAll(".b6_q_line");
   const SMOOTH_6 = 0.09;
 
@@ -1099,14 +1047,9 @@ document.addEventListener("DOMContentLoaded", function () {
     b6Point.style.transform =
       "translate(-50%, -50%) scale(" + (0.6 + 0.4 * p) + ")";
 
-    // линия: доля от центра до края; свечение шире линии, поэтому его край
-    // считаем в процентах его собственной ширины (линия = 1440 из 1940)
+    // линия расходится от центра к краям (свечение повторяет её само — canvas)
     const l = ease(part(progress, 0.2, 0.42));
     b6LineSvg.style.transform = "scaleX(" + l + ")";
-    b6LineGlow.style.setProperty("--open", l * 50 * (1440 / 1940) + "%");
-    // пока линии нет, свечения нет совсем: мягкий край маски иначе
-    // оставлял пятно света в центре ещё до появления линии
-    b6LineGlow.style.opacity = Math.min(1, l / 0.15);
 
     b6Lines.forEach(function (line, i) {
       const from = 0.42 + i * 0.07;
@@ -1161,4 +1104,336 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.addEventListener("scroll", updateSide, { passive: true });
   updateSide();
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block7 — «50 %»
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.3    круг рисуется от верхней точки по часовой стрелке
+  // 0.2  – 0.45   цифра появляется и считает от 0 до 50
+  // 0.4  – 0.5    подпись под цифрой
+  // 0.48 – 0.62   первый абзац
+  // 0.58 – 0.72   второй абзац
+  // 0.72 – 1      пауза
+
+  const block7 = document.querySelector(".block7");
+  const b7Circle = document.querySelector(".b7_circle_line");
+  const b7Num = document.querySelector(".b7_num");
+  const b7Count = document.querySelector(".b7_count");
+  const b7Cap = document.querySelector(".b7_cap");
+  const b7Ps = document.querySelectorAll(".b7_p");
+  const SMOOTH_7 = 0.09;
+  const COUNT_TO = 50;
+
+  // пока цифра считает, её ширина меняется, а блок стоит по центру и дёргался бы.
+  // поэтому фиксируем ширину по финальному числу (в em — масштабируется вместе с текстом)
+  function fixCountWidth() {
+    if (!b7Count) return;
+    const saved = b7Count.textContent;
+    b7Count.style.width = "auto";
+    b7Count.textContent = COUNT_TO;
+    const fs = parseFloat(window.getComputedStyle(b7Count).fontSize) || 1;
+    b7Count.style.width = b7Count.getBoundingClientRect().width / fs + "em";
+    b7Count.textContent = saved;
+  }
+  if (document.fonts && document.fonts.ready)
+    document.fonts.ready.then(fixCountWidth);
+  fixCountWidth();
+
+  function getProgress7() {
+    const rect = block7.getBoundingClientRect();
+    const scrollable = block7.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  function drawBlock7(progress) {
+    const c = ease(part(progress, 0, 0.3));
+    b7Circle.style.strokeDasharray = c >= 1 ? "none" : c + " " + (1.01 - c);
+
+    const n = easeOut(part(progress, 0.2, 0.3));
+    b7Num.style.opacity = n;
+    b7Num.style.transform = "translateY(" + (1 - n) * 1.5 + "cqw)";
+    const countK = easeOut(part(progress, 0.2, 0.45));
+    b7Count.textContent = Math.round(COUNT_TO * countK);
+
+    const cap = easeOut(part(progress, 0.4, 0.5));
+    b7Cap.style.opacity = cap;
+    b7Cap.style.transform = "translateY(" + (1 - cap) * 1 + "cqw)";
+
+    b7Ps.forEach(function (p, i) {
+      const from = 0.48 + i * 0.1;
+      const k = easeOut(part(progress, from, from + 0.14));
+      p.style.opacity = k;
+      p.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+    });
+  }
+
+  let shown7 = 0;
+  let running7 = false;
+
+  function tick7() {
+    const target = getProgress7();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown7 = reduce ? target : shown7 + (target - shown7) * SMOOTH_7;
+    if (Math.abs(target - shown7) < 0.0005) shown7 = target;
+    drawBlock7(shown7);
+    if (shown7 !== target) {
+      window.requestAnimationFrame(tick7);
+    } else {
+      running7 = false;
+    }
+  }
+
+  function onScroll7() {
+    if (running7) return;
+    running7 = true;
+    window.requestAnimationFrame(tick7);
+  }
+
+  if (block7) {
+    window.addEventListener("scroll", onScroll7, { passive: true });
+    window.addEventListener("resize", onScroll7);
+    shown7 = getProgress7();
+    drawBlock7(shown7);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block8 — «двадцать минут, которые нельзя пролистать»
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.06   заголовок и подзаголовок
+  // дальше 6 шагов, на каждый STEP8 = 0.12 прогресса. внутри шага:
+  //   0    – 0.2   шаг выезжает снизу
+  //   0    – 0.55  линии рисунка прорисовываются (свечение вместе с ними)
+  //   0.45 – 0.6   точки и заливки
+  //   0.4  – 0.6   подпись с номером
+  //   0.5  – 0.7   описание
+  //   0.82 – 1     шаг уезжает вверх и гаснет
+  // 0.77 – 0.81   заголовок и подзаголовок уходят
+  // 0.8  – 0.93   итоговый текст, по абзацу
+  // 0.93 – 1      пауза
+
+  const block8 = document.querySelector(".block8");
+  const b8Title = document.querySelector(".block8_title");
+  const b8Sub = document.querySelector(".block8_sub");
+  const b8Steps = document.querySelectorAll(".b8_step");
+  const SMOOTH_8 = 0.09;
+  const STEP8_FROM = 0.05;
+  const STEP8 = 0.12;
+  const b8Ps = document.querySelectorAll(".b8_p");
+
+  const b8Parts = [];
+  b8Steps.forEach(function (step) {
+    b8Parts.push({
+      el: step,
+      draws: step.querySelectorAll(".b8_draw"),
+      fills: step.querySelectorAll(".b8_fill"),
+      label: step.querySelector(".b8_label"),
+      txt: step.querySelector(".b8_txt"),
+    });
+  });
+
+  // рисунки разного размера: у одного всё в середине листа 447×447, у другого
+  // до самых краёв. подгоняем каждый под общую рамку над подписью, чтобы
+  // рисунок не наезжал на текст: рамка 420×300 px макета с центром в (720, 550)
+  const PIC_BOX = { cx: 720, cy: 550, w: 420, h: 300 };
+
+  function fitPics() {
+    b8Steps.forEach(function (step) {
+      const svg = step.querySelector(".b8_pic");
+      const bb = svg.getBBox();
+      if (!bb.width || !bb.height) return;
+      const pad = 4;
+      const bw = bb.width + pad * 2;
+      const bh = bb.height + pad * 2;
+      const k = Math.min(1, PIC_BOX.w / bw, PIC_BOX.h / bh); // px макета на единицу рисунка
+      const w = bw * k;
+      const h = bh * k;
+      svg.setAttribute("viewBox", [bb.x - pad, bb.y - pad, bw, bh].join(" "));
+      svg.style.width = w / 14.4 + "cqw";
+      svg.style.height = h / 14.4 + "cqw";
+      svg.style.left = (PIC_BOX.cx - w / 2) / 14.4 + "cqw";
+      svg.style.top = (PIC_BOX.cy - h / 2) / 14.4 + "cqw";
+    });
+  }
+  if (block8) fitPics();
+
+  function getProgress8() {
+    const rect = block8.getBoundingClientRect();
+    const scrollable = block8.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  function drawBlock8(progress) {
+    const out = ease(part(progress, 0.77, 0.81));
+    const t = easeOut(part(progress, 0, 0.04));
+    b8Title.style.opacity = t * (1 - out);
+    b8Title.style.transform =
+      "translateY(" + ((1 - t) * 1.5 - out * 2) + "cqw)";
+    const st = easeOut(part(progress, 0.02, 0.05));
+    b8Sub.style.opacity = st * (1 - out);
+    b8Sub.style.transform = "translateY(" + ((1 - st) * 1.5 - out * 2) + "cqw)";
+
+    b8Ps.forEach(function (p, i) {
+      const from = 0.8 + i * 0.04;
+      const k = easeOut(part(progress, from, from + 0.05));
+      p.style.opacity = k;
+      p.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+    });
+
+    b8Parts.forEach(function (s, i) {
+      const from = STEP8_FROM + i * STEP8;
+      const k = (progress - from) / STEP8; // 0…1 внутри своего шага
+
+      const inK = easeOut(Math.min(Math.max(k / 0.2, 0), 1));
+      const outK = ease(Math.min(Math.max((k - 0.82) / 0.18, 0), 1));
+      const op = inK * (1 - outK);
+
+      s.el.style.opacity = op;
+      s.el.style.visibility = op > 0.001 ? "visible" : "hidden";
+      s.el.style.transform =
+        "translateY(" + ((1 - inK) * 4 - outK * 4) + "cqw)";
+
+      const d = ease(Math.min(Math.max(k / 0.55, 0), 1));
+      s.drawn = d; // эту долю читает свечение (java-script.js)
+      s.draws.forEach(function (p) {
+        p.style.strokeDasharray = d >= 1 ? "none" : d + " " + (1.01 - d);
+      });
+      const f = easeOut(Math.min(Math.max((k - 0.45) / 0.15, 0), 1));
+      s.fills.forEach(function (p) {
+        p.style.opacity = f;
+      });
+      s.label.style.opacity = easeOut(
+        Math.min(Math.max((k - 0.4) / 0.2, 0), 1),
+      );
+      s.txt.style.opacity = easeOut(Math.min(Math.max((k - 0.5) / 0.2, 0), 1));
+    });
+  }
+
+  let shown8 = 0;
+  let running8 = false;
+
+  function tick8() {
+    const target = getProgress8();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown8 = reduce ? target : shown8 + (target - shown8) * SMOOTH_8;
+    if (Math.abs(target - shown8) < 0.0005) shown8 = target;
+    drawBlock8(shown8);
+    if (shown8 !== target) {
+      window.requestAnimationFrame(tick8);
+    } else {
+      running8 = false;
+    }
+  }
+
+  function onScroll8() {
+    if (running8) return;
+    running8 = true;
+    window.requestAnimationFrame(tick8);
+  }
+
+  if (block8) {
+    window.addEventListener("scroll", onScroll8, { passive: true });
+    window.addEventListener("resize", onScroll8);
+    shown8 = getProgress8();
+    drawBlock8(shown8);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // свечение линий: говорим canvas из java-script.js, какие линии светятся.
+  // он сам берёт их форму, положение, прозрачность и сколько уже нарисовано
+  if (window.glow) {
+    // 1 экран: кольца. r — радиус круга в долях ширины svg-картинки
+    const RING_R = [
+      511 / 1524,
+      411.5 / 1325,
+      314 / 1130,
+      229 / 960,
+      147 / 796,
+      74 / 650,
+    ];
+    document.querySelectorAll(".ring_line").forEach(function (img, i) {
+      // у самого большого кольца линия 80% яркости — и свечение тоже
+      window.glow.add({
+        el: img,
+        kind: "ring",
+        r: RING_R[i],
+        gain: i === 0 ? 0.8 : 1,
+      });
+    });
+
+    // 2 экран: прямая (в svg от x=250 до 1627 из 1877, y=251 из 503) и кривая
+    const g2line = document.querySelector(".graph_line img");
+    if (g2line) {
+      window.glow.add({
+        el: g2line,
+        kind: "line",
+        x1: 250 / 1877,
+        x2: 1627 / 1877,
+        y: 251.348 / 503,
+      });
+    }
+    const g2curve = document.querySelector(".graph_curve_line path");
+    if (g2curve) window.glow.add({ el: g2curve, kind: "svg", dash: g2curve });
+
+    // 3 экран: эллипсы диска; сколько нарисовано — по их маскам
+    const diskEls = document.querySelectorAll(".disk_ellipse");
+    const diskDash = document.querySelectorAll(".disk_mask_path");
+    diskEls.forEach(function (el, i) {
+      window.glow.add({ el: el, kind: "svg", dash: diskDash[i] });
+    });
+
+    // 4 экран: волна
+    const wave = document.querySelector(".wave_line_path");
+    if (wave) {
+      window.glow.add({
+        el: wave,
+        kind: "svg",
+        dash: document.querySelector(".wave_mask_path"),
+      });
+    }
+
+    // 5 экран: ступени
+    const stepsEl = document.querySelector(".steps_line");
+    if (stepsEl) {
+      window.glow.add({
+        el: stepsEl,
+        kind: "svg",
+        // ступени — прямые линии, поэтому свечению передаём долю напрямую
+        drawn: function () {
+          return stepsDrawn;
+        },
+      });
+    }
+
+    // 6 экран: линия и кружок
+    const b6line = document.querySelector(".b6_line_svg");
+    if (b6line) window.glow.add({ el: b6line, kind: "line" });
+    const b6point = document.querySelector(".b6_point_svg");
+    if (b6point) window.glow.add({ el: b6point, kind: "ring", r: 23 / 48 });
+
+    // 7 экран: большой круг
+    const b7c = document.querySelector(".b7_circle_line");
+    if (b7c) window.glow.add({ el: b7c, kind: "svg", dash: b7c });
+
+    // 8 экран: все линии и точки рисунков (у скрытых шагов свечение не считается)
+    b8Parts.forEach(function (s) {
+      s.draws.forEach(function (el) {
+        window.glow.add({
+          el: el,
+          kind: "svg",
+          drawn: function () {
+            return s.drawn || 0;
+          },
+        });
+      });
+    });
+    document.querySelectorAll(".b8_fill").forEach(function (el) {
+      window.glow.add({ el: el, kind: "svg", gain: 0.6 });
+    });
+  }
 });
