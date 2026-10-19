@@ -925,7 +925,7 @@ html.is_locked body {
    потом точки едут по ступеням по кругу (как на 4 экране) */
 
 .block5 {
-  height: 400vh;
+  height: 800vh;
 }
 
 .block5_sticky {
@@ -1010,6 +1010,242 @@ html.is_locked body {
   fill: #fff;
   opacity: 0;
   filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+}
+
+/* вторая часть: линейки диапазона и пунктиры (рисуются в svg, в единицах макета) */
+.steps_guides,
+.guide_txt {
+  opacity: 0;
+}
+
+.guide_txt {
+  fill: #fff;
+  font-family: "Geist Mono", monospace;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* цифры над ступенями: Bebas 128px, подпись 20px, по центру над своей половиной */
+.b5_fact {
+  position: absolute;
+  top: 6.11cqw;
+  transform: translateX(-50%);
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.b5_fact_cd {
+  left: 18.68cqw;
+}
+
+.b5_fact_vinyl {
+  left: 79.24cqw;
+}
+
+.b5_num {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 8.89cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+}
+
+.b5_cap {
+  margin-top: 0.69cqw;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 300;
+  font-size: 1.39cqw;
+  line-height: 125%;
+}
+
+/* белая плашка с плюсом, на всю ширину окна с отступами как у подписей в углах */
+.b5_more {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.22vw);
+  top: 59.44cqw;
+  width: calc(100vw - 4.44vw);
+  height: 6.53cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.67cqw;
+  padding: 0 1.81cqw;
+  border: 0;
+  background: #fff;
+  color: #111;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.b5_more.is_shown {
+  pointer-events: auto;
+}
+
+/* plus.svg белый — на белой плашке делаем его чёрным */
+.b5_more img {
+  width: 2.78cqw;
+  height: 2.78cqw;
+  filter: invert(1);
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block6 — «если дело не в звуке, тогда в чём?»
+   по скроллу: абзац, кружок, линия от кружка к краям окна, затем вопрос */
+
+.block6 {
+  height: 400vh;
+}
+
+.block6_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block6_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* абзац 24px по центру экрана, строки выровнены по левому краю */
+.block6_txt {
+  position: absolute;
+  left: 50%;
+  top: 10.56cqw;
+  width: 47.5cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 130%;
+  opacity: 0;
+  transform: translateX(-50%);
+  will-change: transform, opacity;
+}
+
+/* линия: на всю ширину окна, центр на 404px макета */
+.b6_line {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2);
+  top: 28.03cqw;
+  width: 100vw;
+  height: 0;
+}
+
+.b6_line_svg {
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+}
+
+/* свечение линии: 1940×502 при линии 1440 — шире линии на 250px с каждой стороны.
+   открывается от центра вместе с линией (--open задаёт screens.js) */
+.b6_line_glow {
+  --open: 0%;
+  position: absolute;
+  opacity: 0;
+  left: -17.36vw;
+  top: -17.43cqw;
+  width: 134.72vw;
+  height: 34.86cqw;
+  -webkit-mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(
+      to right,
+      transparent calc(50% - var(--open) - 6%),
+      #000 calc(50% - var(--open)),
+      #000 calc(50% + var(--open)),
+      transparent calc(50% + var(--open) + 6%)
+    );
+  mask-image:
+    url("../images/grain_mask.png"),
+    linear-gradient(
+      to right,
+      transparent calc(50% - var(--open) - 6%),
+      #000 calc(50% - var(--open)),
+      #000 calc(50% + var(--open)),
+      transparent calc(50% + var(--open) + 6%)
+    );
+  -webkit-mask-size:
+    200px 200px,
+    100% 100%;
+  mask-size:
+    200px 200px,
+    100% 100%;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* кружок 48px по центру линии, свечение 270px */
+.b6_point {
+  position: absolute;
+  left: 50cqw;
+  top: 28.03cqw;
+  width: 3.33cqw;
+  height: 3.33cqw;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  will-change: transform, opacity;
+}
+
+.b6_point_svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.b6_point_glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18.75cqw;
+  height: 18.75cqw;
+  transform: translate(-50%, -50%);
+  -webkit-mask-image: url("../images/grain_mask.png");
+  mask-image: url("../images/grain_mask.png");
+  -webkit-mask-size: 200px 200px;
+  mask-size: 200px 200px;
+}
+
+/* вопрос: Bebas 128px, по центру */
+.block6_q {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38.4cqw;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 8.89cqw;
+  line-height: 100%;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.b6_q_line {
+  display: block;
+  opacity: 0;
+  will-change: transform, opacity;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */

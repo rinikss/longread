@@ -679,53 +679,234 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block5 — «сторона б: цифра точнее». логика как на 4 экране
+  // block5 — «сторона б: цифра точнее». две части в одной секции
   //
   // прогресс секции от 0 до 1:
-  // 0    – 0.36   заголовок и два абзаца по очереди
-  // 0.32 – 0.7    ступени рисуются слева направо (со свечением)
-  // 0.7  – 0.89   точки по очереди появляются, когда ступени дорисованы
+  // часть 1
+  // 0    – 0.18   заголовок и два абзаца по очереди
+  // 0.16 – 0.35   ступени рисуются слева направо, свечение — шторкой вместе с линией
+  // 0.35 – 0.45   точки по очереди появляются
+  // часть 2 — фактоиды
+  // 0.5  – 0.57   текст уходит вверх и гаснет
+  // 0.52 – 0.64   ступени поднимаются
+  // 0.6  – 0.72   появляются линейки и цифры (сначала компакт-диск, потом винил)
+  // 0.72 – 0.88   правая половина (винил) сжимается к верхней линии: 96 → ≈65 дБ
+  // 0.86 – 0.94   появляется плашка «откуда берётся теплота»
   //
-  // точки сами по себе бесконечно едут по ступеням слева направо друг за другом:
-  // уезжают за правый край окна и снова выезжают слева.
+  // точки всё время сами по себе едут по ступеням слева направо друг за другом.
   // скорость — STEP_LOOP (секунд на один проезд по видимой части ступеней)
 
   const block5 = document.querySelector(".block5");
   const block5Title = document.querySelector(".block5_title");
   const block5Ps = document.querySelectorAll(".block5_text p");
-  const steps = document.querySelector(".steps");
+  const stepsSvgs = document.querySelectorAll(".steps");
+  const steps = stepsSvgs[0];
   const stepsLine = document.querySelector(".steps_line");
+  const stepsGlowRight = document.querySelector(".steps_glow_right");
   const stepsWipe = document.querySelector("#steps_wipe");
+  const stepsDots = document.querySelectorAll(".steps_dot");
+  const stepsGuides = document.querySelector(".steps_guides");
+  const guideTxts = document.querySelectorAll(".guide_txt");
+  const factCd = document.querySelector(".b5_fact_cd");
+  const factVinyl = document.querySelector(".b5_fact_vinyl");
+  const moreBtn = document.querySelector(".b5_more");
+
   // ширина мягкого края шторки свечения (в единицах svg)
   const WIPE_SOFT = 160;
-  const stepsDots = document.querySelectorAll(".steps_dot");
-  const stepsLen = stepsLine ? stepsLine.getTotalLength() : 0;
-
   const STEP_LOOP = 24;
   const STEP_EDGE = 80;
   const SMOOTH_5 = 0.09;
+  // насколько поднимаются ступени во второй части, в cqw
+  const STEPS_LIFT = 16.49;
+  // во сколько раз сжимается винил: 65 из 96
+  const VINYL_K = 65 / 96;
 
-  // таблица «x → длина пути до этой точки», чтобы знать,
-  // какой кусок линии сейчас виден в окне
-  const stepsTable = [];
-  if (stepsLine) {
-    for (let l = 0; l <= stepsLen; l += 4) {
-      stepsTable.push([stepsLine.getPointAtLength(l).x, l]);
+  // ступени как ломаная: [x, y] в единицах svg (как в макете 1644×656)
+  const TOP = 88.9; // потолок — максимальная громкость
+  const CD_FLOOR = 566.9; // самая нижняя ступень
+  // граница половин: в просвете справа от среднего столбика.
+  // левее — компакт-диск (не меняется), правее — винил (сжимается)
+  const MIDDLE = 1007.2;
+  const BASE = [
+    [-500, 527.707],
+    [230.165, 527.707],
+    [230.165, 88.9],
+    [371.43, 88.9],
+    [371.43, 566.9],
+    [512.695, 566.9],
+    [512.695, 167.806],
+    [653.96, 167.806],
+    [653.96, 530.781],
+    [795.224, 530.781],
+    [795.224, 278.712],
+    [936.574, 278.712],
+    [936.574, 530.781],
+    // на границе половин нижняя линия делает ступеньку вверх — «пол» винила
+    [MIDDLE, 530.781],
+    [MIDDLE, 530.781, true],
+    [1077.84, 530.781],
+    [1077.84, 167.806],
+    [1219.1, 167.806],
+    [1219.1, 566.9],
+    [1360.37, 566.9],
+    [1360.37, 88.9],
+    [1501.63, 88.9],
+    [1501.63, 527.707],
+    [2232, 527.707],
+  ];
+
+  let pts = [];
+  let cum = [];
+  let total = 0;
+  let squeeze = 1;
+
+  // пересобрать ломаную под текущее сжатие винила
+  function buildSteps(f) {
+    squeeze = f;
+    pts = BASE.map(function (p) {
+      if (p[0] > MIDDLE || p[2]) return [p[0], TOP + (p[1] - TOP) * f];
+      return [p[0], p[1]];
+    });
+    cum = [0];
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i][0] - pts[i - 1][0];
+      const dy = pts[i][1] - pts[i - 1][1];
+      cum.push(cum[i - 1] + Math.abs(dx) + Math.abs(dy));
+    }
+    total = cum[cum.length - 1];
+    stepsLine.setAttribute(
+      "d",
+      "M" +
+        pts
+          .map(function (p) {
+            return p[0] + " " + p[1];
+          })
+          .join("L"),
+    );
+    if (stepsGlowRight) {
+      stepsGlowRight.setAttribute(
+        "transform",
+        "translate(0 " + TOP + ") scale(1 " + f + ") translate(0 " + -TOP + ")",
+      );
     }
   }
 
+  // точка на ломаной по длине от её начала
+  function pointAt(l) {
+    l = Math.min(Math.max(l, 0), total);
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < l) i++;
+    const seg = cum[i] - cum[i - 1] || 1;
+    const k = (l - cum[i - 1]) / seg;
+    return [
+      pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * k,
+      pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * k,
+    ];
+  }
+
+  // длина ломаной до места, где она доходит до нужного x
   function lengthAtX(x) {
-    // первая точка пути, у которой x не меньше нужного
-    for (let i = 0; i < stepsTable.length; i++) {
-      if (stepsTable[i][0] >= x) return stepsTable[i][1];
+    if (x <= pts[0][0]) return 0;
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i][0] >= x && pts[i][0] > pts[i - 1][0]) {
+        return cum[i - 1] + (x - pts[i - 1][0]);
+      }
     }
-    return stepsLen;
+    return total;
+  }
+
+  // какие x (в единицах svg) сейчас по краям окна, и сколько px в одной единице
+  function viewX() {
+    const rect = steps.getBoundingClientRect();
+    const scale = rect.width / 1644;
+    return [
+      (0 - rect.left) / scale,
+      (window.innerWidth - rect.left) / scale,
+      scale,
+    ];
+  }
+
+  function visibleRange() {
+    const v = viewX();
+    return [lengthAtX(v[0]), lengthAtX(v[1])];
+  }
+
+  function setLine(el, x1, y1, x2, y2) {
+    el.setAttribute("x1", x1);
+    el.setAttribute("y1", y1);
+    el.setAttribute("x2", x2);
+    el.setAttribute("y2", y2);
+  }
+
+  // пунктиры и линейки по краям окна
+  function drawGuides(compressK) {
+    const v = viewX();
+    const vinylFloor = TOP + (CD_FLOOR - TOP) * squeeze;
+    const pad = (window.innerWidth * 0.025) / v[2]; // 2.5vw от края окна
+    const xl = v[0] + pad;
+    const xr = v[1] - pad;
+
+    setLine(stepsGuides.querySelector(".guide_top"), v[0], TOP, v[1], TOP);
+    setLine(
+      stepsGuides.querySelector(".guide_cd"),
+      v[0],
+      CD_FLOOR,
+      MIDDLE,
+      CD_FLOOR,
+    );
+    setLine(
+      stepsGuides.querySelector(".guide_vinyl"),
+      MIDDLE,
+      vinylFloor,
+      v[1],
+      vinylFloor,
+    );
+
+    [
+      [".ruler_cd", xl, CD_FLOOR],
+      [".ruler_vinyl", xr, vinylFloor],
+    ].forEach(function (r) {
+      const g = stepsGuides.querySelector(r[0]);
+      setLine(g.querySelector(".ruler_line"), r[1], TOP, r[1], r[2]);
+      setLine(g.querySelector(".ruler_tick_top"), r[1] - 8, TOP, r[1] + 8, TOP);
+      setLine(
+        g.querySelector(".ruler_tick_bottom"),
+        r[1] - 8,
+        r[2],
+        r[1] + 8,
+        r[2],
+      );
+    });
+
+    // подписи: «максимальная громкость» над потолком, цифры — вдоль линеек
+    const topTxt = guideTxts[0];
+    topTxt.setAttribute("x", xl + 16);
+    topTxt.setAttribute("y", TOP - 12);
+
+    const cdTxt = guideTxts[1];
+    const cdY = (TOP + CD_FLOOR) / 2;
+    cdTxt.setAttribute("x", xl - 8);
+    cdTxt.setAttribute("y", cdY);
+    cdTxt.setAttribute("text-anchor", "middle");
+    cdTxt.setAttribute("transform", "rotate(-90 " + (xl - 8) + " " + cdY + ")");
+
+    const vinylTxt = guideTxts[2];
+    const vY = (TOP + vinylFloor) / 2;
+    vinylTxt.setAttribute("x", xr + 18);
+    vinylTxt.setAttribute("y", vY);
+    vinylTxt.setAttribute("text-anchor", "middle");
+    vinylTxt.setAttribute(
+      "transform",
+      "rotate(-90 " + (xr + 18) + " " + vY + ")",
+    );
+    vinylTxt.textContent =
+      compressK >= 1 ? "≈65 дБ" : Math.round(96 * squeeze) + " дБ";
   }
 
   const block5Steps = [
-    [block5Title, 0.0, 0.14],
-    [block5Ps[0], 0.08, 0.26],
-    [block5Ps[1], 0.18, 0.36],
+    [block5Title, 0.0, 0.07],
+    [block5Ps[0], 0.04, 0.13],
+    [block5Ps[1], 0.09, 0.18],
   ];
 
   const stepsShow = [];
@@ -742,45 +923,67 @@ document.addEventListener("DOMContentLoaded", function () {
   let shown5 = 0;
   let running5 = false;
 
+  // появление снизу: прозрачность и сдвиг
+  function rise(el, k, extra) {
+    el.style.opacity = k;
+    el.style.transform =
+      (extra || "") + " translateY(" + (1 - k) * 1.5 + "cqw)";
+  }
+
   function drawBlock5(progress) {
+    // часть 1: текст появляется, в части 2 уходит вверх
+    const out = ease(part(progress, 0.5, 0.57));
     block5Steps.forEach(function (step) {
       const el = step[0];
       const k = easeOut(part(progress, step[1], step[2]));
-      el.style.opacity = k;
-      el.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+      el.style.opacity = k * (1 - out);
+      el.style.transform = "translateY(" + ((1 - k) * 1.5 - out * 2) + "cqw)";
     });
 
-    // ступени: путь идёт слева направо, открываем его с начала
-    const k = ease(part(progress, 0.32, 0.7));
-    // концы линии далеко за окном — рисуем только видимую часть, чтобы
-    // скорость рисования не уходила на невидимые хвосты
+    // сжатие винила и подъём ступеней
+    const squeezeK = ease(part(progress, 0.72, 0.88));
+    buildSteps(1 - (1 - VINYL_K) * squeezeK);
+    const lift = ease(part(progress, 0.52, 0.64));
+    stepsSvgs.forEach(function (svg) {
+      svg.style.transform = "translateY(" + -STEPS_LIFT * lift + "cqw)";
+    });
+
+    // ступени рисуются: только видимая часть, чтобы скорость не уходила на хвосты
+    const k = ease(part(progress, 0.16, 0.35));
     const vis = visibleRange();
     let dash = vis[0] + (vis[1] - vis[0]) * k;
     if (k <= 0) dash = 0;
-    if (k >= 1) dash = stepsLen;
-    stepsLine.style.strokeDasharray = dash + " " + (stepsLen + 1);
+    stepsLine.style.strokeDasharray =
+      k >= 1 ? "none" : dash + " " + (total + 1);
 
     // свечение: шторка доходит ровно до кончика линии
-    let tipX = stepsLine.getPointAtLength(dash).x;
+    let tipX = pointAt(dash)[0];
     if (k <= 0) tipX = -2000;
     if (k >= 1) tipX = 4000;
     stepsWipe.setAttribute("x1", tipX - WIPE_SOFT);
     stepsWipe.setAttribute("x2", tipX);
 
     stepsDots.forEach(function (dot, i) {
-      const from = 0.7 + i * 0.03;
-      stepsShow[i] = ease(part(progress, from, from + 0.04));
+      const from = 0.35 + i * 0.015;
+      stepsShow[i] = ease(part(progress, from, from + 0.02));
     });
-    startSteps();
-  }
 
-  // какой отрезок пути (по длине) сейчас попадает в окно
-  function visibleRange() {
-    const rect = steps.getBoundingClientRect();
-    const scale = rect.width / 1644;
-    const xMin = (0 - rect.left) / scale;
-    const xMax = (window.innerWidth - rect.left) / scale;
-    return [lengthAtX(xMin), lengthAtX(xMax)];
+    // часть 2: линейки, цифры, плашка
+    const guidesK = ease(part(progress, 0.6, 0.68));
+    stepsGuides.style.opacity = guidesK;
+    guideTxts.forEach(function (t) {
+      t.style.opacity = guidesK * 0.75;
+    });
+    drawGuides(squeezeK);
+
+    rise(factCd, easeOut(part(progress, 0.6, 0.68)), "translateX(-50%)");
+    rise(factVinyl, easeOut(part(progress, 0.64, 0.72)), "translateX(-50%)");
+
+    const moreK = easeOut(part(progress, 0.86, 0.94));
+    rise(moreBtn, moreK);
+    moreBtn.classList.toggle("is_shown", moreK > 0.5);
+
+    startSteps();
   }
 
   function tick5() {
@@ -817,14 +1020,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const vis = visibleRange();
     // чуть шире окна, чтобы точка уезжала за край целиком
     const from = Math.max(0, vis[0] - 60);
-    const span = Math.min(stepsLen, vis[1] + 60) - from;
+    const span = Math.min(total, vis[1] + 60) - from;
     const n = stepsDots.length;
 
     stepsDots.forEach(function (dot, i) {
       const d = ((t / STEP_LOOP + (n - 1 - i) / n + 0.05) % 1) * span;
-      const pt = stepsLine.getPointAtLength(from + d);
-      dot.setAttribute("cx", pt.x);
-      dot.setAttribute("cy", pt.y);
+      const pt = pointAt(from + d);
+      dot.setAttribute("cx", pt[0]);
+      dot.setAttribute("cy", pt[1]);
       const edge = Math.min(1, d / STEP_EDGE, (span - d) / STEP_EDGE);
       dot.style.opacity = stepsShow[i] * edge;
     });
@@ -849,6 +1052,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (block5 && stepsLine) {
+    buildSteps(1);
     window.addEventListener("scroll", onScroll5, { passive: true });
     window.addEventListener("resize", onScroll5);
 
@@ -859,6 +1063,88 @@ document.addEventListener("DOMContentLoaded", function () {
 
     shown5 = getProgress5();
     drawBlock5(shown5);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block6 — «если дело не в звуке, тогда в чём?»
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.14   абзац
+  // 0.14 – 0.24   кружок
+  // 0.2  – 0.42   линия расходится от кружка к краям окна, свечение — вместе с ней
+  // 0.42 – 0.6    вопрос, по строке
+  // 0.6  – 1      пауза
+
+  const block6 = document.querySelector(".block6");
+  const b6Txt = document.querySelector(".block6_txt");
+  const b6Point = document.querySelector(".b6_point");
+  const b6LineSvg = document.querySelector(".b6_line_svg");
+  const b6LineGlow = document.querySelector(".b6_line_glow");
+  const b6Lines = document.querySelectorAll(".b6_q_line");
+  const SMOOTH_6 = 0.09;
+
+  function getProgress6() {
+    const rect = block6.getBoundingClientRect();
+    const scrollable = block6.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  function drawBlock6(progress) {
+    const t = easeOut(part(progress, 0, 0.14));
+    b6Txt.style.opacity = t;
+    b6Txt.style.transform = "translate(-50%, " + (1 - t) * 1.5 + "cqw)";
+
+    const p = easeOut(part(progress, 0.14, 0.24));
+    b6Point.style.opacity = p;
+    b6Point.style.transform =
+      "translate(-50%, -50%) scale(" + (0.6 + 0.4 * p) + ")";
+
+    // линия: доля от центра до края; свечение шире линии, поэтому его край
+    // считаем в процентах его собственной ширины (линия = 1440 из 1940)
+    const l = ease(part(progress, 0.2, 0.42));
+    b6LineSvg.style.transform = "scaleX(" + l + ")";
+    b6LineGlow.style.setProperty("--open", l * 50 * (1440 / 1940) + "%");
+    // пока линии нет, свечения нет совсем: мягкий край маски иначе
+    // оставлял пятно света в центре ещё до появления линии
+    b6LineGlow.style.opacity = Math.min(1, l / 0.15);
+
+    b6Lines.forEach(function (line, i) {
+      const from = 0.42 + i * 0.07;
+      const k = easeOut(part(progress, from, from + 0.11));
+      line.style.opacity = k;
+      line.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
+    });
+  }
+
+  let shown6 = 0;
+  let running6 = false;
+
+  function tick6() {
+    const target = getProgress6();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown6 = reduce ? target : shown6 + (target - shown6) * SMOOTH_6;
+    if (Math.abs(target - shown6) < 0.0005) shown6 = target;
+    drawBlock6(shown6);
+    if (shown6 !== target) {
+      window.requestAnimationFrame(tick6);
+    } else {
+      running6 = false;
+    }
+  }
+
+  function onScroll6() {
+    if (running6) return;
+    running6 = true;
+    window.requestAnimationFrame(tick6);
+  }
+
+  if (block6) {
+    window.addEventListener("scroll", onScroll6, { passive: true });
+    window.addEventListener("resize", onScroll6);
+    shown6 = getProgress6();
+    drawBlock6(shown6);
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
