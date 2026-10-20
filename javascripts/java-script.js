@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (typeof Lenis !== "undefined" && !reduceMotion) {
     const lenis = new Lenis({
-      lerp: 0.08,
+      lerp: 0.01,
       wheelMultiplier: 1,
     });
 
@@ -402,4 +402,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
   // общее: курсор
+  //
+  // кольцо как на 6 экране. в режиме «разница» (mix-blend-mode: difference)
+  // оно становится негативом того, что под ним: на тёмном — белое,
+  // на белом (плашки, кружки) — чёрное, поэтому никогда не сливается.
+  // кольцо мягко догоняет мышь (CURSOR_LERP), над кнопками увеличивается.
+  // на телефонах и планшетах курсора нет — там остаётся обычное касание
+
+  const finePointer = window.matchMedia(
+    "(hover: hover) and (pointer: fine)",
+  ).matches;
+
+  if (finePointer) {
+    const CURSOR_LERP = 0.25; // насколько быстро кольцо догоняет мышь: 1 — сразу
+    const cursor = document.createElement("div");
+    cursor.className = "cursor";
+    cursor.setAttribute("aria-hidden", "true");
+    document.body.appendChild(cursor);
+    document.documentElement.classList.add("has_cursor");
+
+    let mx = -100;
+    let my = -100;
+    let cx = mx;
+    let cy = my;
+    let shown = false;
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!shown) {
+        cx = mx;
+        cy = my;
+        shown = true;
+        cursor.classList.add("is_visible");
+      }
+      // над кнопками и ссылками кольцо увеличивается
+      const hover =
+        e.target.closest && e.target.closest("button, a, [role='button']");
+      cursor.classList.toggle("is_hover", !!hover);
+    });
+
+    document.addEventListener("mouseleave", function () {
+      shown = false;
+      cursor.classList.remove("is_visible");
+    });
+
+    window.addEventListener("mousedown", function () {
+      cursor.classList.add("is_down");
+    });
+    window.addEventListener("mouseup", function () {
+      cursor.classList.remove("is_down");
+    });
+
+    function cursorFrame() {
+      const k = reduceMotion ? 1 : CURSOR_LERP;
+      cx += (mx - cx) * k;
+      cy += (my - cy) * k;
+      cursor.style.transform = "translate(" + cx + "px, " + cy + "px)";
+      window.requestAnimationFrame(cursorFrame);
+    }
+    window.requestAnimationFrame(cursorFrame);
+  }
 });
