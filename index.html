@@ -607,24 +607,63 @@
             fill="none"
             aria-hidden="true"
           >
+            <!-- вторая часть: ступени становятся столбиками — диапазон носителей.
+                 подписи стоят в единицах этого svg и двигаются вместе со ступенями -->
             <g class="steps_guides" stroke="white" stroke-width="1.5">
-              <line class="guide_top" stroke-dasharray="4 6" />
-              <line class="guide_cd" stroke-dasharray="4 6" />
-              <line class="guide_vinyl" stroke-dasharray="4 6" />
-              <g class="ruler_cd">
-                <line class="ruler_line" />
-                <line class="ruler_tick_top" />
-                <line class="ruler_tick_bottom" />
-              </g>
-              <g class="ruler_vinyl">
-                <line class="ruler_line" />
-                <line class="ruler_tick_top" />
-                <line class="ruler_tick_bottom" />
-              </g>
+              <line
+                class="guide_96"
+                stroke-dasharray="4 6"
+                stroke-opacity="0.5"
+              />
+              <line
+                class="guide_65"
+                stroke-dasharray="4 6"
+                stroke-opacity="0.5"
+              />
+              <line
+                class="link_cd"
+                stroke-dasharray="2 5"
+                stroke-opacity="0.6"
+              />
+              <line
+                class="link_vinyl"
+                stroke-dasharray="2 5"
+                stroke-opacity="0.6"
+              />
             </g>
-            <text class="guide_txt guide_top_txt">максимальная громкость</text>
-            <text class="guide_txt ruler_cd_txt">96 дБ</text>
-            <text class="guide_txt ruler_vinyl_txt">96 дБ</text>
+            <rect class="vinyl_fill" />
+            <path class="vinyl_hl" stroke="white" stroke-width="3" />
+            <text class="guide_txt g96_txt">96 дБ</text>
+            <text class="guide_txt g65_txt">65 дБ</text>
+            <text class="bar_val" data-bar="0">144 дБ</text>
+            <text class="bar_val" data-bar="2">80 дБ</text>
+            <text class="bar_val" data-bar="4">56 дБ</text>
+            <text class="bar_name" data-bar="0">hi-res 24 бит</text>
+            <text class="bar_name is_key" data-bar="1">компакт-диск</text>
+            <text class="bar_name" data-bar="2">катушечная лента</text>
+            <text class="bar_name is_key is_vinyl" data-bar="3">винил</text>
+            <text class="bar_name" data-bar="4">кассета</text>
+            <!-- продажи в США за 2024 (RIAA): полоска длиной по числу проданных -->
+            <line
+              class="sale_bar"
+              data-bar="1"
+              data-units="33"
+              stroke="white"
+              stroke-width="3"
+            />
+            <line
+              class="sale_bar is_vinyl"
+              data-bar="3"
+              data-units="44"
+              stroke="white"
+              stroke-width="3"
+            />
+            <text class="bar_sale" data-bar="1">
+              33 млн продано в США в 2024
+            </text>
+            <text class="bar_sale is_vinyl" data-bar="3">
+              44 млн продано в США в 2024
+            </text>
             <circle class="steps_dot" r="22" />
             <circle class="steps_dot" r="22" />
             <circle class="steps_dot" r="22" />
@@ -643,7 +682,31 @@
             <p class="b5_cap">динамический диапазон винила</p>
           </div>
 
-          <button class="b5_more" type="button">
+          <!-- раскрытая плашка: открывается по клику на «откуда берётся теплота» -->
+          <div class="b5_panel" id="b5_panel" aria-hidden="true">
+            <p class="b5_panel_txt">
+              Ощущение тепла не&nbsp;выдумка, но&nbsp;и&nbsp;не&nbsp;точность.
+              Его создают сразу несколько эффектов: гармонические искажения,
+              частотная коррекция при записи и&nbsp;воспроизведении,
+              механические резонансы и&nbsp;мягкий спад высоких частот.
+              То&nbsp;есть пластинка не&nbsp;передаёт запись точнее. Она
+              добавляет к&nbsp;ней собственный характер, и&nbsp;многим этот
+              характер нравится.
+            </p>
+            <div class="b5_panel_bottom">
+              <button class="b5_close" type="button" aria-label="Закрыть">
+                <img src="./images/minus.svg" alt="" />
+              </button>
+              <p class="b5_panel_title">Откуда берётся теплота</p>
+            </div>
+          </div>
+
+          <button
+            class="b5_more"
+            type="button"
+            aria-expanded="false"
+            aria-controls="b5_panel"
+          >
             <img src="./images/plus.svg" alt="" />
             <span>Откуда берётся теплота</span>
           </button>
@@ -1223,7 +1286,77 @@
       </div>
     </section>
 
-    <section class="block9"></section>
+    <!-- бегущая строка между 8 и 9 экраном. текст повторён дважды:
+         когда первая копия уезжает, на её место встаёт вторая — без шва -->
+    <section
+      class="marquee"
+      aria-label="Стриминг экономит время. Пластинка заставляет его потратить."
+    >
+      <div class="marquee_track" aria-hidden="true">
+        <div class="marquee_group">
+          <span class="marquee_item"
+            >Стриминг экономит время. Пластинка заставляет его потратить.</span
+          ><span class="marquee_sep" aria-hidden="true"></span
+          ><span class="marquee_item"
+            >Стриминг экономит время. Пластинка заставляет его потратить.</span
+          ><span class="marquee_sep" aria-hidden="true"></span>
+        </div>
+        <div class="marquee_group">
+          <span class="marquee_item"
+            >Стриминг экономит время. Пластинка заставляет его потратить.</span
+          ><span class="marquee_sep" aria-hidden="true"></span
+          ><span class="marquee_item"
+            >Стриминг экономит время. Пластинка заставляет его потратить.</span
+          ><span class="marquee_sep" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="block9">
+      <div class="block9_sticky">
+        <div class="block9_stage">
+          <h2 class="block9_title">Музыка, которую можно держать в руках</h2>
+          <div class="block9_text">
+            <p class="b9_p">
+              Подписка на стриминг даёт доступ, но&nbsp;не&nbsp;собственность.
+              Музыка живёт на чужом сервере. Альбом может исчезнуть из каталога,
+              а&nbsp;песня утонуть среди сотен миллионов других. По данным
+              Luminate, в&nbsp;2025 году около 120 миллионов треков набрали за
+              год десять прослушиваний или меньше.
+            </p>
+            <p class="b9_p">
+              Пластинка устроена наоборот. У&nbsp;неё есть вес, обложка размером
+              с&nbsp;небольшой плакат, вкладыш, иногда подпись или номер тиража.
+              Её&nbsp;можно поставить на полку, подарить, передать детям. Купив
+              её, человек поддерживает артиста и&nbsp;показывает, кого он любит.
+              Глава американской ассоциации звукозаписи RIAA Митч Глейзер описал
+              нынешний подъём как возвращение винила и&nbsp;как способа слушать,
+              и&nbsp;как коллекционного искусства.
+            </p>
+          </div>
+
+          <!-- финал: цитата Беньямина по орбитам, как текст песен в буклете.
+               круг строит screens.js, текст для экранных читалок — здесь -->
+          <blockquote class="b9_quote_src">
+            «Эту ауру можно определить как уникальное ощущение дали, как бы
+            близок при этом предмет ни был. Скользить взглядом во время летнего
+            послеполуденного отдыха по линии горной гряды на горизонте или
+            ветви, под сенью которой проходит отдых, — это значит вдыхать ауру
+            этих гор, этой ветви». «Здесь и сейчас оригинала определяют понятие
+            его подлинности. <…> Все, что связано с подлинностью, недоступно
+            технической — и, разумеется, не только технической — репродукции».
+            Вальтер Беньямин, «Произведение искусства в эпоху его технической
+            воспроизводимости», 1936
+          </blockquote>
+          <svg
+            class="b9_rings"
+            viewBox="0 0 1440 1024"
+            fill="none"
+            aria-hidden="true"
+          ></svg>
+        </div>
+      </div>
+    </section>
 
     <section class="block10"></section>
 

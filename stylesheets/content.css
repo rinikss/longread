@@ -1047,7 +1047,56 @@ html.is_locked body {
 /* вторая часть: линейки диапазона и пунктиры (рисуются в svg, в единицах макета) */
 .steps_guides,
 .guide_txt {
+  fill: #fff;
+  font-family: "Geist Mono", monospace;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* столбики второй части: значения, названия, продажи (в единицах svg ≈ px макета) */
+.bar_val,
+.bar_name,
+.bar_sale,
+.vinyl_fill,
+.vinyl_hl {
   opacity: 0;
+}
+
+.bar_val {
+  fill: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 40px;
+  text-anchor: middle;
+}
+
+.bar_name {
+  fill: #fff;
+  font-family: "Geist Mono", monospace;
+  font-size: 15px;
+  text-anchor: middle;
+}
+
+.bar_sale {
+  fill: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 16px;
+  text-anchor: middle;
+}
+
+.sale_bar,
+.sale_note {
+  opacity: 0;
+}
+
+/* винил: подпись светится, столбик слегка залит */
+.bar_name.is_vinyl,
+.bar_sale.is_vinyl {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+}
+
+.vinyl_fill {
+  fill: rgba(255, 255, 255, 0.07);
 }
 
 .guide_txt {
@@ -1069,12 +1118,13 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
+/* центры над столбиками компакт-диска и винила */
 .b5_fact_cd {
-  left: 18.68cqw;
+  left: 30.27cqw;
 }
 
 .b5_fact_vinyl {
-  left: 79.24cqw;
+  left: 69.52cqw;
 }
 
 .b5_num {
@@ -1126,6 +1176,84 @@ html.is_locked body {
   width: 2.78cqw;
   height: 2.78cqw;
   filter: invert(1);
+}
+
+/* раскрытая плашка: той же ширины, нижний край там же, где у закрытой,
+   растёт вверх. текст 28px, снизу линия, минус и заголовок */
+.b5_panel {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.22vw);
+  bottom: 5.14cqw;
+  width: calc(100vw - 4.44vw);
+  z-index: 3;
+  background: #fff;
+  color: #111;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  visibility: hidden;
+  opacity: 0;
+  clip-path: inset(100% 0 0 0);
+  transition:
+    opacity 0.4s ease,
+    clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0s linear 0.6s;
+}
+
+.b5_panel.is_open {
+  visibility: visible;
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity 0.4s ease,
+    clip-path 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    visibility 0s linear 0s;
+}
+
+.b5_panel_txt {
+  padding: 1.81cqw 1.81cqw 1.81cqw;
+  font-size: 1.94cqw;
+  line-height: 130%;
+}
+
+.b5_panel_bottom {
+  display: flex;
+  align-items: center;
+  gap: 1.67cqw;
+  height: 6.53cqw;
+  padding: 0 1.81cqw;
+  border-top: 0.07cqw solid #111;
+}
+
+.b5_panel_title {
+  font-size: 1.67cqw;
+  font-weight: 700;
+}
+
+.b5_close {
+  width: 2.78cqw;
+  height: 2.78cqw;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+/* minus.svg уже тёмный — как в плашке 33⅓ RPM */
+.b5_close img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.b5_close:hover {
+  transform: scale(1.08);
+}
+
+.b5_close:focus-visible,
+.b5_more:focus-visible {
+  outline: 0.14vw solid #111;
+  outline-offset: -0.4vw;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
@@ -1476,6 +1604,180 @@ html.is_locked body {
   line-height: 125%;
   text-align: center;
   opacity: 0;
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* бегущая строка «стриминг экономит время…» между 8 и 9 экраном.
+   Bebas 180px при сцене 1440 (масштабируется вместе со сценой) */
+
+.marquee {
+  --marquee-size: calc(min(100vw, 140.625vh) * 0.125);
+  padding: 6vh 0;
+  overflow: hidden;
+}
+
+.marquee_track {
+  display: flex;
+  width: max-content;
+  animation: marqueeRun 40s linear infinite;
+}
+
+.marquee_group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.marquee_item {
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: var(--marquee-size);
+  line-height: 100%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* разделитель — кольцо, как курсор и кружок на 6 экране */
+.marquee_sep {
+  flex-shrink: 0;
+  width: calc(var(--marquee-size) * 0.27);
+  height: calc(var(--marquee-size) * 0.27);
+  margin: 0 calc(var(--marquee-size) * 0.35);
+  border: calc(var(--marquee-size) * 0.012) solid #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 calc(var(--marquee-size) * 0.06) rgba(255, 255, 255, 0.6),
+    inset 0 0 calc(var(--marquee-size) * 0.04) rgba(255, 255, 255, 0.4);
+}
+
+/* сдвиг ровно на одну копию — и строка бесшовно начинается заново */
+@keyframes marqueeRun {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee_track {
+    animation: none;
+  }
+}
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* block9 — «музыка, которую можно держать в руках».
+   пока только заголовок и текст; круг с цитатой добавим позже */
+
+.block9 {
+  height: 700vh;
+}
+
+.block9_sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.block9_stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 140.625vh);
+  aspect-ratio: 1440 / 1024;
+  transform: translate(-50%, -50%);
+  container-type: size;
+}
+
+/* заголовок как на 3 экране: Bebas 64px, 30px от левого края окна */
+.block9_title {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 6.94cqw;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 4.44cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* текст 24px */
+.block9_text {
+  position: absolute;
+  left: calc((100cqw - 100vw) / 2 + 2.08vw);
+  top: 13.75cqw;
+  width: 61cqw;
+  color: #fff;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67cqw;
+  line-height: 130%;
+}
+
+.b9_p {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.b9_p + .b9_p {
+  margin-top: 1.3cqw;
+}
+
+/* цитата для экранных читалок: на экране её показывает круг */
+.b9_quote_src {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* круг с цитатой: svg во всю сцену, единицы = px макета 1440×1024 */
+.b9_rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.b9_orbit {
+  stroke: #fff;
+  stroke-opacity: 0.18;
+  stroke-width: 1;
+}
+
+.b9_line,
+.b9_head {
+  fill: #fff;
+  opacity: 0;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.55);
+}
+
+.b9_line {
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 21px;
+}
+
+.b9_head {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+.b9_sub {
+  font-family: "Geist Mono", monospace;
+  font-size: 14px;
+  fill-opacity: 0.7;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */

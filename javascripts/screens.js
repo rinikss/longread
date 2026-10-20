@@ -650,12 +650,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // 0    – 0.18   заголовок и два абзаца по очереди
   // 0.16 – 0.35   ступени рисуются слева направо, свечение — шторкой вместе с линией
   // 0.35 – 0.45   точки по очереди появляются
-  // часть 2 — фактоиды
+  // часть 2 — диаграмма
   // 0.5  – 0.57   текст уходит вверх и гаснет
   // 0.52 – 0.64   ступени поднимаются
-  // 0.6  – 0.72   появляются линейки и цифры (сначала компакт-диск, потом винил)
-  // 0.72 – 0.88   правая половина (винил) сжимается к верхней линии: 96 → ≈65 дБ
-  // 0.86 – 0.94   появляется плашка «откуда берётся теплота»
+  // 0.6  – 0.76   ступени перестраиваются в столбики: низы — в одну линию,
+  //               высота каждого столбика — динамический диапазон носителя
+  // 0.66 – 0.74   цифры «≈96 дБ» и «60–70 дБ» над столбиками CD и винила
+  // 0.72 – 0.8    пунктиры 96 и 65 дБ, значения и названия носителей
+  // 0.74 – 0.86   продажи: под CD и винилом вырастают полоски по числу
+  //               проданных в США в 2024 (33 и 44 млн)
+  // 0.88 – 0.95   плашка «откуда берётся теплота»
+  //
+  // цифры диапазона: CD 16 бит — 96 дБ, hi-res 24 бит — 144 дБ (теория:
+  // 6 дБ на бит), винил 55–65 дБ, кассета без шумоподавления 50–56 дБ,
+  // профессиональная катушечная лента — около 80 дБ на практике (Wikipedia,
+  // «Dynamic range»; Yamaha). продажи: RIAA, итоги 2024 года
+  //
   //
   // точки всё время сами по себе едут по ступеням слева направо друг за другом.
   // скорость — STEP_LOOP (секунд на один проезд по видимой части ступеней)
@@ -669,6 +679,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const stepsDots = document.querySelectorAll(".steps_dot");
   const stepsGuides = document.querySelector(".steps_guides");
   const guideTxts = document.querySelectorAll(".guide_txt");
+  const barVals = document.querySelectorAll(".bar_val");
+  const barNames = document.querySelectorAll(".bar_name");
+  const barSales = document.querySelectorAll(".bar_sale");
+  const saleBars = document.querySelectorAll(".sale_bar");
+  // полоска продаж: px на 1 млн проданных (44 млн → 132 px)
+  const PX_UNIT = 3;
+  const vinylFill = document.querySelector(".vinyl_fill");
+  const vinylHl = document.querySelector(".vinyl_hl");
   const factCd = document.querySelector(".b5_fact_cd");
   const factVinyl = document.querySelector(".b5_fact_vinyl");
   const moreBtn = document.querySelector(".b5_more");
@@ -677,15 +695,24 @@ document.addEventListener("DOMContentLoaded", function () {
   const STEP_EDGE = 80;
   const SMOOTH_5 = 0.09;
   // насколько поднимаются ступени во второй части, в cqw
-  const STEPS_LIFT = 16.49;
-  // во сколько раз сжимается винил: 65 из 96
-  const VINYL_K = 65 / 96;
+  const STEPS_LIFT = 18.99;
 
   // ступени как ломаная: [x, y] в единицах svg (как в макете 1644×656)
-  const TOP = 88.9; // потолок — максимальная громкость
-  const CD_FLOOR = 566.9; // самая нижняя ступень
-  // граница половин: в просвете справа от среднего столбика.
-  // левее — компакт-диск (не меняется), правее — винил (сжимается)
+  const TOP = 88.9; // верх шкалы — 144 дБ
+  const FLOOR = 566.9; // общая нижняя линия столбиков — 0 дБ
+  const PX_DB = (FLOOR - TOP) / 144;
+  const yDb = function (db) {
+    return FLOOR - db * PX_DB;
+  };
+
+  // пять «столбиков» ступеней → пять носителей (по убыванию диапазона)
+  const BARS = [
+    { x1: 230.165, x2: 371.43, db: 144, top: [2, 3] }, // hi-res 24 бит
+    { x1: 512.695, x2: 653.96, db: 96, top: [6, 7] }, // компакт-диск
+    { x1: 795.224, x2: 936.574, db: 80, top: [10, 11] }, // катушечная лента
+    { x1: 1077.84, x2: 1219.1, db: 65, top: [16, 17] }, // винил
+    { x1: 1360.37, x2: 1501.63, db: 56, top: [20, 21] }, // кассета
+  ];
   const MIDDLE = 1007.2;
   const BASE = [
     [-500, 527.707],
@@ -718,14 +745,19 @@ document.addEventListener("DOMContentLoaded", function () {
   let pts = [];
   let cum = [];
   let total = 0;
-  let squeeze = 1;
 
-  // пересобрать ломаную под текущее сжатие винила
-  function buildSteps(f) {
-    squeeze = f;
-    pts = BASE.map(function (p) {
-      if (p[0] > MIDDLE || p[2]) return [p[0], TOP + (p[1] - TOP) * f];
-      return [p[0], p[1]];
+  // куда встаёт каждая точка ступеней в диаграмме
+  const TARGET = BASE.map(function (p, i) {
+    for (let b = 0; b < BARS.length; b++) {
+      if (BARS[b].top.indexOf(i) !== -1) return yDb(BARS[b].db);
+    }
+    return FLOOR;
+  });
+
+  // пересобрать ломаную: m = 0 — ступени, 1 — диаграмма
+  function buildSteps(m) {
+    pts = BASE.map(function (p, i) {
+      return [p[0], p[1] + (TARGET[i] - p[1]) * m];
     });
     cum = [0];
     for (let i = 1; i < pts.length; i++) {
@@ -792,69 +824,83 @@ document.addEventListener("DOMContentLoaded", function () {
     el.setAttribute("y2", y2);
   }
 
-  // пунктиры и линейки по краям окна
-  function drawGuides(compressK) {
+  function setText(el, x, y) {
+    el.setAttribute("x", x);
+    el.setAttribute("y", y);
+  }
+
+  // пунктиры, связи с цифрами и подписи столбиков
+  let saleGrow = 0; // 0…1 — насколько выросли полоски продаж
+
+  function drawGuides() {
     const v = viewX();
-    const vinylFloor = TOP + (CD_FLOOR - TOP) * squeeze;
-    const pad = (window.innerWidth * 0.025) / v[2]; // 2.5vw от края окна
-    const xl = v[0] + pad;
-    const xr = v[1] - pad;
-
-    setLine(stepsGuides.querySelector(".guide_top"), v[0], TOP, v[1], TOP);
     setLine(
-      stepsGuides.querySelector(".guide_cd"),
+      stepsGuides.querySelector(".guide_96"),
       v[0],
-      CD_FLOOR,
-      MIDDLE,
-      CD_FLOOR,
+      yDb(96),
+      v[1],
+      yDb(96),
     );
     setLine(
-      stepsGuides.querySelector(".guide_vinyl"),
-      MIDDLE,
-      vinylFloor,
+      stepsGuides.querySelector(".guide_65"),
+      v[0],
+      yDb(65),
       v[1],
-      vinylFloor,
+      yDb(65),
     );
+    const pad = (window.innerWidth * 0.0222) / v[2]; // 32px от края окна
+    setText(guideTxts[0], v[0] + pad, yDb(96) - 10);
+    setText(guideTxts[1], v[0] + pad, yDb(65) - 10);
 
+    // пунктир от подписи цифры (низ блока фактоида) до верха столбика
+    const svgRect = steps.getBoundingClientRect();
     [
-      [".ruler_cd", xl, CD_FLOOR],
-      [".ruler_vinyl", xr, vinylFloor],
-    ].forEach(function (r) {
-      const g = stepsGuides.querySelector(r[0]);
-      setLine(g.querySelector(".ruler_line"), r[1], TOP, r[1], r[2]);
-      setLine(g.querySelector(".ruler_tick_top"), r[1] - 8, TOP, r[1] + 8, TOP);
+      [factCd, 1, ".link_cd"],
+      [factVinyl, 3, ".link_vinyl"],
+    ].forEach(function (l) {
+      const b = BARS[l[1]];
+      const cx = (b.x1 + b.x2) / 2;
+      const factBottom =
+        (l[0].getBoundingClientRect().bottom - svgRect.top) / v[2];
       setLine(
-        g.querySelector(".ruler_tick_bottom"),
-        r[1] - 8,
-        r[2],
-        r[1] + 8,
-        r[2],
+        stepsGuides.querySelector(l[2]),
+        cx,
+        factBottom + 10,
+        cx,
+        yDb(b.db) - 12,
       );
     });
 
-    // подписи: «максимальная громкость» над потолком, цифры — вдоль линеек
-    const topTxt = guideTxts[0];
-    topTxt.setAttribute("x", xl + 16);
-    topTxt.setAttribute("y", TOP - 12);
+    barVals.forEach(function (t) {
+      const b = BARS[+t.dataset.bar];
+      setText(t, (b.x1 + b.x2) / 2, yDb(b.db) - 14);
+    });
+    barNames.forEach(function (t) {
+      const b = BARS[+t.dataset.bar];
+      setText(t, (b.x1 + b.x2) / 2, FLOOR + 28);
+    });
+    barSales.forEach(function (t) {
+      const b = BARS[+t.dataset.bar];
+      setText(t, (b.x1 + b.x2) / 2, FLOOR + 72);
+    });
+    // полоски продаж под названиями: растут из центра
+    saleBars.forEach(function (l) {
+      const b = BARS[+l.dataset.bar];
+      const cx = (b.x1 + b.x2) / 2;
+      const half = (+l.dataset.units * PX_UNIT * saleGrow) / 2;
+      setLine(l, cx - half, FLOOR + 46, cx + half, FLOOR + 46);
+    });
 
-    const cdTxt = guideTxts[1];
-    const cdY = (TOP + CD_FLOOR) / 2;
-    cdTxt.setAttribute("x", xl - 8);
-    cdTxt.setAttribute("y", cdY);
-    cdTxt.setAttribute("text-anchor", "middle");
-    cdTxt.setAttribute("transform", "rotate(-90 " + (xl - 8) + " " + cdY + ")");
-
-    const vinylTxt = guideTxts[2];
-    const vY = (TOP + vinylFloor) / 2;
-    vinylTxt.setAttribute("x", xr + 18);
-    vinylTxt.setAttribute("y", vY);
-    vinylTxt.setAttribute("text-anchor", "middle");
-    vinylTxt.setAttribute(
-      "transform",
-      "rotate(-90 " + (xr + 18) + " " + vY + ")",
+    // винил: заливка и вторая обводка (свечение сильнее)
+    const vb = BARS[3];
+    vinylFill.setAttribute("x", vb.x1);
+    vinylFill.setAttribute("y", yDb(vb.db));
+    vinylFill.setAttribute("width", vb.x2 - vb.x1);
+    vinylFill.setAttribute("height", vb.db * PX_DB);
+    vinylHl.setAttribute(
+      "d",
+      "M" + vb.x1 + " " + FLOOR + "V" + yDb(vb.db) + "H" + vb.x2 + "V" + FLOOR,
     );
-    vinylTxt.textContent =
-      compressK >= 1 ? "≈65 дБ" : Math.round(96 * squeeze) + " дБ";
   }
 
   const block5Steps = [
@@ -895,9 +941,9 @@ document.addEventListener("DOMContentLoaded", function () {
       el.style.transform = "translateY(" + ((1 - k) * 1.5 - out * 2) + "cqw)";
     });
 
-    // сжатие винила и подъём ступеней
-    const squeezeK = ease(part(progress, 0.72, 0.88));
-    buildSteps(1 - (1 - VINYL_K) * squeezeK);
+    // ступени перестраиваются в столбики и поднимаются
+    const morphK = ease(part(progress, 0.6, 0.76));
+    buildSteps(morphK);
     const lift = ease(part(progress, 0.52, 0.64));
     stepsSvgs.forEach(function (svg) {
       svg.style.transform = "translateY(" + -STEPS_LIFT * lift + "cqw)";
@@ -917,20 +963,37 @@ document.addEventListener("DOMContentLoaded", function () {
       stepsShow[i] = ease(part(progress, from, from + 0.02));
     });
 
-    // часть 2: линейки, цифры, плашка
-    const guidesK = ease(part(progress, 0.6, 0.68));
+    // часть 2: цифры над столбиками, пунктиры, подписи
+    rise(factCd, easeOut(part(progress, 0.66, 0.72)), "translateX(-50%)");
+    rise(factVinyl, easeOut(part(progress, 0.68, 0.74)), "translateX(-50%)");
+
+    const guidesK = ease(part(progress, 0.72, 0.8));
     stepsGuides.style.opacity = guidesK;
     guideTxts.forEach(function (t) {
-      t.style.opacity = guidesK * 0.75;
+      t.style.opacity = guidesK * 0.6;
     });
-    drawGuides(squeezeK);
+    barVals.forEach(function (t) {
+      t.style.opacity = guidesK * 0.85;
+    });
+    barNames.forEach(function (t) {
+      t.style.opacity = guidesK * (t.classList.contains("is_key") ? 1 : 0.55);
+    });
+    vinylFill.style.opacity = guidesK;
+    vinylHl.style.opacity = guidesK;
+    const saleK = easeOut(part(progress, 0.74, 0.84));
+    saleGrow = ease(part(progress, 0.74, 0.86));
+    barSales.forEach(function (t) {
+      t.style.opacity = saleK;
+    });
+    saleBars.forEach(function (l) {
+      l.style.opacity = saleK * (l.classList.contains("is_vinyl") ? 1 : 0.7);
+    });
+    drawGuides();
 
-    rise(factCd, easeOut(part(progress, 0.6, 0.68)), "translateX(-50%)");
-    rise(factVinyl, easeOut(part(progress, 0.64, 0.72)), "translateX(-50%)");
-
-    const moreK = easeOut(part(progress, 0.86, 0.94));
+    const moreK = easeOut(part(progress, 0.88, 0.95));
     rise(moreBtn, moreK);
     moreBtn.classList.toggle("is_shown", moreK > 0.5);
+    if (moreK < 0.5) closeB5();
 
     startSteps();
   }
@@ -1000,8 +1063,44 @@ document.addEventListener("DOMContentLoaded", function () {
     window.requestAnimationFrame(stepsFrame);
   }
 
+  // плашка «откуда берётся теплота»: открывается по клику, закрывается минусом,
+  // кликом мимо, клавишей Esc и если прокрутить экран назад
+  const b5Panel = document.querySelector(".b5_panel");
+  const b5Close = document.querySelector(".b5_close");
+
+  function openB5() {
+    if (!b5Panel) return;
+    b5Panel.classList.add("is_open");
+    b5Panel.setAttribute("aria-hidden", "false");
+    moreBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closeB5() {
+    if (!b5Panel || !b5Panel.classList.contains("is_open")) return;
+    b5Panel.classList.remove("is_open");
+    b5Panel.setAttribute("aria-hidden", "true");
+    moreBtn.setAttribute("aria-expanded", "false");
+  }
+
+  if (moreBtn && b5Panel) {
+    moreBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openB5();
+    });
+    b5Close.addEventListener("click", function (e) {
+      e.stopPropagation();
+      closeB5();
+    });
+    document.addEventListener("click", function (e) {
+      if (!b5Panel.contains(e.target)) closeB5();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeB5();
+    });
+  }
+
   if (block5 && stepsLine) {
-    buildSteps(1);
+    buildSteps(0);
     window.addEventListener("scroll", onScroll5, { passive: true });
     window.addEventListener("resize", onScroll5);
 
@@ -1344,6 +1443,326 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // block9 — «музыка, которую можно держать в руках» + финальный круг
+  //
+  // прогресс секции от 0 до 1:
+  // 0    – 0.12   заголовок
+  // 0.06 – 0.2    первый абзац
+  // 0.12 – 0.26   второй абзац
+  // 0.32 – 0.4    текст уходит вверх и гаснет
+  // 0.38 – 0.5    прочерчиваются орбиты
+  // 0.46 – 0.9    строки цитаты проявляются по очереди, песня за песней
+  // 0.9  – 1      пауза
+  //
+  // круг всё время медленно вращается сам по себе (не от скролла).
+  // у каждой орбиты своя скорость: она чуть «гуляет» вокруг общей, поэтому
+  // строки слегка смещаются друг относительно друга, но песни не рассыпаются.
+  // строки одной орбиты (из разных песен) всегда едут вместе и не сталкиваются
+
+  const block9 = document.querySelector(".block9");
+  const b9Title = document.querySelector(".block9_title");
+  const b9Ps = document.querySelectorAll(".b9_p");
+  const b9Svg = document.querySelector(".b9_rings");
+  const SMOOTH_9 = 0.09;
+
+  const B9 = {
+    cx: 720, // центр круга, px макета
+    cy: 512,
+    r0: 330, // орбита заголовков
+    size: 21, // кегль строк
+    gap: 1, // зазор между орбитами
+    step: 3.5, // насколько каждая строка начинается дальше предыдущей, °
+    speed: 1.6, // общая скорость вращения, ° в секунду
+    sway: 5, // насколько орбиты «гуляют» друг относительно друга, °
+  };
+
+  // четыре «песни» по четвертям круга: [начало в °, заголовок, подпись, строки]
+  const B9_SONGS = [
+    [
+      160,
+      "Аура",
+      "Беньямин · 1936",
+      [
+        "эту ауру можно определить",
+        "как уникальное ощущение дали,",
+        "как бы близок",
+        "при этом предмет ни был ·",
+        "скользить взглядом",
+      ],
+    ],
+    [
+      250,
+      "Даль",
+      "II",
+      [
+        "во время летнего",
+        "послеполуденного отдыха",
+        "по линии горной гряды",
+        "на горизонте или ветви,",
+        "под сенью которой проходит",
+        "отдых, — это значит вдыхать",
+        "ауру этих гор, этой ветви",
+      ],
+    ],
+    [
+      355,
+      "Здесь и сейчас",
+      "III",
+      [
+        "здесь и сейчас оригинала",
+        "определяют понятие",
+        "его подлинности ·",
+        "все, что связано",
+        "с подлинностью,",
+      ],
+    ],
+    [
+      70,
+      "Подлинность",
+      "IV",
+      [
+        "недоступно технической —",
+        "и, разумеется,",
+        "не только технической —",
+        "репродукции ·",
+      ],
+    ],
+  ];
+  const B9_JITTER = [0, 3, -2, 4, 1, -3, 2, 5, -1, 3, 0, 2];
+
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const b9Orbits = []; // { r, circle, len, group, phase, k }
+  const b9Lines = []; // { el, order }
+
+  function svgEl(tag, attrs, parent) {
+    const el = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) {
+      el.setAttribute(k, attrs[k]);
+    });
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+
+  // путь-круг, начинающийся в точке под углом a (по часовой)
+  function circlePath(r, aDeg) {
+    const a = (aDeg * Math.PI) / 180;
+    const x1 = B9.cx + r * Math.cos(a);
+    const y1 = B9.cy + r * Math.sin(a);
+    const x2 = B9.cx - r * Math.cos(a);
+    const y2 = B9.cy - r * Math.sin(a);
+    return (
+      "M" +
+      x1 +
+      " " +
+      y1 +
+      "A" +
+      r +
+      " " +
+      r +
+      " 0 1 1 " +
+      x2 +
+      " " +
+      y2 +
+      "A" +
+      r +
+      " " +
+      r +
+      " 0 1 1 " +
+      x1 +
+      " " +
+      y1
+    );
+  }
+
+  function orbitAt(index, r) {
+    if (b9Orbits[index]) return b9Orbits[index];
+    const o = { r: r };
+    o.circle = svgEl(
+      "circle",
+      { class: "b9_orbit", cx: B9.cx, cy: B9.cy, r: r - 2, pathLength: 1 },
+      b9Svg,
+    );
+    o.group = svgEl("g", {}, null); // группы строк кладём поверх орбит позже
+    // своя скорость: каждая орбита по-своему «гуляет» вокруг общей
+    o.phase = index * 1.7;
+    o.k = 0.55 + ((index * 37) % 10) / 20;
+    b9Orbits[index] = o;
+    return o;
+  }
+
+  function buildB9() {
+    if (!b9Svg) return;
+    let order = 0;
+    // индекс 0 — орбита заголовков, дальше орбиты строк
+    orbitAt(0, B9.r0);
+    B9_SONGS.forEach(function (song, si) {
+      const a0 = song[0];
+      song[3].forEach(function (_, i) {
+        orbitAt(i + 1, B9.r0 - 32 - i * (B9.size + B9.gap));
+      });
+      // заголовок
+      const hid = "b9p" + si + "h";
+      svgEl("path", { id: hid, d: circlePath(B9.r0, a0) }, b9Orbits[0].group);
+      const ht = svgEl("text", { class: "b9_head" }, b9Orbits[0].group);
+      const htp = svgEl("textPath", { href: "#" + hid }, ht);
+      htp.textContent = song[1];
+      const sub = svgEl("tspan", { class: "b9_sub", dx: 8, dy: -12 }, htp);
+      sub.textContent = song[2];
+      b9Lines.push({ el: ht, order: order++ });
+      // строки
+      song[3].forEach(function (line, i) {
+        const o = b9Orbits[i + 1];
+        const id = "b9p" + si + "_" + i;
+        const a = a0 + 4 + i * B9.step + B9_JITTER[i % B9_JITTER.length];
+        svgEl("path", { id: id, d: circlePath(o.r, a) }, o.group);
+        const t = svgEl("text", { class: "b9_line" }, o.group);
+        const tp = svgEl("textPath", { href: "#" + id }, t);
+        tp.textContent = line;
+        b9Lines.push({ el: t, order: order++ });
+      });
+    });
+    // группы строк — поверх всех орбит
+    b9Orbits.forEach(function (o) {
+      b9Svg.appendChild(o.group);
+    });
+  }
+  buildB9();
+
+  function getProgress9() {
+    const rect = block9.getBoundingClientRect();
+    const scrollable = block9.offsetHeight - window.innerHeight;
+    return Math.min(Math.max(-rect.top / scrollable, 0), 1);
+  }
+
+  let b9RingsOn = 0; // видны ли орбиты — от этого зависит вращение
+
+  function drawBlock9(progress) {
+    const out = ease(part(progress, 0.32, 0.4));
+    [
+      [b9Title, 0, 0.12],
+      [b9Ps[0], 0.06, 0.2],
+      [b9Ps[1], 0.12, 0.26],
+    ].forEach(function (st) {
+      const k = easeOut(part(progress, st[1], st[2]));
+      st[0].style.opacity = k * (1 - out);
+      st[0].style.transform =
+        "translateY(" + ((1 - k) * 1.5 - out * 3) + "cqw)";
+    });
+
+    // орбиты прочерчиваются от центра наружу
+    b9Orbits.forEach(function (o, i) {
+      const from = 0.38 + (b9Orbits.length - 1 - i) * 0.008;
+      const k = ease(part(progress, from, from + 0.06));
+      o.circle.style.strokeDasharray = k >= 1 ? "none" : k + " " + (1.01 - k);
+    });
+    b9RingsOn = part(progress, 0.38, 0.4);
+
+    // строки по очереди
+    const n = b9Lines.length;
+    b9Lines.forEach(function (l) {
+      const from = 0.46 + (l.order / n) * 0.4;
+      l.el.style.opacity = easeOut(part(progress, from, from + 0.04));
+    });
+    startB9();
+  }
+
+  // вращение
+  let b9Running = false;
+  let b9Visible = false;
+  const b9Start = performance.now();
+
+  function spinB9(now) {
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const t = reduce ? 0 : (now - b9Start) / 1000;
+    b9Orbits.forEach(function (o) {
+      const a = t * B9.speed + Math.sin(t * 0.25 * o.k + o.phase) * B9.sway;
+      o.group.setAttribute(
+        "transform",
+        "rotate(" + a + " " + B9.cx + " " + B9.cy + ")",
+      );
+    });
+  }
+
+  function b9Frame(now) {
+    spinB9(now);
+    if (b9Visible && b9RingsOn > 0) {
+      window.requestAnimationFrame(b9Frame);
+    } else {
+      b9Running = false;
+    }
+  }
+
+  function startB9() {
+    if (b9Running || !b9Svg) return;
+    b9Running = true;
+    window.requestAnimationFrame(b9Frame);
+  }
+
+  let shown9 = 0;
+  let running9 = false;
+
+  function tick9() {
+    const target = getProgress9();
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    shown9 = reduce ? target : shown9 + (target - shown9) * SMOOTH_9;
+    if (Math.abs(target - shown9) < 0.0005) shown9 = target;
+    drawBlock9(shown9);
+    if (shown9 !== target) {
+      window.requestAnimationFrame(tick9);
+    } else {
+      running9 = false;
+    }
+  }
+
+  function onScroll9() {
+    if (running9) return;
+    running9 = true;
+    window.requestAnimationFrame(tick9);
+  }
+
+  if (block9) {
+    window.addEventListener("scroll", onScroll9, { passive: true });
+    window.addEventListener("resize", onScroll9);
+    new IntersectionObserver(function (entries) {
+      b9Visible = entries[0].isIntersecting;
+      if (b9Visible) startB9();
+    }).observe(block9);
+    shown9 = getProgress9();
+    drawBlock9(shown9);
+  }
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // бегущая строка: одинаковое видимое расстояние сверху и снизу.
+  // над ней — пустой низ 8 экрана (текст стоит по центру), под ней — отступ
+  // до заголовка 9 экрана. считаем оба и добиваем меньший до большего
+  const marquee = document.querySelector(".marquee");
+  const MARQUEE_GAP = 0; // минимальный добавочный отступ, доля высоты окна
+
+  function fitMarquee() {
+    if (!marquee || !block8 || !block9) return;
+    const s8 = document.querySelector(".block8_sticky").getBoundingClientRect();
+    const t8 = document.querySelector(".block8_text").getBoundingClientRect();
+    const above = s8.height - (t8.bottom - s8.top); // пусто под текстом 8 экрана
+
+    const st9 = document.querySelector(".block9_stage").getBoundingClientRect();
+    const s9 = document.querySelector(".block9_sticky").getBoundingClientRect();
+    const below = st9.top - s9.top + st9.width * 0.0694; // до заголовка 9 экрана
+
+    const gap = Math.max(above, below) + window.innerHeight * MARQUEE_GAP;
+    marquee.style.paddingTop = gap - above + "px";
+    marquee.style.paddingBottom = gap - below + "px";
+  }
+
+  if (document.fonts && document.fonts.ready)
+    document.fonts.ready.then(fitMarquee);
+  fitMarquee();
+  window.addEventListener("resize", fitMarquee);
+
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
   // свечение линий: говорим canvas из java-script.js, какие линии светятся.
   // он сам берёт их форму, положение, прозрачность и сколько уже нарисовано
   if (window.glow) {
@@ -1409,6 +1828,13 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       });
     }
+
+    // 5 экран: вторая обводка столбика винила — свечение у него сильнее
+    const vinylHlEl = document.querySelector(".vinyl_hl");
+    if (vinylHlEl) window.glow.add({ el: vinylHlEl, kind: "svg" });
+    document.querySelectorAll(".sale_bar").forEach(function (el) {
+      window.glow.add({ el: el, kind: "svg", gain: 0.7 });
+    });
 
     // 6 экран: линия и кружок
     const b6line = document.querySelector(".b6_line_svg");
