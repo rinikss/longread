@@ -1449,9 +1449,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // 0    – 0.12   заголовок
   // 0.06 – 0.2    первый абзац
   // 0.12 – 0.26   второй абзац
-  // 0.32 – 0.4    текст уходит вверх и гаснет
-  // 0.38 – 0.5    прочерчиваются орбиты
-  // 0.46 – 0.9    строки цитаты проявляются по очереди, песня за песней
+  // 0.22 – 0.34   справа от текста прочерчиваются орбиты (текст остаётся)
+  // 0.3  – 0.9    строки цитаты проявляются по очереди, песня за песней
   // 0.9  – 1      пауза
   //
   // круг всё время медленно вращается сам по себе (не от скролла).
@@ -1466,8 +1465,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const SMOOTH_9 = 0.09;
 
   const B9 = {
-    cx: 720, // центр круга, px макета
-    cy: 512,
+    cx: 1005, // центр круга, px макета: круг справа от текста
+    cy: 545,
     r0: 330, // орбита заголовков
     size: 21, // кегль строк
     gap: 1, // зазор между орбитами
@@ -1582,7 +1581,20 @@ document.addEventListener("DOMContentLoaded", function () {
       { class: "b9_orbit", cx: B9.cx, cy: B9.cy, r: r - 2, pathLength: 1 },
       b9Svg,
     );
-    o.group = svgEl("g", {}, null); // группы строк кладём поверх орбит позже
+    // строки каждой орбиты — в отдельном svg-слое поверх сцены. слой крутится
+    // css-трансформом: браузер один раз рисует текст и дальше только
+    // поворачивает готовую картинку на видеокарте, без перерисовки букв
+    o.layer = svgEl(
+      "svg",
+      {
+        class: "b9_layer",
+        viewBox: "0 0 1440 1024",
+        fill: "none",
+        "aria-hidden": "true",
+      },
+      null,
+    );
+    o.group = o.layer;
     // своя скорость: каждая орбита по-своему «гуляет» вокруг общей
     o.phase = index * 1.7;
     o.k = 0.55 + ((index * 37) % 10) / 20;
@@ -1621,9 +1633,12 @@ document.addEventListener("DOMContentLoaded", function () {
         b9Lines.push({ el: t, order: order++ });
       });
     });
-    // группы строк — поверх всех орбит
+    // слои строк — поверх круга с орбитами
+    // каждый слой крутится вокруг центра круга, а не центра сцены
+    const origin = (B9.cx / 1440) * 100 + "% " + (B9.cy / 1024) * 100 + "%";
     b9Orbits.forEach(function (o) {
-      b9Svg.appendChild(o.group);
+      o.layer.style.transformOrigin = origin;
+      b9Svg.parentNode.appendChild(o.layer);
     });
   }
   buildB9();
@@ -1637,30 +1652,28 @@ document.addEventListener("DOMContentLoaded", function () {
   let b9RingsOn = 0; // видны ли орбиты — от этого зависит вращение
 
   function drawBlock9(progress) {
-    const out = ease(part(progress, 0.32, 0.4));
     [
       [b9Title, 0, 0.12],
       [b9Ps[0], 0.06, 0.2],
       [b9Ps[1], 0.12, 0.26],
     ].forEach(function (st) {
       const k = easeOut(part(progress, st[1], st[2]));
-      st[0].style.opacity = k * (1 - out);
-      st[0].style.transform =
-        "translateY(" + ((1 - k) * 1.5 - out * 3) + "cqw)";
+      st[0].style.opacity = k;
+      st[0].style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
     });
 
     // орбиты прочерчиваются от центра наружу
     b9Orbits.forEach(function (o, i) {
-      const from = 0.38 + (b9Orbits.length - 1 - i) * 0.008;
+      const from = 0.22 + (b9Orbits.length - 1 - i) * 0.008;
       const k = ease(part(progress, from, from + 0.06));
       o.circle.style.strokeDasharray = k >= 1 ? "none" : k + " " + (1.01 - k);
     });
-    b9RingsOn = part(progress, 0.38, 0.4);
+    b9RingsOn = part(progress, 0.22, 0.24);
 
     // строки по очереди
     const n = b9Lines.length;
     b9Lines.forEach(function (l) {
-      const from = 0.46 + (l.order / n) * 0.4;
+      const from = 0.3 + (l.order / n) * 0.56;
       l.el.style.opacity = easeOut(part(progress, from, from + 0.04));
     });
     startB9();
@@ -1678,10 +1691,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const t = reduce ? 0 : (now - b9Start) / 1000;
     b9Orbits.forEach(function (o) {
       const a = t * B9.speed + Math.sin(t * 0.25 * o.k + o.phase) * B9.sway;
-      o.group.setAttribute(
-        "transform",
-        "rotate(" + a + " " + B9.cx + " " + B9.cy + ")",
-      );
+      o.layer.style.transform = "rotate(" + a + "deg)";
     });
   }
 
@@ -1848,18 +1858,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 8 экран: все линии и точки рисунков (у скрытых шагов свечение не считается)
     b8Parts.forEach(function (s) {
-      s.draws.forEach(function (el) {
-        window.glow.add({
-          el: el,
-          kind: "svg",
-          drawn: function () {
-            return s.drawn || 0;
-          },
-        });
+      if (!s.draws.length) return;
+      // все линии рисунка — одним источником свечения (так в разы легче)
+      window.glow.add({
+        el: s.draws[0],
+        parts: Array.prototype.slice.call(s.draws),
+        kind: "svg",
+        drawn: function () {
+          return s.drawn || 0;
+        },
       });
     });
-    document.querySelectorAll(".b8_fill").forEach(function (el) {
-      window.glow.add({ el: el, kind: "svg", gain: 0.6 });
+    b8Parts.forEach(function (s) {
+      if (!s.fills.length) return;
+      window.glow.add({
+        el: s.fills[0],
+        parts: Array.prototype.slice.call(s.fills),
+        kind: "svg",
+        gain: 0.6,
+        drawn: function () {
+          return parseFloat(s.fills[0].style.opacity) > 0.01 ? 1 : 0;
+        },
+      });
     });
   }
 });

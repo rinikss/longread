@@ -8,9 +8,27 @@ document.addEventListener("DOMContentLoaded", function () {
   ).matches;
 
   if (typeof Lenis !== "undefined" && !reduceMotion) {
+    // ограничение скорости: как сильно ни крути, страница не убегает вперёд
+    // больше чем на MAX_LEAD высоты окна от того места, где она сейчас.
+    // поэтому сильный рывок колеса или тачпада не проскакивает анимации,
+    // а просто листает с предельной скоростью — плавно и непрерывно
+    const MAX_LEAD = 0.45;
+
     const lenis = new Lenis({
-      lerp: 0.01,
+      lerp: 0.06, // мягкость: меньше — плавнее и медленнее догоняет
       wheelMultiplier: 1,
+      virtualScroll: function (data) {
+        const l = window.lenis;
+        if (!l) return true;
+        const max = window.innerHeight * MAX_LEAD;
+        const lead = l.targetScroll - l.animatedScroll; // насколько уже «впереди»
+        const want = lead + data.deltaY;
+        if (Math.abs(want) > max) {
+          data.deltaY = Math.sign(want) * max - lead;
+          if (Math.sign(data.deltaY) !== Math.sign(want)) data.deltaY = 0;
+        }
+        return true;
+      },
     });
 
     function raf(time) {
@@ -41,6 +59,8 @@ document.addEventListener("DOMContentLoaded", function () {
   //             уже нарисовано (сама линия или её маска). если нет — линия целиком
   //   drawn   — вместо dash: функция, которая возвращает, какая доля линии
   //             нарисована (0…1). надёжнее, чем читать stroke-dasharray
+  //   parts   — для "svg": несколько линий одного рисунка, светятся одним путём
+  //             (el — любая из них, по ней берётся положение)
   //   r       — для "ring": радиус круга в долях ширины картинки
   //   x1, x2, y — для "line": где лежит линия в картинке, в долях (необязательно)
   //   gain    — яркость свечения этой линии относительно остальных (1 = как у всех)
@@ -225,22 +245,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // начало линии длиной k (0…1) от полной — ломаной по точкам линии.
   // где точки далеко друг от друга (разрыв в пунктире), перо поднимается
-  function partialPath(el, k) {
+  // точки линии считаем один раз и запоминаем: getPointAtLength у сложных
+  // путей (пунктир из десятков кусочков, как на 3 рисунке 8 экрана) очень
+  // медленный, и раньше он вызывался сотни раз в каждом кадре
+  const sampleCache = new WeakMap();
+
+  function samplesOf(el) {
+    const key = el.getAttribute("d") || "";
+    const cached = sampleCache.get(el);
+    if (cached && cached.key === key) return cached;
     const len = el.getTotalLength();
-    const end = len * k;
     const step = Math.max(1.5, len / 240);
+    const pts = [];
+    for (let l = 0; l < len; l += step) {
+      const pt = el.getPointAtLength(l);
+      pts.push([l, pt.x, pt.y]);
+    }
+    const last = el.getPointAtLength(len);
+    pts.push([len, last.x, last.y]);
+    const res = { key: key, len: len, step: step, pts: pts };
+    sampleCache.set(el, res);
+    return res;
+  }
+
+  function partialPath(el, k) {
+    const sm = samplesOf(el);
+    const end = sm.len * k;
     const p = new Path2D();
     let prev = null;
-    for (let l = 0; ; l += step) {
-      const at = Math.min(l, end);
-      const pt = el.getPointAtLength(at);
-      if (!prev || Math.hypot(pt.x - prev.x, pt.y - prev.y) > step * 1.6) {
-        p.moveTo(pt.x, pt.y);
+    for (let i = 0; i < sm.pts.length; i++) {
+      const pt = sm.pts[i];
+      if (pt[0] > end) break;
+      // где точки далеко друг от друга (разрыв в пунктире), перо поднимается
+      if (
+        !prev ||
+        Math.hypot(pt[1] - prev[1], pt[2] - prev[2]) > sm.step * 1.6
+      ) {
+        p.moveTo(pt[1], pt[2]);
       } else {
-        p.lineTo(pt.x, pt.y);
+        p.lineTo(pt[1], pt[2]);
       }
       prev = pt;
-      if (at >= end) break;
     }
     return p;
   }
@@ -288,10 +333,20 @@ document.addEventListener("DOMContentLoaded", function () {
       if (src.drawn) {
         const k = src.drawn();
         if (k <= 0.001) return null; // ещё ничего не нарисовано
+        m.k = k;
         // недорисованную линию строим как ломаную по точкам самой линии,
         // а не пунктиром: Chrome на Windows у прямых пунктирных линий
         // не рисует тень, и свечение пропадало
-        if (k < 1) m.path = partialPath(el, k);
+        if (src.parts) {
+          // несколько линий одного рисунка — одним общим путём: тогда размытие
+          // считается один раз на весь рисунок, а не отдельно на каждую линию
+          m.path = new Path2D();
+          src.parts.forEach(function (p) {
+            m.path.addPath(k < 1 ? partialPath(p, k) : svgPath(p));
+          });
+        } else if (k < 1) {
+          m.path = partialPath(el, k);
+        }
       } else {
         m.dash = src.dash ? dashOf(src.dash) : null;
         if (m.dash && m.dash.arr.some(isNaN)) m.dash = null; // не разобрали — рисуем целиком
@@ -355,27 +410,77 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.stroke();
   }
 
+  let glowEmpty = false; // в прошлом кадре светиться было нечему
+  let glowSig = ""; // «отпечаток» прошлого кадра: где и какие линии светились
+
   function glowFrame() {
+    // сначала узнаём, какие линии сейчас видны. если ни одной (например, на
+    // экране только текст или круг с цитатой) — холсты уже пустые, и кадр
+    // пропускаем целиком: не чистим, не рисуем, не гоняем видеокарту
+    const sk = stageK();
+    const visible = [];
+    for (let i = 0; i < glowSources.length; i++) {
+      const m = measure(glowSources[i]);
+      if (m) visible.push([glowSources[i], m]);
+    }
+    if (!visible.length && glowEmpty) {
+      window.requestAnimationFrame(glowFrame);
+      return;
+    }
+    glowEmpty = !visible.length;
+
+    // если с прошлого кадра ничего не сдвинулось и не поменялось (страница
+    // стоит, линия дорисована) — свечение уже нарисовано, кадр пропускаем.
+    // размытие большой тенью — самая дорогая часть, и это экономит почти всё
+    const sig =
+      visible
+        .map(function (v) {
+          const m = v[1];
+          const b = m.box;
+          return [
+            Math.round(b.left * 2),
+            Math.round(b.top * 2),
+            Math.round(b.width * 2),
+            Math.round(m.gain * 1000),
+            m.k === undefined ? "" : Math.round(m.k * 2000),
+            m.dash ? m.dash.arr.join(",") + "/" + m.dash.offset : "",
+            m.ctm
+              ? [m.ctm.a, m.ctm.b, m.ctm.c, m.ctm.d]
+                  .map(function (x) {
+                    return x.toFixed(4);
+                  })
+                  .join(",")
+              : "",
+            v[0].kind === "svg" ? v[0].el.getAttribute("d") || "" : "",
+          ].join(":");
+        })
+        .join("|") +
+      "@" +
+      sk +
+      "@" +
+      glowCanvas.width;
+    if (sig === glowSig) {
+      window.requestAnimationFrame(glowFrame);
+      return;
+    }
+    glowSig = sig;
+
     gctx.setTransform(1, 0, 0, 1, 0, 0);
     gctx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
     wctx.setTransform(1, 0, 0, 1, 0, 0);
     wctx.clearRect(0, 0, work.width, work.height);
 
-    const sk = stageK();
     let anySoft = false;
-    for (let i = 0; i < glowSources.length; i++) {
-      const src = glowSources[i];
-      const m = measure(src);
-      if (!m) continue;
+    visible.forEach(function (v) {
       GLOW.layers.forEach(function (L) {
         if (L.smooth && glReady) {
-          strokeLayer(wctx, softScale, src, m, L, sk, GLOW.boost);
+          strokeLayer(wctx, softScale, v[0], v[1], L, sk, GLOW.boost);
           anySoft = true;
         } else {
-          strokeLayer(gctx, glowScale, src, m, L, sk, 1);
+          strokeLayer(gctx, glowScale, v[0], v[1], L, sk, 1);
         }
       });
-    }
+    });
     gctx.shadowColor = "transparent";
     wctx.shadowColor = "transparent";
 

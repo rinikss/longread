@@ -1669,7 +1669,7 @@ html.is_locked body {
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 /* block9 — «музыка, которую можно держать в руках».
-   пока только заголовок и текст; круг с цитатой добавим позже */
+   слева заголовок и текст, справа круг с цитатой Беньямина */
 
 .block9 {
   height: 700vh;
@@ -1712,7 +1712,8 @@ html.is_locked body {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
   top: 13.75cqw;
-  width: 61cqw;
+  /* узкая колонка слева: справа от неё круг с цитатой (центр 1030, радиус ~372) */
+  width: calc((100vw - 100cqw) / 2 + 40.5cqw - 2.08vw);
   color: #fff;
   font-family: "Iosevka Charon", monospace;
   font-weight: 400;
@@ -1743,9 +1744,25 @@ html.is_locked body {
 .b9_rings {
   position: absolute;
   inset: 0;
+  /* привязка к правому краю окна, как текст — к левому */
+  left: calc((100vw - 100cqw) / 2);
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* слой строк одной орбиты: крутится вокруг центра круга */
+.b9_layer {
+  position: absolute;
+  inset: 0;
+  /* привязка к правому краю окна, как текст — к левому */
+  left: calc((100vw - 100cqw) / 2);
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: none;
 }
 
 .b9_orbit {
