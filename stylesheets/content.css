@@ -2119,3 +2119,153 @@ html.is_locked body {
     opacity: 1;
   }
 }
+
+/* \\\\\\\\\\\\\\\ */
+/* подвал: белый лист после последнего экрана.
+   размеры в vw от ширины 1440 (1vw = 14.4px макета) */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 2.08vw 2.22vw 2.22vw;
+  background: #fff;
+  color: #111;
+}
+
+.footer_top {
+  display: flex;
+  flex-direction: column;
+}
+
+/* автор и куратор: Bebas 40px */
+.footer_credits {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  font-size: 2.78vw;
+  line-height: 130%;
+  text-transform: uppercase;
+}
+
+/* подпись справа: курсив 14px */
+.footer_note {
+  align-self: flex-end;
+  margin-top: 0.69vw;
+  margin-right: 1.81vw;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.97vw;
+  line-height: 140%;
+}
+
+/* чёрная плашка «Источники», как кнопка на 5 экране, только наоборот */
+.sources {
+  margin-top: 1.53vw;
+  background: #111;
+  color: #fff;
+}
+
+.sources_btn {
+  display: flex;
+  align-items: center;
+  gap: 1.67vw;
+  width: 100%;
+  height: 6.53vw;
+  padding: 0 1.81vw;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 400;
+  font-size: 1.67vw;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sources_icon {
+  flex: none;
+  width: 3.06vw;
+  height: 3.06vw;
+}
+
+.sources_icon_v {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  transition: transform 0.4s ease;
+}
+
+/* открыто: плюс становится минусом, как на 5 экране */
+.sources.is_open .sources_icon_v {
+  transform: scaleY(0);
+}
+
+.sources_btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -6px;
+}
+
+/* список раскрывается вниз: высота 0 → по содержимому */
+.sources_wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s ease;
+}
+
+.sources.is_open .sources_wrap {
+  grid-template-rows: 1fr;
+}
+
+/* номера и текст стоят ровно под словом «Источники» */
+.sources_list {
+  min-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0 1.81vw 0 6.54vw;
+  list-style: decimal;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 300;
+  font-size: 1.11vw;
+  line-height: 145%;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.sources.is_open .sources_list {
+  opacity: 1;
+  transition-delay: 0.15s;
+}
+
+.sources_list li {
+  max-width: 62vw;
+}
+
+.sources_list li + li {
+  margin-top: 0.56vw;
+}
+
+.sources_list li:last-child {
+  margin-bottom: 2.22vw;
+}
+
+.sources_list a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.sources_list a:hover {
+  text-decoration: none;
+}
+
+/* у подвала угловые подписи (SIDE B, таймер, 33⅓ RPM, лонгрид) прячутся,
+   чтобы не лечь поверх белого листа. filter, а не opacity — opacity у них
+   занята анимацией появления */
+.corner_txt {
+  transition: filter 0.4s ease;
+}
+
+html.is_footer .corner_txt {
+  filter: opacity(0);
+  pointer-events: none;
+}

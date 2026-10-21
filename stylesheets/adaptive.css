@@ -1,0 +1,1131 @@
+/* адаптив: планшет (768×1024) и мобилка (414×896).
+   десктоп здесь не трогаем — всё лежит внутри @media.
+   границы: планшет — до 1023px, мобилка — до 599px.
+   те же границы в screens.js (функция pick) */
+
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+/* планшет */
+
+@media (max-width: 1023px) {
+  /* сцены: ширина как у эталона 768×1024, но на окнах ниже эталона сцена
+     уменьшается по высоте — раскладка остаётся пропорциональной */
+  .block2_stage,
+  .block4_stage,
+  .block5_stage,
+  .block6_stage,
+  .block7_stage,
+  .block8_stage,
+  .block9_stage {
+    width: min(100vw, 75vh);
+  }
+
+  /* угловые подписи: 14px, отступ 24px */
+  .corner_txt {
+    font-size: 14px;
+  }
+
+  .side_txt {
+    left: 24px;
+    top: 24px;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  .rpm_wrap {
+    right: 24px;
+    top: 24px;
+    gap: 8px;
+  }
+
+  .timer_txt {
+    left: 24px;
+    bottom: 24px;
+  }
+
+  .longread_txt {
+    right: 24px;
+    bottom: 24px;
+  }
+
+  .rpm_btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .rpm_btn:focus-visible,
+  .rpm_close:focus-visible {
+    outline-width: 2px;
+    outline-offset: 3px;
+  }
+
+  /* плашка 33⅓ RPM: во всю ширину, высота по тексту */
+  .rpm_panel {
+    left: 24px;
+    right: 24px;
+    top: 24px;
+    width: auto;
+    height: auto;
+    font-size: 18px;
+    line-height: 140%;
+  }
+
+  .rpm_panel_txt {
+    padding: 20px 20px 24px;
+  }
+
+  .rpm_panel_bottom {
+    height: 64px;
+    gap: 14px;
+    padding: 0 20px;
+    border-top-width: 1px;
+  }
+
+  .rpm_close {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* 1 экран: сцена крупнее окна по ширине — круги занимают весь экран,
+     крайние слегка уходят за края */
+  .block1_stage {
+    width: min(130vw, 97.5vh);
+  }
+
+  .line_horiz {
+    height: 2px;
+    margin-top: -1px;
+  }
+
+  .line_vertic {
+    width: 2px;
+    margin-left: -1px;
+  }
+
+  .main_title {
+    font-size: 17cqw;
+    top: 22.6cqw;
+  }
+
+  .main_subtitle {
+    top: 39cqw;
+    font-size: 3cqw;
+  }
+
+  /* 2 экран: сцена во всю ширину. в финале график поднимается наверх
+     (screens.js), под ним текст во всю ширину */
+  .graph_label {
+    font-size: 3.13cqw;
+  }
+
+  /* нижний край подписи остаётся у прямой: 31.59 − 1.2 × кегль */
+  .label_tracks {
+    left: 3.13cqw;
+    top: 27.83cqw;
+  }
+
+  .label_disc {
+    right: 3.13cqw;
+  }
+
+  .block2_text {
+    left: 5.21cqw;
+    top: 34cqw;
+    width: 89.58cqw;
+    font-size: 2.6cqw;
+    line-height: 140%;
+  }
+
+  .block2_text p + p {
+    margin-top: 2.08cqw;
+  }
+
+  /* 3 экран: сцена 110vw — диск крупный. сначала он рисуется по центру,
+     потом уезжает вниз (screens.js), а сверху появляются заголовок и текст.
+     1cqw здесь ≈ 8.45px, верх сцены ≈ 212px от верха окна */
+  .block3_stage {
+    width: min(110vw, 82.5vh);
+  }
+
+  .block3_title {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -14.4cqw;
+    width: calc(100vw - 48px);
+    font-size: 5.68cqw;
+  }
+
+  .block3_text {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -5cqw;
+    width: calc(100vw - 48px);
+    font-size: 2.13cqw;
+    line-height: 135%;
+  }
+
+  .block3_text p + p {
+    margin-top: 1.4cqw;
+  }
+
+  .block3_facts {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 7cqw;
+    gap: 3.3cqw;
+  }
+
+  .fact_num {
+    font-size: 8.52cqw;
+  }
+
+  .fact_txt {
+    margin-top: 0.8cqw;
+    font-size: 1.9cqw;
+  }
+
+  .year_dot {
+    width: 3.79cqw;
+    height: 3.79cqw;
+  }
+
+  .year_label {
+    top: calc(100% + 0.7cqw);
+    font-size: 1.66cqw;
+  }
+
+  .year_card {
+    width: 33.1cqw;
+    padding: 1.66cqw 1.66cqw 1.9cqw;
+  }
+
+  .year_card_title {
+    padding-right: 3.6cqw;
+    font-size: 2.6cqw;
+  }
+
+  .year_card_txt {
+    margin-top: 0.8cqw;
+    font-size: 1.78cqw;
+  }
+
+  .year_card_close {
+    right: 1.18cqw;
+    top: 1.18cqw;
+    width: 2.84cqw;
+    height: 2.84cqw;
+  }
+
+  .year_card_close:focus-visible,
+  .year_dot:focus-visible {
+    outline-width: 2px;
+    outline-offset: 3px;
+  }
+
+  /* 4 экран: строки по два слова, абзац — под своей строкой во всю ширину.
+     сцена 100vw: 1cqw = 7.68px, верх сцены ≈ 239px от верха окна */
+  .big_word {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    font-size: 12.5cqw;
+  }
+
+  .word1 {
+    top: -19.4cqw;
+  }
+  .word2 {
+    top: -19.4cqw;
+    left: calc((100cqw - 100vw) / 2 + 24px + 47.9cqw);
+  }
+  .word3 {
+    top: 7.94cqw;
+  }
+  .word4 {
+    top: 7.94cqw;
+    left: calc((100cqw - 100vw) / 2 + 24px + 46.9cqw);
+  }
+  .word5 {
+    top: 38.54cqw;
+  }
+  .word6 {
+    top: 38.54cqw;
+    left: calc((100cqw - 100vw) / 2 + 24px + 10.9cqw);
+  }
+
+  .word_txt {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    width: calc(100vw - 48px);
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  .word_txt1 {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 0.13cqw;
+    width: calc(100vw - 48px);
+  }
+  .word_txt2 {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 29.04cqw;
+    width: calc(100vw - 48px);
+  }
+  .word_txt3 {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 59.6cqw;
+    width: calc(100vw - 48px);
+  }
+
+  .wave {
+    top: 82.2cqw;
+  }
+
+  /* 5 экран: столбики ступеней (x 230…1501 в svg) во всю ширину сцены
+     с отступами 3.125cqw (24px на эталонном экране). svg при этом мельче, чем на десктопе, поэтому подписи
+     внутри него заданы крупнее (в единицах svg ×1.53) */
+  .block5_title {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -19.4cqw;
+    width: calc(100vw - 48px);
+    font-size: 6.25cqw;
+  }
+
+  .block5_text {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -10.3cqw;
+    width: calc(100vw - 48px);
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  .block5_p1,
+  .block5_p2 {
+    width: auto;
+  }
+
+  .steps {
+    left: calc(3.125cqw - 93.75cqw * 230 / 1271);
+    top: 52cqw;
+    width: calc(93.75cqw * 1644 / 1271);
+  }
+
+  .steps_line {
+    stroke-width: 3.5;
+  }
+
+  .vinyl_hl,
+  .sale_bar {
+    stroke-width: 5.3;
+  }
+
+  .steps_guides {
+    stroke-width: 2.6;
+  }
+
+  .guide_96,
+  .guide_65 {
+    stroke-dasharray: 7 11;
+  }
+
+  .link_cd,
+  .link_vinyl {
+    stroke-dasharray: 4 9;
+  }
+
+  .bar_name {
+    font-size: 23px;
+  }
+
+  .bar_val {
+    font-size: 50px;
+  }
+
+  .bar_sale {
+    font-size: 21px;
+  }
+
+  .steps_guides,
+  .guide_txt {
+    font-size: 19px;
+  }
+
+  .b5_fact {
+    top: -5.1cqw;
+  }
+
+  .b5_fact_cd {
+    left: calc(3.125cqw + 93.75cqw * 353 / 1271);
+  }
+
+  .b5_fact_vinyl {
+    left: calc(3.125cqw + 93.75cqw * 918 / 1271);
+  }
+
+  .b5_num {
+    font-size: 8.33cqw;
+  }
+
+  .b5_cap {
+    font-size: 1.82cqw;
+  }
+
+  .b5_more {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 73cqw;
+    width: calc(100vw - 48px);
+    height: 64px;
+    gap: 14px;
+    padding: 0 20px;
+    font-size: 18px;
+  }
+
+  .b5_more img,
+  .b5_close {
+    width: 32px;
+    height: 32px;
+  }
+
+  .b5_panel {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    bottom: -10.3cqw;
+    width: calc(100vw - 48px);
+  }
+
+  .b5_panel_txt {
+    padding: 20px;
+    font-size: 18px;
+    line-height: 140%;
+  }
+
+  .b5_panel_bottom {
+    height: 64px;
+    gap: 14px;
+    padding: 0 20px;
+    border-top-width: 1px;
+  }
+
+  .b5_panel_title {
+    font-size: 18px;
+  }
+
+  .b5_close:focus-visible,
+  .b5_more:focus-visible {
+    outline-width: 2px;
+    outline-offset: -5px;
+  }
+
+  /* 6 экран: сцена 100vw, 1cqw = 7.68px, верх сцены ≈ 239px */
+  .block6_txt {
+    top: 7.9cqw;
+    width: 78cqw;
+    font-size: 2.6cqw;
+    line-height: 135%;
+  }
+
+  .b6_line,
+  .b6_point {
+    top: 31.4cqw;
+  }
+
+  .b6_point {
+    width: 4.69cqw;
+    height: 4.69cqw;
+  }
+
+  .block6_q {
+    left: 24px;
+    right: 24px;
+    top: 41.8cqw;
+    font-size: 10.4cqw;
+  }
+
+  /* 7 экран: круг по центру сверху (координаты — в screens.js), цифра в нём,
+     текст под кругом во всю ширину */
+  .b7_circle_line {
+    stroke-width: 3.75;
+  }
+
+  .b7_fact {
+    left: 50cqw;
+    top: 17.1cqw;
+  }
+
+  .b7_num {
+    font-size: 28.6cqw;
+  }
+
+  .b7_cap {
+    margin-top: 1.3cqw;
+    font-size: 2.08cqw;
+  }
+
+  .block7_text {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: 59.4cqw;
+    width: calc(100vw - 48px);
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  .b7_p + .b7_p {
+    margin-top: 2.08cqw;
+  }
+
+  /* 8 экран: заголовок и подзаголовок сверху, рисунок шага под ними
+     (рамку рисунка задаёт screens.js), подпись и описание под рисунком */
+  .block8_title {
+    left: 24px;
+    right: 24px;
+    top: -16.8cqw;
+    font-size: 6.25cqw;
+  }
+
+  .block8_sub {
+    left: 24px;
+    right: 24px;
+    top: -1.2cqw;
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  .b8_label {
+    top: 66.5cqw;
+    font-size: 2.08cqw;
+  }
+
+  .b8_txt {
+    left: 24px;
+    right: 24px;
+    top: 71.7cqw;
+    font-size: 2.6cqw;
+    line-height: 135%;
+  }
+
+  .block8_text {
+    width: calc(100vw - 48px);
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  /* бегущая строка крупнее относительно ширины экрана */
+  .marquee {
+    --marquee-size: 16vw;
+  }
+
+  /* 9 экран: сверху заголовок и текст, под ними круг с цитатой.
+     круг (svg во всю сцену) увеличен, чтобы строки на орбитах читались;
+     его центр (1015, 545 в единицах svg) ставим по центру ширины */
+  .block9_title {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -19.4cqw;
+    width: calc(100vw - 48px);
+    font-size: 6.25cqw;
+  }
+
+  .block9_text {
+    left: calc((100cqw - 100vw) / 2 + 24px);
+    top: -9cqw;
+    width: calc(100vw - 48px);
+    font-size: 2.34cqw;
+    line-height: 135%;
+  }
+
+  .b9_rings,
+  .b9_layer {
+    left: -42.34cqw;
+    top: 12.42cqw;
+    width: 131cqw;
+    height: 93.15cqw;
+  }
+
+  /* подвал */
+  .footer {
+    padding: 24px 24px 24px;
+  }
+
+  .footer_credits {
+    font-size: 32px;
+  }
+
+  .footer_note {
+    margin-top: 12px;
+    margin-right: 0;
+    font-size: 13px;
+  }
+
+  .sources {
+    margin-top: 20px;
+  }
+
+  .sources_btn {
+    height: 64px;
+    gap: 20px;
+    padding: 0 20px;
+    font-size: 18px;
+  }
+
+  .sources_icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .sources_list {
+    padding: 0 20px 0 72px;
+    font-size: 15px;
+  }
+
+  .sources_list li {
+    max-width: none;
+  }
+
+  .sources_list li + li {
+    margin-top: 8px;
+  }
+
+  .sources_list li:last-child {
+    margin-bottom: 24px;
+  }
+}
+
+/* \\\\\\\\\\\\\\\ */
+/* мобилка */
+
+@media (max-width: 599px) {
+  /* сцены: ширина как у эталона 414×896, но на окнах ниже эталона сцена
+     уменьшается по высоте — раскладка остаётся пропорциональной */
+  .block2_stage,
+  .block4_stage,
+  .block5_stage,
+  .block6_stage,
+  .block7_stage,
+  .block8_stage,
+  .block9_stage {
+    width: min(100vw, 46.2vh);
+  }
+
+  .corner_txt {
+    font-size: 12px;
+  }
+
+  .side_txt {
+    left: 16px;
+    top: 16px;
+  }
+
+  .rpm_wrap {
+    right: 16px;
+    top: 16px;
+    gap: 6px;
+  }
+
+  .timer_txt {
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .longread_txt {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .rpm_btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rpm_panel {
+    left: 16px;
+    right: 16px;
+    top: 16px;
+    font-size: 15px;
+  }
+
+  .rpm_panel_txt {
+    padding: 16px 16px 20px;
+  }
+
+  .rpm_panel_bottom {
+    height: 56px;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .rpm_close {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* 1 экран */
+  .block1_stage {
+    width: min(150vw, 69.3vh);
+  }
+
+  .main_title {
+    font-size: 19cqw;
+    top: 21.6cqw;
+  }
+
+  .main_subtitle {
+    top: 40.5cqw;
+    font-size: 3.4cqw;
+  }
+
+  /* 2 экран: подписи 14px */
+  .graph_label {
+    font-size: 3.38cqw;
+  }
+
+  .label_tracks {
+    left: 3.86cqw;
+    top: 27.53cqw;
+  }
+
+  .label_disc {
+    right: 3.86cqw;
+  }
+
+  .block2_text {
+    left: 3.86cqw;
+    top: 17.5cqw;
+    width: 92.28cqw;
+    font-size: 3.62cqw;
+    line-height: 140%;
+  }
+
+  .block2_text p + p {
+    margin-top: 3.86cqw;
+  }
+
+  /* 3 экран: сцена 130vw, 1cqw ≈ 5.38px, верх сцены ≈ 256px от верха окна */
+  .block3_stage {
+    width: min(130vw, 60.07vh);
+  }
+
+  .block3_title {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -35.7cqw;
+    width: calc(100vw - 32px);
+    font-size: 5.58cqw;
+  }
+
+  .block3_text {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -20cqw;
+    width: calc(100vw - 32px);
+    font-size: 2.6cqw;
+  }
+
+  .block3_facts {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: 1cqw;
+    gap: 3.7cqw;
+  }
+
+  .fact_num {
+    font-size: 10.4cqw;
+  }
+
+  .fact_txt {
+    font-size: 2.42cqw;
+  }
+
+  .year_dot {
+    width: 4.46cqw;
+    height: 4.46cqw;
+  }
+
+  .year_label {
+    font-size: 2.23cqw;
+  }
+
+  /* карточка года: почти во всю ширину телефона */
+  .year_card {
+    width: min(320px, calc(100vw - 32px));
+    padding: 14px 14px 16px;
+  }
+
+  .year_card_title {
+    padding-right: 32px;
+    font-size: 20px;
+  }
+
+  .year_card_txt {
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  .year_card_close {
+    right: 10px;
+    top: 10px;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* 4 экран: 1cqw = 4.14px, верх сцены ≈ 301px от верха окна */
+  .big_word {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    font-size: 13.53cqw;
+  }
+
+  .word1 {
+    top: -55.8cqw;
+  }
+  .word2 {
+    top: -55.8cqw;
+    left: calc((100cqw - 100vw) / 2 + 16px + 51.9cqw);
+  }
+  .word3 {
+    top: -20.05cqw;
+  }
+  .word4 {
+    top: -20.05cqw;
+    left: calc((100cqw - 100vw) / 2 + 16px + 50.7cqw);
+  }
+  .word5 {
+    top: 23.9cqw;
+  }
+  .word6 {
+    top: 23.9cqw;
+    left: calc((100cqw - 100vw) / 2 + 16px + 12.1cqw);
+  }
+
+  .word_txt {
+    font-size: 3.14cqw;
+    line-height: 130%;
+  }
+
+  .word_txt1 {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -31.6cqw;
+    width: calc(100vw - 32px);
+  }
+  .word_txt2 {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: 8.2cqw;
+    width: calc(100vw - 32px);
+  }
+  .word_txt3 {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: 50cqw;
+    width: calc(100vw - 32px);
+  }
+
+  /* волна шире экрана — на узком телефоне она иначе слишком плоская */
+  .wave {
+    left: calc((100cqw - 100vw) / 2 - 25vw);
+    top: 94cqw;
+    width: 150vw;
+  }
+
+  /* 5 экран: столбики ступеней (x 230…1501 в svg) во всю ширину сцены
+     с отступами 3.865cqw (16px на эталонном экране). svg при этом мельче, чем на десктопе, поэтому подписи
+     внутри него заданы крупнее (в единицах svg ×2.2) */
+  .block5_title {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -57cqw;
+    width: calc(100vw - 32px);
+    font-size: 6.76cqw;
+  }
+
+  .block5_text {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -46.4cqw;
+    width: calc(100vw - 32px);
+    font-size: 3.14cqw;
+    line-height: 135%;
+  }
+
+  .block5_p1,
+  .block5_p2 {
+    width: auto;
+  }
+
+  .steps {
+    left: calc(3.865cqw - 92.27cqw * 230 / 1271);
+    top: 84.3cqw;
+    width: calc(92.27cqw * 1644 / 1271);
+  }
+
+  .steps_line {
+    stroke-width: 6.7;
+  }
+
+  .vinyl_hl,
+  .sale_bar {
+    stroke-width: 10;
+  }
+
+  .steps_guides {
+    stroke-width: 5;
+  }
+
+  .guide_96,
+  .guide_65 {
+    stroke-dasharray: 13 20;
+  }
+
+  .link_cd,
+  .link_vinyl {
+    stroke-dasharray: 7 17;
+  }
+
+  .bar_name {
+    font-size: 33px;
+  }
+
+  .bar_val {
+    font-size: 60px;
+  }
+
+  .bar_sale {
+    font-size: 33px;
+  }
+
+  .steps_guides,
+  .guide_txt {
+    font-size: 30px;
+  }
+
+  .b5_fact {
+    top: -24.4cqw;
+  }
+
+  .b5_fact_cd {
+    left: calc(3.865cqw + 92.27cqw * 353 / 1271);
+  }
+
+  .b5_fact_vinyl {
+    left: calc(3.865cqw + 92.27cqw * 918 / 1271);
+  }
+
+  .b5_num {
+    font-size: 9.66cqw;
+  }
+
+  .b5_cap {
+    font-size: 2.66cqw;
+    width: 36vw;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: normal;
+  }
+
+  .b5_more {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: 74.7cqw;
+    width: calc(100vw - 32px);
+    height: 56px;
+    gap: 12px;
+    padding: 0 16px;
+    font-size: 15px;
+  }
+
+  .b5_more img,
+  .b5_close {
+    width: 28px;
+    height: 28px;
+  }
+
+  .b5_panel {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    bottom: -17.2cqw;
+    width: calc(100vw - 32px);
+  }
+
+  .b5_panel_txt {
+    padding: 16px;
+    font-size: 15px;
+    line-height: 140%;
+  }
+
+  .b5_panel_bottom {
+    height: 56px;
+    gap: 12px;
+    padding: 0 16px;
+    border-top-width: 1px;
+  }
+
+  .b5_panel_title {
+    font-size: 15px;
+  }
+
+  .b5_close:focus-visible,
+  .b5_more:focus-visible {
+    outline-width: 2px;
+    outline-offset: -5px;
+  }
+
+  /* 6 экран: 1cqw = 4.14px, верх сцены ≈ 301px */
+  .block6_txt {
+    top: -2.66cqw;
+    width: 92.3cqw;
+    font-size: 3.62cqw;
+  }
+
+  .b6_line,
+  .b6_point {
+    top: 31.2cqw;
+  }
+
+  .b6_point {
+    width: 7.73cqw;
+    height: 7.73cqw;
+  }
+
+  .block6_q {
+    left: 16px;
+    right: 16px;
+    top: 45.7cqw;
+    font-size: 10.14cqw;
+  }
+
+  /* 7 экран */
+  .b7_circle_line {
+    stroke-width: 7;
+  }
+
+  .b7_fact {
+    top: -0.24cqw;
+  }
+
+  .b7_num {
+    font-size: 31.4cqw;
+  }
+
+  .b7_cap {
+    font-size: 2.9cqw;
+  }
+
+  .block7_text {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: 52.9cqw;
+    width: calc(100vw - 32px);
+    font-size: 3.38cqw;
+  }
+
+  .b7_p + .b7_p {
+    margin-top: 3.86cqw;
+  }
+
+  /* 8 экран: заголовок и подзаголовок сверху, рисунок шага под ними
+     (рамку рисунка задаёт screens.js), подпись и описание под рисунком */
+  .block8_title {
+    left: 16px;
+    right: 16px;
+    top: -53.4cqw;
+    font-size: 6.76cqw;
+  }
+
+  .block8_sub {
+    left: 16px;
+    right: 16px;
+    top: -36.5cqw;
+    font-size: 3.14cqw;
+    line-height: 135%;
+  }
+
+  .b8_label {
+    top: 64.9cqw;
+    font-size: 3.14cqw;
+  }
+
+  .b8_txt {
+    left: 16px;
+    right: 16px;
+    top: 72.4cqw;
+    font-size: 3.62cqw;
+    line-height: 135%;
+  }
+
+  .block8_text {
+    width: calc(100vw - 32px);
+    font-size: 3.38cqw;
+    line-height: 135%;
+  }
+
+  /* бегущая строка крупнее относительно ширины экрана */
+  .marquee {
+    --marquee-size: 20vw;
+  }
+
+  /* 9 экран: сверху заголовок и текст, под ними круг с цитатой.
+     круг (svg во всю сцену) увеличен, чтобы строки на орбитах читались;
+     его центр (1015, 545 в единицах svg) ставим по центру ширины */
+  .block9_title {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -57.2cqw;
+    width: calc(100vw - 32px);
+    font-size: 6.76cqw;
+  }
+
+  .block9_text {
+    left: calc((100cqw - 100vw) / 2 + 16px);
+    top: -38.9cqw;
+    width: calc(100vw - 32px);
+    font-size: 3.14cqw;
+    line-height: 135%;
+  }
+
+  .b9_rings,
+  .b9_layer {
+    left: -71.95cqw;
+    top: 9.13cqw;
+    width: 173cqw;
+    height: 123cqw;
+  }
+
+  /* подвал */
+  .footer {
+    padding: 16px 16px 16px;
+  }
+
+  .footer_credits {
+    font-size: 24px;
+  }
+
+  .footer_note {
+    margin-top: 12px;
+    margin-right: 0;
+    font-size: 12px;
+  }
+
+  /* на телефоне подпись — обычным абзацем во всю ширину */
+  .footer_note {
+    align-self: stretch;
+  }
+
+  .footer_note br {
+    display: none;
+  }
+
+  .sources_list {
+    padding-left: 34px;
+  }
+
+  .sources {
+    margin-top: 20px;
+  }
+
+  .sources_btn {
+    height: 56px;
+    gap: 16px;
+    padding: 0 16px;
+    font-size: 16px;
+  }
+
+  .sources_icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .sources_list {
+    padding: 0 16px 0 60px;
+    font-size: 13px;
+  }
+
+  .sources_list li {
+    max-width: none;
+  }
+
+  .sources_list li + li {
+    margin-top: 8px;
+  }
+
+  .sources_list li:last-child {
+    margin-bottom: 20px;
+  }
+}

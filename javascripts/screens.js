@@ -1,4 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // \\\\\\\\\\\\\\\
+  // адаптив: какой сейчас макет. те же границы, что в adaptive.css
+  //   d — десктоп (от 1024px), t — планшет (600–1023px), m — мобилка (до 599px)
+  // pick(десктоп, планшет, мобилка) — выбрать число под текущий макет.
+  // на десктопе всегда первое значение, поэтому там ничего не меняется
+
+  const MQ_TABLET = window.matchMedia("(max-width: 1023px)");
+  const MQ_MOBILE = window.matchMedia("(max-width: 599px)");
+
+  function bp() {
+    if (MQ_MOBILE.matches) return "m";
+    if (MQ_TABLET.matches) return "t";
+    return "d";
+  }
+
+  function pick(d, t, m) {
+    const b = bp();
+    if (b === "m") return m === undefined ? (t === undefined ? d : t) : m;
+    if (b === "t") return t === undefined ? d : t;
+    return d;
+  }
+  window.pick = pick;
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
   // block1 — запуск анимации обложки и таймер
 
@@ -140,14 +162,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const block2Text = document.querySelector(".block2_text");
 
   // финал графика: масштаб 0.505 и подъём на 244px макета
-  const GRAPH_SCALE = 0.505;
-  const GRAPH_SHIFT = 16.94;
+  // (на планшете и мобилке график крупнее и уходит выше — над текстом)
+  const GRAPH_SCALE_ = [0.505, 0.78, 0.8];
+  const GRAPH_SHIFT_ = [16.94, 24, 38.5];
 
   // точка в финале 45px (а не 64 × 0.505)
   const DOT_FINAL = 45 / 64;
 
   // подписи: 32px → 20px
-  const LABEL_FINAL = 20 / 32;
+  // (на планшете 24 → 17px, на мобилке 14 → 12px)
+  const LABEL_FINAL_ = [20 / 32, 0.7, 0.86];
 
   // линии графика гаснут до 35%, как круги на первом экране
   const GRAPH_DIM = 0.35;
@@ -190,6 +214,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // график уменьшается и уходит вверх
     const shrinkK = ease(part(progress, 0.6, 0.78));
+    const GRAPH_SCALE = pick.apply(null, GRAPH_SCALE_);
+    const GRAPH_SHIFT = pick.apply(null, GRAPH_SHIFT_);
+    const LABEL_FINAL = pick.apply(null, LABEL_FINAL_);
     const scale = 1 - (1 - GRAPH_SCALE) * shrinkK;
     graph.style.transform =
       "translateY(" + -GRAPH_SHIFT * shrinkK + "cqw) scale(" + scale + ")";
@@ -272,6 +299,63 @@ document.addEventListener("DOMContentLoaded", function () {
   const DISK_SHIFT_X = 31.67;
   const DISK_SHIFT_Y = 7.5;
   const DISK_SCALE = 0.83;
+
+  // на планшете и мобилке диск уезжает не вправо, а вниз, под текст
+  const DISK_SHIFT_X_ = [DISK_SHIFT_X, 0, 0];
+  const DISK_SHIFT_Y_ = [DISK_SHIFT_Y, 25.8, 37.5];
+  const DISK_SCALE_ = [DISK_SCALE, 0.8, 0.78];
+
+  // точки с годами в разметке стоят на десктопном финале диска.
+  // находим, где эта точка была на диске до сдвига, и переносим её
+  // на финал диска текущего макета. центр диска — центр сцены
+  const DISK_CX = 50;
+  const DISK_CY = 35.56; // 1024 / 1440 / 2 × 100
+  const dotHome = [];
+  document.querySelectorAll(".year_dot").forEach(function (dot) {
+    const x = parseFloat(dot.style.left);
+    const y = parseFloat(dot.style.top);
+    dotHome.push({
+      left: dot.style.left,
+      top: dot.style.top,
+      qx: DISK_CX + (x - DISK_SHIFT_X - DISK_CX) / DISK_SCALE,
+      qy: DISK_CY + (y - DISK_SHIFT_Y - DISK_CY) / DISK_SCALE,
+    });
+  });
+  // положения точек на неподвижном диске для планшета и мобилки (cqw сцены):
+  // как на десктопе, но чуть сдвинуты по своим орбитам вправо, чтобы
+  // заполнить и правую часть диска, которая здесь видна целиком
+  const DOT_ROUND = {
+    1948: [18.29, 62.18],
+    1983: [29.01, 21.15],
+    1987: [24.73, 44.48],
+    2007: [60.0, 23.04],
+    2008: [39.19, 47.81],
+    2022: [58.04, 10.53],
+    2025: [81.46, 8.78],
+  };
+  let dotsBp = "d";
+
+  function placeYearDots() {
+    const b = bp();
+    if (b === dotsBp) return;
+    dotsBp = b;
+    const sx = pick.apply(null, DISK_SHIFT_X_);
+    const sy = pick.apply(null, DISK_SHIFT_Y_);
+    const sc = pick.apply(null, DISK_SCALE_);
+    document.querySelectorAll(".year_dot").forEach(function (dot, i) {
+      const h = dotHome[i];
+      if (b === "d") {
+        dot.style.left = h.left;
+        dot.style.top = h.top;
+        return;
+      }
+      // на десктопе видна только левая часть диска, а здесь он целиком —
+      // поэтому точки разнесены по всему кругу (каждая на своей орбите)
+      const q = DOT_ROUND[dot.dataset.year] || [h.qx, h.qy];
+      dot.style.left = DISK_CX + (q[0] - DISK_CX) * sc + sx + "cqw";
+      dot.style.top = DISK_CY + (q[1] - DISK_CY) * sc + sy + "cqw";
+    });
+  }
   const DISK_DIM = 0.55;
 
   // с какой доли секции текст сменяется фактоидами
@@ -302,13 +386,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // диск уезжает вправо вниз, уменьшается и гаснет
+    // (на планшете и мобилке — вниз, под текст)
+    placeYearDots();
     const moveK = ease(part(progress, 0.4, 0.58));
-    const diskScale = 1 - (1 - DISK_SCALE) * moveK;
+    const diskScale = 1 - (1 - pick.apply(null, DISK_SCALE_)) * moveK;
     disk.style.transform =
       "translate(" +
-      DISK_SHIFT_X * moveK +
+      pick.apply(null, DISK_SHIFT_X_) * moveK +
       "cqw, " +
-      DISK_SHIFT_Y * moveK +
+      pick.apply(null, DISK_SHIFT_Y_) * moveK +
       "cqw) scale(" +
       diskScale +
       ")";
@@ -395,8 +481,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const top = labelRect.top - stageRect.top - cardH - 0.3 * unit;
 
     // не даём карточке уйти за правый край окна
+    // (а на узком экране — и за левый: отступ 16px)
     const maxLeft = window.innerWidth - stageRect.left - cardW - 2.08 * unit;
     if (left > maxLeft) left = maxLeft;
+    if (bp() !== "d") {
+      const minLeft = 16 - stageRect.left;
+      const maxLeftN = window.innerWidth - 16 - stageRect.left - cardW;
+      left = Math.max(minLeft, Math.min(left, maxLeftN));
+    }
 
     card.style.left = left + "px";
     card.style.top = top + "px";
@@ -695,7 +787,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const STEP_EDGE = 80;
   const SMOOTH_5 = 0.09;
   // насколько поднимаются ступени во второй части, в cqw
-  const STEPS_LIFT = 18.99;
+  // (на планшете и мобилке ступени стоят ниже, поэтому поднимаются выше)
+  const STEPS_LIFT_ = [18.99, 43, 81.1];
+
+  // на узком экране svg мельче, поэтому подписи в нём крупнее (в единицах svg),
+  // и отступы подписей от столбиков растут вместе с ними
+  const LBL_ = [1, 1.53, 2.2];
+  const DOT_R_ = [22, 26, 30];
+  // короткие названия на мобилке, чтобы соседние подписи не слипались
+  const NAME_SHORT = { 0: "hi-res", 2: "лента" };
+  const nameFull = [];
+  document.querySelectorAll(".bar_name").forEach(function (t) {
+    nameFull.push(t.textContent);
+  });
+  let namesBp = "d";
+
+  function fitB5Labels() {
+    const b = bp();
+    if (b === namesBp) return;
+    namesBp = b;
+    document.querySelectorAll(".bar_name").forEach(function (t, i) {
+      const short = NAME_SHORT[t.dataset.bar];
+      t.textContent = b === "m" && short ? short : nameFull[i];
+    });
+    document.querySelectorAll(".steps_dot").forEach(function (d) {
+      d.setAttribute("r", pick.apply(null, DOT_R_));
+    });
+  }
 
   // ступени как ломаная: [x, y] в единицах svg (как в макете 1644×656)
   const TOP = 88.9; // верх шкалы — 144 дБ
@@ -755,9 +873,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // пересобрать ломаную: m = 0 — ступени, 1 — диаграмма
+  // на планшете и мобилке ступени в начале вытянуты вверх (от нижней линии),
+  // в диаграмме — обычной высоты
+  const STEPS_TALL_ = [1, 1.4, 1.8];
+
   function buildSteps(m) {
+    const tall = pick.apply(null, STEPS_TALL_);
     pts = BASE.map(function (p, i) {
-      return [p[0], p[1] + (TARGET[i] - p[1]) * m];
+      const y0 = FLOOR - (FLOOR - p[1]) * tall;
+      return [p[0], y0 + (TARGET[i] - y0) * m];
     });
     cum = [0];
     for (let i = 1; i < pts.length; i++) {
@@ -849,6 +973,7 @@ document.addEventListener("DOMContentLoaded", function () {
       yDb(65),
     );
     const pad = (window.innerWidth * 0.0222) / v[2]; // 32px от края окна
+    const lf = pick.apply(null, LBL_);
     setText(guideTxts[0], v[0] + pad, yDb(96) - 10);
     setText(guideTxts[1], v[0] + pad, yDb(65) - 10);
 
@@ -865,30 +990,30 @@ document.addEventListener("DOMContentLoaded", function () {
       setLine(
         stepsGuides.querySelector(l[2]),
         cx,
-        factBottom + 10,
+        factBottom + 10 * lf,
         cx,
-        yDb(b.db) - 12,
+        yDb(b.db) - 12 * lf,
       );
     });
 
     barVals.forEach(function (t) {
       const b = BARS[+t.dataset.bar];
-      setText(t, (b.x1 + b.x2) / 2, yDb(b.db) - 14);
+      setText(t, (b.x1 + b.x2) / 2, yDb(b.db) - 14 * lf);
     });
     barNames.forEach(function (t) {
       const b = BARS[+t.dataset.bar];
-      setText(t, (b.x1 + b.x2) / 2, FLOOR + 28);
+      setText(t, (b.x1 + b.x2) / 2, FLOOR + 28 * lf);
     });
     barSales.forEach(function (t) {
       const b = BARS[+t.dataset.bar];
-      setText(t, (b.x1 + b.x2) / 2, FLOOR + 72);
+      setText(t, (b.x1 + b.x2) / 2, FLOOR + 72 * lf);
     });
     // полоски продаж под названиями: растут из центра
     saleBars.forEach(function (l) {
       const b = BARS[+l.dataset.bar];
       const cx = (b.x1 + b.x2) / 2;
-      const half = (+l.dataset.units * PX_UNIT * saleGrow) / 2;
-      setLine(l, cx - half, FLOOR + 46, cx + half, FLOOR + 46);
+      const half = (+l.dataset.units * PX_UNIT * lf * saleGrow) / 2;
+      setLine(l, cx - half, FLOOR + 46 * lf, cx + half, FLOOR + 46 * lf);
     });
 
     // винил: заливка и вторая обводка (свечение сильнее)
@@ -942,6 +1067,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ступени перестраиваются в столбики и поднимаются
+    fitB5Labels();
+    const STEPS_LIFT = pick.apply(null, STEPS_LIFT_);
     const morphK = ease(part(progress, 0.6, 0.76));
     buildSteps(morphK);
     const lift = ease(part(progress, 0.52, 0.64));
@@ -1245,7 +1372,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return Math.min(Math.max(-rect.top / scrollable, 0), 1);
   }
 
+  // круг: [cx, cy, r] в единицах сцены 1440×1024. на десктопе он слева
+  // и уходит за край, на планшете и мобилке — по центру сверху, текст под ним
+  const B7_CIRCLE_ = [
+    [250, 512, 447],
+    [720, 246, 544],
+    [720, -3.5, 609],
+  ];
+  let circleBp = "d";
+
+  function fitB7Circle() {
+    const b = bp();
+    if (b === circleBp || !b7Circle) return;
+    circleBp = b;
+    const c = pick.apply(null, B7_CIRCLE_);
+    b7Circle.setAttribute("cx", c[0]);
+    b7Circle.setAttribute("cy", c[1]);
+    b7Circle.setAttribute("r", c[2]);
+    b7Circle.setAttribute("transform", "rotate(-90 " + c[0] + " " + c[1] + ")");
+  }
+
   function drawBlock7(progress) {
+    fitB7Circle();
     const c = ease(part(progress, 0, 0.3));
     b7Circle.style.strokeDasharray = c >= 1 ? "none" : c + " " + (1.01 - c);
 
@@ -1337,9 +1485,17 @@ document.addEventListener("DOMContentLoaded", function () {
   // рисунки разного размера: у одного всё в середине листа 447×447, у другого
   // до самых краёв. подгоняем каждый под общую рамку над подписью, чтобы
   // рисунок не наезжал на текст: рамка 420×300 px макета с центром в (720, 550)
-  const PIC_BOX = { cx: 720, cy: 550, w: 420, h: 300 };
+  // на планшете и мобилке рамка крупнее в единицах сцены (сцена там мельче)
+  const PIC_BOX_ = [
+    { cx: 720, cy: 550, w: 420, h: 300 },
+    { cx: 720, cy: 564, w: 937, h: 620 },
+    { cx: 720, cy: 450, w: 1148, h: 800 },
+  ];
+  let picsBp = null;
 
   function fitPics() {
+    const PIC_BOX = pick.apply(null, PIC_BOX_);
+    picsBp = bp();
     b8Steps.forEach(function (step) {
       const svg = step.querySelector(".b8_pic");
       const bb = svg.getBBox();
@@ -1347,7 +1503,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const pad = 4;
       const bw = bb.width + pad * 2;
       const bh = bb.height + pad * 2;
-      const k = Math.min(1, PIC_BOX.w / bw, PIC_BOX.h / bh); // px макета на единицу рисунка
+      // px макета на единицу рисунка (на десктопе рисунок не крупнее исходного,
+      // на планшете и мобилке сцена мельче, поэтому рисунок можно увеличивать)
+      const k = Math.min(pick(1, 10, 10), PIC_BOX.w / bw, PIC_BOX.h / bh);
       const w = bw * k;
       const h = bh * k;
       svg.setAttribute("viewBox", [bb.x - pad, bb.y - pad, bw, bh].join(" "));
@@ -1357,7 +1515,12 @@ document.addEventListener("DOMContentLoaded", function () {
       svg.style.top = (PIC_BOX.cy - h / 2) / 14.4 + "cqw";
     });
   }
-  if (block8) fitPics();
+  if (block8) {
+    fitPics();
+    window.addEventListener("resize", function () {
+      if (bp() !== picsBp) fitPics();
+    });
+  }
 
   function getProgress8() {
     const rect = block8.getBoundingClientRect();
@@ -1465,7 +1628,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const SMOOTH_9 = 0.09;
 
   const B9 = {
-    cx: 1005, // центр круга, px макета: круг справа от текста
+    cx: 1015, // центр круга, px макета: круг справа от текста
     cy: 545,
     r0: 330, // орбита заголовков
     size: 21, // кегль строк
@@ -1760,7 +1923,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const st9 = document.querySelector(".block9_stage").getBoundingClientRect();
     const s9 = document.querySelector(".block9_sticky").getBoundingClientRect();
-    const below = st9.top - s9.top + st9.width * 0.0694; // до заголовка 9 экрана
+    let below = st9.top - s9.top + st9.width * 0.0694; // до заголовка 9 экрана
+    // на планшете и мобилке заголовок стоит в другом месте сцены
+    if (bp() !== "d")
+      below =
+        st9.top - s9.top + document.querySelector(".block9_title").offsetTop;
 
     const gap = Math.max(above, below) + window.innerHeight * MARQUEE_GAP;
     marquee.style.paddingTop = gap - above + "px";
@@ -1880,6 +2047,44 @@ document.addEventListener("DOMContentLoaded", function () {
           return parseFloat(s.fills[0].style.opacity) > 0.01 ? 1 : 0;
         },
       });
+    });
+  }
+
+  // \\\\\\\\\\\\\\\
+  // подвал: «Источники» раскрываются по клику,
+  // а угловые подписи прячутся, как только подвал показался снизу
+
+  const footer = document.querySelector(".footer");
+  const sources = document.querySelector(".sources");
+  const sourcesBtn = document.querySelector(".sources_btn");
+
+  if (footer) {
+    new IntersectionObserver(function (entries) {
+      document.documentElement.classList.toggle(
+        "is_footer",
+        entries[0].isIntersecting,
+      );
+    }).observe(footer);
+  }
+
+  if (sources && sourcesBtn) {
+    sourcesBtn.addEventListener("click", function () {
+      const open = !sources.classList.contains("is_open");
+      sources.classList.toggle("is_open", open);
+      sourcesBtn.setAttribute("aria-expanded", open);
+      if (!open) return;
+      // когда список раскрылся — мягко докручиваем, чтобы он был виден
+      window.setTimeout(function () {
+        if (window.lenis) {
+          window.lenis.resize();
+          window.lenis.scrollTo(document.documentElement.scrollHeight);
+        } else {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 650); // ждём, пока список раскроется (0.6с в css)
     });
   }
 });
