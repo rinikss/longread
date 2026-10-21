@@ -85,10 +85,10 @@
     height: 32px;
   }
 
-  /* 1 экран: сцена крупнее окна по ширине — круги занимают весь экран,
-     крайние слегка уходят за края */
+  /* 1 экран: сцена крупнее окна — внешний круг почти во всю ширину (≈95%),
+     линии выходят за него с обеих сторон */
   .block1_stage {
-    width: min(130vw, 97.5vh);
+    width: min(134vw, 100.5vh);
   }
 
   .line_horiz {
@@ -103,11 +103,11 @@
 
   .main_title {
     font-size: 17cqw;
-    top: 22.6cqw;
+    top: 20.1cqw;
   }
 
   .main_subtitle {
-    top: 39cqw;
+    top: 36.5cqw;
     font-size: 3cqw;
   }
 
@@ -651,27 +651,27 @@
 
   /* 1 экран */
   .block1_stage {
-    width: min(150vw, 69.3vh);
+    width: min(134vw, 61.9vh);
   }
 
   .main_title {
     font-size: 19cqw;
-    top: 21.6cqw;
+    top: 19.1cqw;
   }
 
   .main_subtitle {
-    top: 40.5cqw;
+    top: 38cqw;
     font-size: 3.4cqw;
   }
 
-  /* 2 экран: подписи 14px */
+  /* 2 экран: подписи 12px */
   .graph_label {
-    font-size: 3.38cqw;
+    font-size: 2.9cqw;
   }
 
   .label_tracks {
     left: 3.86cqw;
-    top: 27.53cqw;
+    top: 28.11cqw;
   }
 
   .label_disc {

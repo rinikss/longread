@@ -170,8 +170,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const DOT_FINAL = 45 / 64;
 
   // подписи: 32px → 20px
-  // (на планшете 24 → 17px, на мобилке 14 → 12px)
-  const LABEL_FINAL_ = [20 / 32, 0.7, 0.86];
+  // (на планшете 24 → 17px, на мобилке 12 → 11px)
+  const LABEL_FINAL_ = [20 / 32, 0.7, 0.92];
 
   // линии графика гаснут до 35%, как круги на первом экране
   const GRAPH_DIM = 0.35;
