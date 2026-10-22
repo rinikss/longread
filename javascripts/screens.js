@@ -1,4 +1,75 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  // висячие предлоги: короткие предлоги и союзы склеиваем со следующим словом
+  // неразрывным пробелом, частицы «же», «ли», «бы» и тире — с предыдущим.
+  // делается при загрузке, поэтому в разметке ничего вписывать не нужно,
+  // а строки на любой ширине (десктоп, планшет, мобилка) переносятся сами
+
+  const NBSP = " ";
+  const SHORT_WORDS = [
+    "а",
+    "в",
+    "и",
+    "к",
+    "о",
+    "с",
+    "у",
+    "я",
+    "во",
+    "до",
+    "за",
+    "из",
+    "ко",
+    "на",
+    "не",
+    "ни",
+    "но",
+    "об",
+    "от",
+    "по",
+    "со",
+    "для",
+    "без",
+    "при",
+    "под",
+    "над",
+    "про",
+    "или",
+    "что",
+    "как",
+    "чем",
+  ];
+  const RE_AFTER = new RegExp(
+    '(^|[\\s(«„"—])(' + SHORT_WORDS.join("|") + ") (?=\\S)",
+    "giu",
+  );
+  const RE_BEFORE = / (же|ли|бы)(?=[\s.,!?;:»]|$)/giu;
+  const RE_DASH = / (—|–)/g;
+  const RE_NUM = /(\d) (?=[а-яёa-z%])/giu; // «120 миллионов», «41 %»
+
+  function glueText(text) {
+    let t = text;
+    // дважды: «и в звуке» — после первого прохода «в» ещё не склеено
+    t = t.replace(RE_AFTER, "$1$2" + NBSP).replace(RE_AFTER, "$1$2" + NBSP);
+    t = t.replace(RE_BEFORE, NBSP + "$1");
+    t = t.replace(RE_DASH, NBSP + "$1");
+    t = t.replace(RE_NUM, "$1" + NBSP);
+    return t;
+  }
+
+  const GLUE_SELECTOR =
+    "p, h2, li, blockquote, .b6_q_line, .year_card_title, .year_card_txt";
+  document.querySelectorAll(GLUE_SELECTOR).forEach(function (el) {
+    // svg-подписи и бегущую строку не трогаем
+    if (el.closest("svg, .marquee")) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const glued = glueText(node.nodeValue);
+      if (glued !== node.nodeValue) node.nodeValue = glued;
+    }
+  });
+
   // \\\\\\\\\\\\\\\
   // адаптив: какой сейчас макет. те же границы, что в adaptive.css
   //   d — десктоп (от 1024px), t — планшет (600–1023px), m — мобилка (до 599px)
