@@ -295,7 +295,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const sampleCache = new WeakMap();
 
   function samplesOf(el) {
-    const key = el.getAttribute("d") || "";
+    const key =
+      el.getAttribute("d") ||
+      ["cx", "cy", "r", "rx", "ry"]
+        .map(function (a) {
+          return el.getAttribute(a);
+        })
+        .join(",");
     const cached = sampleCache.get(el);
     if (cached && cached.key === key) return cached;
     const len = el.getTotalLength();
@@ -330,6 +336,33 @@ document.addEventListener("DOMContentLoaded", function () {
         p.lineTo(pt[1], pt[2]);
       }
       prev = pt;
+    }
+    return p;
+  }
+
+  // кусок линии от длины from до длины to (для замкнутых — через начало),
+  // ломаной по точкам самой линии. точки даёт браузер (getPointAtLength), поэтому
+  // свечение идёт ровно там же, где он рисует чёткую линию, — в любом браузере
+  function rangePath(el, from, to) {
+    const sm = samplesOf(el);
+    const p = new Path2D();
+    let prev = null;
+    for (let lap = 0; lap < 2; lap++) {
+      for (let i = 0; i < sm.pts.length; i++) {
+        const pt = sm.pts[i];
+        const l = pt[0] + lap * sm.len;
+        if (l < from) continue;
+        if (l > to) return p;
+        if (
+          !prev ||
+          Math.hypot(pt[1] - prev[1], pt[2] - prev[2]) > sm.step * 1.6
+        ) {
+          p.moveTo(pt[1], pt[2]);
+        } else {
+          p.lineTo(pt[1], pt[2]);
+        }
+        prev = pt;
+      }
     }
     return p;
   }
@@ -374,7 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (src.kind === "svg") {
       m.ctm = screenMatrix(el);
       if (!m.ctm) return null;
-      if (src.drawn) {
+      if (src.range) {
+        // какой кусок линии сейчас нарисован: [от, до] в единицах её длины
+        const r = src.range();
+        if (!r || r[1] - r[0] <= 0.5) return null;
+        m.k = r[0] * 7 + r[1]; // для «отпечатка» кадра: поменялся кусок — перерисовать
+        m.path = rangePath(el, r[0], r[1]);
+      } else if (src.drawn) {
         const k = src.drawn();
         if (k <= 0.001) return null; // ещё ничего не нарисовано
         m.k = k;

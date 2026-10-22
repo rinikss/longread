@@ -437,6 +437,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const FACTS_FROM = 0.68;
   const block3Facts = document.querySelectorAll(".fact");
 
+  const diskDrawn = []; // какой кусок каждого эллипса нарисован — для свечения
+
   function drawBlock3() {
     if (!block3) return;
 
@@ -456,6 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const len = diskLengths[i];
       const start = DISK_STARTS[i];
       const shown = drawK * len;
+      diskDrawn[i] = [start * len, start * len + shown]; // для свечения
       path.style.strokeDasharray = shown + " " + (len - shown + 1);
       path.style.strokeDashoffset = -start * len;
     });
@@ -1457,6 +1460,8 @@ document.addEventListener("DOMContentLoaded", function () {
     [720, -3.5, 609],
   ];
   let circleBp = "d";
+  let b7Drawn = 0; // доля нарисованного круга — для свечения
+  if (b7Circle) b7Circle.removeAttribute("pathLength");
 
   function fitB7Circle() {
     const b = bp();
@@ -1472,7 +1477,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function drawBlock7(progress) {
     fitB7Circle();
     const c = ease(part(progress, 0, 0.3));
-    b7Circle.style.strokeDasharray = c >= 1 ? "none" : c + " " + (1.01 - c);
+    b7Drawn = c;
+    // в настоящих единицах длины, без pathLength: так одинаково во всех браузерах
+    const len7 = b7Circle.getTotalLength();
+    b7Circle.style.strokeDasharray =
+      c >= 1 ? "none" : c * len7 + " " + (1.01 - c) * len7;
 
     const n = easeOut(part(progress, 0.2, 0.3));
     b7Num.style.opacity = n;
@@ -2056,8 +2065,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3 экран: эллипсы диска; сколько нарисовано — по их маскам
     const diskEls = document.querySelectorAll(".disk_ellipse");
     const diskDash = document.querySelectorAll(".disk_mask_path");
+    // свечение берёт нарисованный кусок напрямую, а не из пунктира маски:
+    // на iPhone пунктир эллипса считается иначе, и свет обгонял линию
     diskEls.forEach(function (el, i) {
-      window.glow.add({ el: el, kind: "svg", dash: diskDash[i] });
+      window.glow.add({
+        el: el,
+        kind: "svg",
+        range: function () {
+          return diskDrawn[i] || null;
+        },
+      });
     });
 
     // 4 экран: волна
@@ -2098,7 +2115,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 7 экран: большой круг
     const b7c = document.querySelector(".b7_circle_line");
-    if (b7c) window.glow.add({ el: b7c, kind: "svg", dash: b7c });
+    if (b7c) {
+      window.glow.add({
+        el: b7c,
+        kind: "svg",
+        range: function () {
+          return [0, b7Drawn * b7c.getTotalLength()];
+        },
+      });
+    }
 
     // 8 экран: все линии и точки рисунков (у скрытых шагов свечение не считается)
     b8Parts.forEach(function (s) {
