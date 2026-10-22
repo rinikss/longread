@@ -497,7 +497,7 @@ html.is_locked body {
   color: #fff;
   font-family: "Geist Mono", monospace;
   font-weight: 400;
-  font-size: 2.22cqw;
+  font-size: 1.94cqw;
   line-height: 120%;
   opacity: 0;
 }
@@ -506,12 +506,32 @@ html.is_locked body {
    поэтому у каждой своя точка опоры — угол, ближний к линии */
 .label_tracks {
   left: 2.22cqw;
-  top: 28.93cqw;
+  /* низ подписи стоит над прямой (y = 31.59cqw), подпись растёт вверх */
+  bottom: 39.52cqw;
   transform-origin: 0% 100%;
+}
+
+/* пояснение к числу: мельче и серее, отдельной строкой */
+.graph_cap {
+  display: block;
+  color: #b5b5b5;
+  font-family: "Iosevka Charon", monospace;
+  font-weight: 300;
+  font-size: 0.62em;
+  line-height: 130%;
+}
+
+.label_tracks .graph_cap {
+  margin-bottom: 0.3em;
+}
+
+.label_disc .graph_cap {
+  margin-top: 0.3em;
 }
 
 .label_disc {
   right: 2.22cqw;
+  text-align: right;
   top: 39.17cqw;
   transform-origin: 100% 0%;
 }
@@ -841,7 +861,7 @@ html.is_locked body {
    затем рисуется волна и появляются точки */
 
 .block4 {
-  height: 500vh;
+  height: 600vh;
 }
 
 .block4_sticky {
@@ -949,10 +969,53 @@ html.is_locked body {
   will-change: transform;
 }
 
-.wave_dot {
-  fill: #fff;
+.wave_needle {
   opacity: 0;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+}
+
+/* стенки бороздки: рисуются вместе с волной (длину задаёт screens.js) */
+.wave_wall {
+  stroke: #fff;
+  stroke-opacity: 0.28;
+  stroke-width: 1;
+  stroke-dasharray: 0 100000;
+}
+
+/* заставка «сторона а» по центру экрана, как этикетка пластинки перед
+   первой дорожкой. Bebas 128px, под ним моно 20px со свечением */
+.block4_side,
+.block5_side {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  color: #fff;
+  font-weight: 400;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-50%);
+  will-change: transform, opacity;
+}
+
+.b4_side_big {
+  display: block;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 8.89cqw;
+  line-height: 100%;
+  text-transform: uppercase;
+}
+
+.b4_side_sub {
+  display: block;
+  margin-top: 1.04cqw;
+  font-family: "Geist Mono", monospace;
+  font-size: 1.39cqw;
+  line-height: 120%;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 0.6cqw rgba(255, 255, 255, 0.7),
+    0 0 1.8cqw rgba(255, 255, 255, 0.35);
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
@@ -961,7 +1024,7 @@ html.is_locked body {
    потом точки едут по ступеням по кругу (как на 4 экране) */
 
 .block5 {
-  height: 800vh;
+  height: 900vh;
 }
 
 .block5_sticky {
@@ -1386,10 +1449,13 @@ html.is_locked body {
   container-type: size;
 }
 
-/* круг r=447 с центром в (250, 512) макета; svg во всю сцену */
+/* круг r=380 с центром в (410, 512) макета, 30px от левого края окна; svg во всю сцену */
 .b7_circle {
   position: absolute;
   inset: 0;
+  /* круг привязан к левому краю окна, как тексты: на широком экране
+     он не отходит от края вместе со сценой */
+  left: calc((100cqw - 100vw) / 2);
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -1399,13 +1465,14 @@ html.is_locked body {
   stroke-dasharray: 0 1;
 }
 
-/* фактоид: Bebas 336px, подпись 20px #B5B5B5, между ними 15px.
+/* фактоид: Bebas 256px, подпись 20px #B5B5B5, между ними 15px.
    вместе стоят по центру видимой части круга: по высоте — центр круга
    (y = 512 макета), по горизонтали — середина между краем экрана
    и правым краем круга (x = 348 макета). цифра и подпись — по центру друг друга */
 .b7_fact {
   position: absolute;
-  left: 18cqw;
+  /* центр круга: x = 410 px макета от левого края окна */
+  left: calc((100cqw - 100vw) / 2 + 28.47cqw);
   top: 35.56cqw;
   display: flex;
   flex-direction: column;
@@ -1418,7 +1485,7 @@ html.is_locked body {
 .b7_num {
   font-family: "Bebas Neue", sans-serif;
   font-weight: 400;
-  font-size: 23.33cqw;
+  font-size: 20.47cqw;
   line-height: 100%;
   /* срезаем пустоту над и под цифрами: блок = ровно высота цифр */
   margin: -0.05em 0 -0.25em;
@@ -1434,7 +1501,7 @@ html.is_locked body {
 }
 
 .b7_cap {
-  margin-top: 1.04cqw;
+  margin-top: 2.2cqw;
   color: #b5b5b5;
   font-family: "Iosevka Charon", monospace;
   font-weight: 300;
@@ -1448,10 +1515,11 @@ html.is_locked body {
 /* наборный текст 24px справа */
 .block7_text {
   position: absolute;
-  left: 53.89cqw;
+  /* в 45px от правого края круга */
+  left: calc((100cqw - 100vw) / 2 + 58cqw);
   top: 27.6cqw;
   /* до правого края окна, с отступом 30px, как у подписей в углах */
-  width: calc((100vw - 100cqw) / 2 + 100cqw - 53.89cqw - 2.08vw);
+  width: calc(100vw - 58cqw - 2.08vw);
   color: #fff;
   font-family: "Iosevka Charon", monospace;
   font-weight: 400;
@@ -1767,6 +1835,13 @@ html.is_locked body {
   transform-origin: 50% 50%;
   will-change: transform;
   pointer-events: none;
+}
+
+/* точка в центре круга — как отверстие посередине пластинки */
+.b9_center {
+  fill: #fff;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
 }
 
 .b9_orbit {

@@ -85,7 +85,7 @@
         <p class="rpm_txt">33⅓ RPM</p>
       </div>
       <p class="corner_txt timer_txt">00:00:00</p>
-      <p class="corner_txt longread_txt">ЛОНГРИД</p>
+      <p class="corner_txt longread_txt">28.10.26</p>
 
       <div class="rpm_panel" id="rpm_panel" aria-hidden="true">
         <p class="rpm_panel_txt">
@@ -131,8 +131,15 @@
               />
             </svg>
             <div class="graph_dot"></div>
-            <p class="graph_label label_tracks">253 000 000</p>
-            <p class="graph_label label_disc">1&nbsp;диск</p>
+            <p class="graph_label label_tracks">
+              <span class="graph_cap">вся музыка на&nbsp;стримингах</span>≈830
+              000 000 минут
+            </p>
+            <p class="graph_label label_disc">
+              40&nbsp;минут<span class="graph_cap"
+                >одна пластинка,<br />две стороны</span
+              >
+            </p>
           </div>
 
           <div class="block2_text">
@@ -141,9 +148,11 @@
               музыка человечества. К&nbsp;концу 2025&nbsp;года
               на&nbsp;стриминговых сервисах лежало 253&nbsp;миллиона треков,
               и&nbsp;каждый день в&nbsp;среднем добавлялось ещё 106&nbsp;тысяч.
-              И&nbsp;всё&nbsp;же в&nbsp;том&nbsp;же году американцы потратили
-              на&nbsp;виниловые пластинки больше миллиарда долларов впервые
-              с&nbsp;1983&nbsp;года.
+              Если поставить их подряд, они звучали&nbsp;бы около
+              830&nbsp;миллионов минут, то&nbsp;есть больше 1&nbsp;500&nbsp;лет,
+              а&nbsp;одна пластинка длится всего&nbsp;40. И&nbsp;всё&nbsp;же
+              в&nbsp;том&nbsp;же году американцы потратили на&nbsp;виниловые
+              пластинки больше миллиарда долларов впервые с&nbsp;1983&nbsp;года.
             </p>
             <p>
               Одни уверены, что&nbsp;всё дело в&nbsp;звуке: тёплом, живом,
@@ -504,6 +513,11 @@
     <section class="block4">
       <div class="block4_sticky">
         <div class="block4_stage">
+          <!-- заставка стороны А: появляется по центру и уходит вверх перед строками -->
+          <h2 class="block4_side">
+            <span class="b4_side_big">Сторона А</span>
+            <span class="b4_side_sub">«винил теплее»</span>
+          </h2>
           <p class="big_word word1">Пластинку</p>
           <p class="big_word word2">не</p>
           <p class="big_word word3">включают</p>
@@ -563,18 +577,30 @@
               />
             </g>
           </svg>
-          <!-- точки — в отдельном svg поверх, чтобы их движение
-               не перерисовывало размытое свечение под ними -->
+          <!-- игла — в отдельном svg поверх, чтобы её движение
+               не перерисовывало размытое свечение под волной.
+               кончик иглы — в точке (0, 0), screens.js ведёт её по бороздке -->
           <svg
             class="wave wave_dots"
             viewBox="0 0 1451 111"
             fill="none"
             aria-hidden="true"
           >
-            <circle class="wave_dot" cx="122.5" cy="110.4" r="22" />
-            <circle class="wave_dot" cx="521.4" cy="84.3" r="22" />
-            <circle class="wave_dot" cx="957.8" cy="47.6" r="22" />
-            <circle class="wave_dot" cx="1338.5" cy="1.0" r="22" />
+            <g
+              class="wave_needle"
+              stroke="white"
+              stroke-width="1.9"
+              stroke-linecap="round"
+            >
+              <!-- тонарм как на рисунке «3. Положить»: сверху кольцо-ось, от него
+                   почти вертикальная линия, у конца — излом и точка-игла -->
+              <g class="wave_needle_body">
+                <circle cx="0" cy="0" r="5" fill="white" stroke="none" />
+                <line x1="0" y1="0" x2="22" y2="-16" />
+                <line x1="22" y1="-16" x2="36" y2="-92" />
+                <circle cx="40.5" cy="-105.2" r="14" fill="none" />
+              </g>
+            </g>
           </svg>
         </div>
       </div>
@@ -583,6 +609,11 @@
     <section class="block5">
       <div class="block5_sticky">
         <div class="block5_stage">
+          <!-- заставка стороны Б, как у стороны А перед 4 экраном -->
+          <h2 class="block5_side">
+            <span class="b4_side_big">Сторона Б</span>
+            <span class="b4_side_sub">«цифра точнее»</span>
+          </h2>
           <h2 class="block5_title">Сторона Б: «цифра точнее»</h2>
 
           <div class="block5_text">
@@ -770,20 +801,20 @@
           >
             <circle
               class="b7_circle_line"
-              cx="250"
+              cx="410"
               cy="512"
-              r="447"
+              r="380"
               stroke="white"
               stroke-width="2"
               pathLength="1"
-              transform="rotate(-90 250 512)"
+              transform="rotate(-90 410 512)"
             />
           </svg>
 
           <div class="b7_fact">
             <p class="b7_num"><span class="b7_count">50</span>&nbsp;%</p>
             <p class="b7_cap">
-              покупателей винила в&nbsp;США не&nbsp;имеют проигрывателя
+              покупателей винила в&nbsp;США не&nbsp;имеют<br />проигрывателя
             </p>
           </div>
 
@@ -1527,6 +1558,16 @@
                 target="_blank"
                 rel="noopener"
                 >wikipedia.org</a
+              >
+            </li>
+            <li>
+              Statista. The Shorter the Song, the Sweeter the Stream? (средняя
+              длина трека — 3:17).
+              <a
+                href="https://www.statista.com/chart/26546/mean-song-duration-of-currently-streamable-songs-by-year-of-release/"
+                target="_blank"
+                rel="noopener"
+                >statista.com</a
               >
             </li>
             <li>

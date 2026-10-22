@@ -232,6 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const labelDisc = document.querySelector(".label_disc");
   const block2Text = document.querySelector(".block2_text");
 
+  // подписи: в начале 28px, в финале 20px
   // финал графика: масштаб 0.505 и подъём на 244px макета
   // (на планшете и мобилке график крупнее и уходит выше — над текстом)
   const GRAPH_SCALE_ = [0.505, 0.78, 0.8];
@@ -242,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // подписи: 32px → 20px
   // (на планшете 24 → 17px, на мобилке 12 → 11px)
-  const LABEL_FINAL_ = [20 / 32, 0.7, 0.92];
+  const LABEL_FINAL_ = [20 / 28, 0.85, 1];
 
   // линии графика гаснут до 35%, как круги на первом экране
   const GRAPH_DIM = 0.35;
@@ -647,40 +648,59 @@ document.addEventListener("DOMContentLoaded", function () {
   const bigWords = document.querySelectorAll(".big_word");
   const wordTxts = document.querySelectorAll(".word_txt");
   const waveMasks = document.querySelectorAll(".wave_mask_path");
-  const waveDots = document.querySelectorAll(".wave_dot");
+  const waveWalls = document.querySelectorAll(".wave_wall");
+  const needle = document.querySelector(".wave_needle");
+  const needleBody = document.querySelector(".wave_needle_body");
+  const block4Side = document.querySelector(".block4_side");
 
   // линия волны, по которой едут точки
   const waveLine = document.querySelector(".wave_line_path");
   const waveLen = waveLine ? waveLine.getTotalLength() : 0;
 
-  // секунд на один проезд точки по всей волне (меньше — быстрее)
-  const DOT_LOOP = 16;
-  // на каком отрезке у краёв волны точка гаснет/проявляется (в единицах svg)
+  // секунд на один проезд иглы по всей бороздке (меньше — быстрее)
+  const DOT_LOOP = 24;
+  // на каком отрезке у краёв волны игла гаснет/проявляется (в единицах svg)
   const DOT_EDGE = 80;
-  // видимость каждой точки от скролла (0–1), обновляется в drawBlock4
-  const dotShow = [];
-  waveDots.forEach(function () {
-    dotShow.push(0);
-  });
+  // размер иглы: svg волны на узком экране мельче, игла — крупнее в его единицах
+  const NEEDLE_K_ = [0.85, 0.85, 1.15];
+  // видимость иглы от скролла (0–1), обновляется в drawBlock4
+  const dotShow = [0];
 
   const waveLengths = [];
   waveMasks.forEach(function (path) {
     waveLengths.push(path.getTotalLength());
   });
 
-  // порядок появления: слово → его абзац → следующее слово
+  // порядок появления: заставка «сторона а», потом все строки по очереди,
+  // потом абзацы. последний абзац раздвигает «её» и «ставят»
   // [элемент, начало, конец] в долях прогресса
+  // заставка «сторона а»: 0–0.06 появляется по центру, 0.1–0.15 уходит вверх
   const block4Steps = [
-    [bigWords[0], 0.0, 0.12],
-    [bigWords[1], 0.06, 0.18],
-    [wordTxts[0], 0.1, 0.26],
-    [bigWords[2], 0.18, 0.3],
-    [wordTxts[1], 0.22, 0.38],
-    [bigWords[3], 0.3, 0.42],
-    [bigWords[4], 0.36, 0.48],
-    [wordTxts[2], 0.4, 0.56],
-    [bigWords[5], 0.48, 0.6],
+    [bigWords[0], 0.14, 0.21],
+    [bigWords[1], 0.17, 0.24],
+    [bigWords[2], 0.2, 0.27],
+    [bigWords[3], 0.23, 0.3],
+    [bigWords[4], 0.26, 0.33],
+    [bigWords[5], 0.29, 0.36],
+    [wordTxts[0], 0.37, 0.47],
+    [wordTxts[1], 0.42, 0.52],
+    [wordTxts[2], 0.48, 0.58],
   ];
+  // «ставят» сначала стоит сразу за «её», потом уезжает на своё место
+  const SPLIT_FROM = 0.46;
+  const SPLIT_TO = 0.57;
+
+  // на сколько px «ставят» сдвинуть влево, чтобы встало вплотную к «её»
+  function splitGap() {
+    const w5 = bigWords[4];
+    const w6 = bigWords[5];
+    if (!w5 || !w6) return 0;
+    const space = parseFloat(getComputedStyle(w6).fontSize) * 0.22;
+    return Math.max(
+      0,
+      w6.offsetLeft - (w5.offsetLeft + w5.offsetWidth) - space,
+    );
+  }
 
   // насколько абзацы выезжают сбоку (справа), в cqw
   const SIDE_SHIFT = 4;
@@ -702,12 +722,37 @@ document.addEventListener("DOMContentLoaded", function () {
   let running4 = false;
 
   function drawBlock4(progress) {
+    if (block4Side) {
+      const inK = easeOut(part(progress, 0, 0.06));
+      const outK = ease(part(progress, 0.1, 0.15));
+      block4Side.style.opacity = inK * (1 - outK);
+      block4Side.style.transform =
+        "translateY(calc(-50% + " + ((1 - inK) * 1.5 - outK * 3) + "cqw))";
+    }
     block4Steps.forEach(function (step) {
       const el = step[0];
       const k = easeOut(part(progress, step[1], step[2]));
       el.style.opacity = k;
-      if (el.classList.contains("word_txt")) {
+      const gap = splitGap();
+      if (el === wordTxts[2] && gap > 0) {
+        // последний абзац «разворачивается» слева направо и толкает «ставят»:
+        // видимая часть абзаца всегда заканчивается перед словом
+        const split = ease(part(progress, SPLIT_FROM, SPLIT_TO));
+        const w6 = bigWords[5];
+        const finalGap = w6.offsetLeft - (el.offsetLeft + el.offsetWidth);
+        const wordLeft = w6.offsetLeft - gap * (1 - split);
+        const shown = Math.max(0, wordLeft - finalGap - el.offsetLeft);
+        const cut = Math.max(0, 100 - (shown / el.offsetWidth) * 100);
+        el.style.opacity = shown > 0 ? 1 : 0;
+        el.style.clipPath = "inset(-10% " + cut + "% -10% 0)";
+        el.style.transform = "translate(0, -50%)";
+      } else if (el.classList.contains("word_txt")) {
+        el.style.clipPath = "";
         el.style.transform = "translate(" + (1 - k) * SIDE_SHIFT + "cqw, -50%)";
+      } else if (el === bigWords[5]) {
+        const split = ease(part(progress, SPLIT_FROM, SPLIT_TO));
+        el.style.transform =
+          "translate(" + -gap * (1 - split) + "px, " + (1 - k) * 1.5 + "cqw)";
       } else {
         el.style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
       }
@@ -715,7 +760,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // волна: путь в svg идёт справа налево, поэтому открываем его с конца
     // на планшете и мобилке волна начинается, когда весь текст уже на месте
-    const WAVE_FROM = pick(0.56, 0.62, 0.62);
+    const WAVE_FROM = pick(0.6, 0.62, 0.62);
     const waveK = ease(part(progress, WAVE_FROM, WAVE_FROM + 0.22));
     waveMasks.forEach(function (path, i) {
       const len = waveLengths[i];
@@ -723,12 +768,17 @@ document.addEventListener("DOMContentLoaded", function () {
       path.style.strokeDasharray = shown + " " + (len - shown + 1);
       path.style.strokeDashoffset = -(len - shown);
     });
-
-    // точки проявляются по очереди, когда волна почти дорисована
-    waveDots.forEach(function (dot, i) {
-      const from = WAVE_FROM + 0.14 + i * 0.04;
-      dotShow[i] = ease(part(progress, from, from + 0.04));
+    // стенки бороздки — та же волна, рисуются вместе с ней
+    waveWalls.forEach(function (wall) {
+      const len = waveLengths[0];
+      const shown = waveK * len;
+      wall.style.strokeDasharray = shown + " " + (len - shown + 1);
+      wall.style.strokeDashoffset = -(len - shown);
     });
+
+    // игла опускается, когда бороздка дорисована
+    const nFrom = WAVE_FROM + 0.18;
+    dotShow[0] = ease(part(progress, nFrom, nFrom + 0.06));
     startDots();
   }
 
@@ -738,26 +788,26 @@ document.addEventListener("DOMContentLoaded", function () {
   let block4Visible = false;
   const dotsStart = performance.now();
 
+  // игла едет по бороздке слева направо и по кругу, как звукосниматель
+  // по дорожке пластинки. у краёв (за экраном) гаснет, чтобы перескок был незаметен
   function moveDots(now) {
+    if (!needle) return;
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const t = reduce ? 0 : (now - dotsStart) / 1000;
-    const shift = (t / DOT_LOOP) * waveLen;
-    const n = waveDots.length;
-
-    waveDots.forEach(function (dot, i) {
-      // сколько точка проехала от левого края волны
-      const d =
-        (shift + ((n - 1 - i) / n) * waveLen + waveLen * 0.08) % waveLen;
-      // путь в svg идёт справа налево: левый край — конец пути
-      const pt = waveLine.getPointAtLength(waveLen - d);
-      dot.setAttribute("cx", pt.x);
-      dot.setAttribute("cy", pt.y);
-      // у краёв волны (за экраном) точка гаснет, чтобы перескок был незаметен
-      const edge = Math.min(1, d / DOT_EDGE, (waveLen - d) / DOT_EDGE);
-      dot.style.opacity = dotShow[i] * edge;
-    });
+    const d = ((t / DOT_LOOP) * waveLen + waveLen * 0.3) % waveLen;
+    // путь в svg идёт справа налево: левый край — конец пути
+    const pt = waveLine.getPointAtLength(waveLen - d);
+    needle.setAttribute("transform", "translate(" + pt.x + " " + pt.y + ")");
+    needleBody.setAttribute(
+      "transform",
+      "scale(" + pick.apply(null, NEEDLE_K_) + ")",
+    );
+    const edge = Math.min(1, d / DOT_EDGE, (waveLen - d) / DOT_EDGE);
+    // игла не появляется резко: в начале чуть «опускается» сверху
+    needle.style.opacity = dotShow[0] * edge;
+    needleBody.style.translate = "0 " + (1 - dotShow[0]) * -30 + "px";
   }
 
   function dotsFrame(now) {
@@ -1136,7 +1186,23 @@ document.addEventListener("DOMContentLoaded", function () {
       (extra || "") + " translateY(" + (1 - k) * 1.5 + "cqw)";
   }
 
+  // заставка «сторона б»: 0–0.05 появляется, 0.08–0.12 уходит вверх.
+  // остальная анимация экрана идёт после неё (прогресс пересчитан от 0.12)
+  const block5Side = document.querySelector(".block5_side");
+  const B5_CARD = 0.12;
+
   function drawBlock5(progress) {
+    if (block5Side) {
+      const inK = easeOut(part(progress, 0, 0.05));
+      const outK = ease(part(progress, 0.08, B5_CARD));
+      block5Side.style.opacity = inK * (1 - outK);
+      block5Side.style.transform =
+        "translateY(calc(-50% + " + ((1 - inK) * 1.5 - outK * 3) + "cqw))";
+    }
+    drawBlock5Main(Math.max(0, (progress - B5_CARD) / (1 - B5_CARD)));
+  }
+
+  function drawBlock5Main(progress) {
     // часть 1: текст появляется, в части 2 уходит вверх
     const out = ease(part(progress, 0.5, 0.57));
     block5Steps.forEach(function (step) {
@@ -1167,7 +1233,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     stepsDots.forEach(function (dot, i) {
       const from = 0.35 + i * 0.015;
-      stepsShow[i] = ease(part(progress, from, from + 0.02));
+      // во второй части (диаграмма) точки гаснут — там их место занимают цифры
+      stepsShow[i] =
+        ease(part(progress, from, from + 0.02)) *
+        (1 - ease(part(progress, 0.5, 0.56)));
     });
 
     // часть 2: цифры над столбиками, пунктиры, подписи
@@ -1455,7 +1524,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // круг: [cx, cy, r] в единицах сцены 1440×1024. на десктопе он слева
   // и уходит за край, на планшете и мобилке — по центру сверху, текст под ним
   const B7_CIRCLE_ = [
-    [250, 512, 447],
+    [410, 512, 380],
     [720, 246, 544],
     [720, -3.5, 609],
   ];
@@ -1851,9 +1920,17 @@ document.addEventListener("DOMContentLoaded", function () {
     return o;
   }
 
+  let b9Center = null;
+
   function buildB9() {
     if (!b9Svg) return;
     let order = 0;
+    // точка в центре — как отверстие посередине пластинки
+    b9Center = svgEl(
+      "circle",
+      { class: "b9_center", cx: B9.cx, cy: B9.cy, r: 6 },
+      b9Svg,
+    );
     // индекс 0 — орбита заголовков, дальше орбиты строк
     orbitAt(0, B9.r0);
     B9_SONGS.forEach(function (song, si) {
@@ -1918,6 +1995,7 @@ document.addEventListener("DOMContentLoaded", function () {
       o.circle.style.strokeDasharray = k >= 1 ? "none" : k + " " + (1.01 - k);
     });
     b9RingsOn = part(progress, 0.22, 0.24);
+    if (b9Center) b9Center.style.opacity = easeOut(part(progress, 0.22, 0.28));
 
     // строки по очереди
     const n = b9Lines.length;

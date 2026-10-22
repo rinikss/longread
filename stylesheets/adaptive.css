@@ -114,13 +114,15 @@
   /* 2 экран: сцена во всю ширину. в финале график поднимается наверх
      (screens.js), под ним текст во всю ширину */
   .graph_label {
-    font-size: 3.13cqw;
+    font-size: 2.6cqw;
   }
 
-  /* нижний край подписи остаётся у прямой: 31.59 − 1.2 × кегль */
   .label_tracks {
     left: 3.13cqw;
-    top: 27.83cqw;
+  }
+
+  .graph_cap {
+    font-size: 0.72em;
   }
 
   .label_disc {
@@ -272,6 +274,16 @@
 
   .wave {
     top: 82.2cqw;
+  }
+
+  /* заставка «сторона а»: центр сцены = центр экрана */
+  .b4_side_big {
+    font-size: 12.5cqw;
+  }
+
+  .b4_side_sub {
+    margin-top: 1.6cqw;
+    font-size: 2.08cqw;
   }
 
   /* 5 экран: столбики ступеней (x 230…1501 в svg) во всю ширину сцены
@@ -435,6 +447,10 @@
 
   /* 7 экран: круг по центру сверху (координаты — в screens.js), цифра в нём,
      текст под кругом во всю ширину */
+  .b7_circle {
+    left: 0;
+  }
+
   .b7_circle_line {
     stroke-width: 3.75;
   }
@@ -666,12 +682,15 @@
 
   /* 2 экран: подписи 12px */
   .graph_label {
-    font-size: 2.9cqw;
+    font-size: 2.65cqw;
   }
 
   .label_tracks {
     left: 3.86cqw;
-    top: 28.11cqw;
+  }
+
+  .graph_cap {
+    font-size: 0.85em;
   }
 
   .label_disc {
@@ -809,6 +828,15 @@
     left: calc((100cqw - 100vw) / 2 - 25vw);
     top: 94cqw;
     width: 150vw;
+  }
+
+  .b4_side_big {
+    font-size: 15.5cqw;
+  }
+
+  .b4_side_sub {
+    margin-top: 2.4cqw;
+    font-size: 3.38cqw;
   }
 
   /* 5 экран: столбики ступеней (x 230…1501 в svg) во всю ширину сцены
