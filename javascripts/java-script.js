@@ -218,6 +218,43 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // форма svg-элемента для canvas (кэшируется, пока не меняется)
+  // где элемент svg стоит на экране: матрица из его единиц в css-пиксели окна.
+  // getScreenCTM() на iPhone (Safari и Chrome там на одном движке) ошибается
+  // у элементов с атрибутом transform — например, у эллипсов диска и круга
+  // 7 экрана, и свечение съезжало. поэтому считаем сами: положение svg на
+  // экране (его рамка) × viewBox × transform самого элемента и его групп
+  function screenMatrix(el) {
+    const svg = el.ownerSVGElement;
+    if (!svg) return el.getScreenCTM();
+    const r = svg.getBoundingClientRect();
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    let m = new DOMMatrix();
+    if (vb && vb.width && vb.height) {
+      // preserveAspectRatio по умолчанию: вписать по центру
+      const k = Math.min(r.width / vb.width, r.height / vb.height);
+      m = m
+        .translate(
+          r.left + (r.width - vb.width * k) / 2 - vb.x * k,
+          r.top + (r.height - vb.height * k) / 2 - vb.y * k,
+        )
+        .scale(k);
+    } else {
+      m = m.translate(r.left, r.top);
+    }
+    // transform элемента и его групп внутри svg, от внешних к внутреннему
+    const chain = [];
+    for (let n = el; n && n !== svg; n = n.parentNode) chain.unshift(n);
+    chain.forEach(function (n) {
+      const t =
+        n.transform && n.transform.baseVal && n.transform.baseVal.consolidate();
+      if (t) {
+        const q = t.matrix;
+        m = m.multiply(new DOMMatrix([q.a, q.b, q.c, q.d, q.e, q.f]));
+      }
+    });
+    return m;
+  }
+
   function svgPath(el) {
     const tag = el.tagName.toLowerCase();
     const key =
@@ -335,7 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (op <= 0.001) return null;
     const m = { box: box, gain: (src.gain !== undefined ? src.gain : 1) * op };
     if (src.kind === "svg") {
-      m.ctm = el.getScreenCTM();
+      m.ctm = screenMatrix(el);
       if (!m.ctm) return null;
       if (src.drawn) {
         const k = src.drawn();

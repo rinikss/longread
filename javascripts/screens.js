@@ -711,7 +711,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // волна: путь в svg идёт справа налево, поэтому открываем его с конца
-    const waveK = ease(part(progress, 0.56, 0.78));
+    // на планшете и мобилке волна начинается, когда весь текст уже на месте
+    const WAVE_FROM = pick(0.56, 0.62, 0.62);
+    const waveK = ease(part(progress, WAVE_FROM, WAVE_FROM + 0.22));
     waveMasks.forEach(function (path, i) {
       const len = waveLengths[i];
       const shown = waveK * len;
@@ -721,7 +723,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // точки проявляются по очереди, когда волна почти дорисована
     waveDots.forEach(function (dot, i) {
-      const from = 0.7 + i * 0.04;
+      const from = WAVE_FROM + 0.14 + i * 0.04;
       dotShow[i] = ease(part(progress, from, from + 0.04));
     });
     startDots();

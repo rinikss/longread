@@ -939,6 +939,11 @@ html.is_locked body {
   overflow: visible;
 }
 
+/* маска волны: пока screens.js не задал длину, линии не видно */
+.wave_mask_path {
+  stroke-dasharray: 0 100000;
+}
+
 /* точки на своём слое: их движение не перерисовывает свечение */
 .wave_dots {
   will-change: transform;
