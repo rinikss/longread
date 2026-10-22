@@ -187,6 +187,13 @@ document.addEventListener("DOMContentLoaded", function () {
     work.height = Math.round(window.innerHeight * softScale);
     softCanvas.width = Math.round(window.innerWidth * dpr);
     softCanvas.height = Math.round(window.innerHeight * dpr);
+    // размер на экране — ровно видимая часть окна. в css стоит 100vh, но на
+    // телефоне 100vh — это окно без панели браузера, и холст растягивался по
+    // высоте: свечение съезжало вниз относительно линий
+    [glowCanvas, softCanvas].forEach(function (c) {
+      c.style.width = window.innerWidth + "px";
+      c.style.height = window.innerHeight + "px";
+    });
     if (glReady) gl.viewport(0, 0, softCanvas.width, softCanvas.height);
   }
   sizeGlow();
@@ -458,7 +465,9 @@ document.addEventListener("DOMContentLoaded", function () {
       "@" +
       sk +
       "@" +
-      glowCanvas.width;
+      glowCanvas.width +
+      "x" +
+      glowCanvas.height; // смена размера холста его очищает
     if (sig === glowSig) {
       window.requestAnimationFrame(glowFrame);
       return;

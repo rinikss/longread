@@ -281,7 +281,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // кривая рисуется точно по пути (свечение повторяет её само — canvas)
     const curveK = part(progress, 0.18, 0.5);
-    graphCurvePath.style.strokeDashoffset = -1 + curveK;
+    // видна последняя доля пути длиной curveK (путь в svg идёт справа налево).
+    // без stroke-dashoffset: Safari и Chrome на iPhone не пересчитывают его
+    // по pathLength, и линия рисовалась не с того конца
+    graphCurvePath.style.strokeDasharray =
+      "0 " + (1 - curveK) + " " + curveK + " 1";
 
     // график уменьшается и уходит вверх
     const shrinkK = ease(part(progress, 0.6, 0.78));
