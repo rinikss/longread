@@ -256,9 +256,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const labelSize = 1 - (1 - LABEL_FINAL) * shrinkK;
     const labelScale = labelSize / scale;
+    const LIFT = pick(0, 6, 9) * shrinkK;
     labelTracks.style.transform =
-      "translateY(" + (1 - tracksK) * 1 + "cqw) scale(" + labelScale + ")";
-    labelDisc.style.transform = "scale(" + labelScale + ")";
+      "translateY(" +
+      ((1 - tracksK) * 1 - LIFT) +
+      "cqw) scale(" +
+      labelScale +
+      ")";
+    labelDisc.style.transform =
+      "translateY(" + LIFT + "cqw) scale(" + labelScale + ")";
 
     const dotK = ease(part(progress, 0.5, 0.58));
     const dotGrow = 1 + (DOT_FINAL / GRAPH_SCALE - 1) * shrinkK;
@@ -1163,6 +1169,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openB5() {
     if (!b5Panel) return;
+    if (bp() !== "d") {
+      b5Panel.style.bottom = "0px";
+      const pr = b5Panel.getBoundingClientRect();
+      const br = moreBtn.getBoundingClientRect();
+      b5Panel.style.bottom = pr.bottom - br.bottom + "px";
+    } else {
+      b5Panel.style.bottom = "";
+    }
     b5Panel.classList.add("is_open");
     b5Panel.setAttribute("aria-hidden", "false");
     moreBtn.setAttribute("aria-expanded", "true");
