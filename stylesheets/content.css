@@ -20,7 +20,6 @@ section {
   width: 100%;
 }
 
-/* свечение всех линий рисуется на одном canvas под контентом (java-script.js) */
 .glow_canvas {
   position: fixed;
   inset: 0;
@@ -30,7 +29,6 @@ section {
   pointer-events: none;
 }
 
-/* кастомный курсор: кольцо как на 6 экране, негативом к фону */
 html.has_cursor,
 html.has_cursor * {
   cursor: none !important;
@@ -53,7 +51,6 @@ html.has_cursor * {
   opacity: 1;
 }
 
-/* само кольцо: 28px, линия 2px, центр — точно в точке мыши */
 .cursor::before {
   content: "";
   position: absolute;
@@ -75,16 +72,13 @@ html.has_cursor * {
   transform: scale(0.8);
 }
 
-/* пока на обложке идёт интро, страницу нельзя прокрутить */
 html.is_locked,
 html.is_locked body {
   overflow: hidden;
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block1 — обложка */
 
-/* экран всегда равен высоте окна браузера */
 .block1 {
   height: 100vh;
   margin-bottom: 12vh;
@@ -92,8 +86,6 @@ html.is_locked body {
   overflow-y: visible;
 }
 
-/* сцена с кругами — макет 1440×1024, ужимается по высоте окна.
-   внутри сцены размеры в cqw: 1cqw = 1% ширины сцены (14.4px макета) */
 .block1_stage {
   position: absolute;
   left: 50%;
@@ -124,9 +116,6 @@ html.is_locked body {
   transform: scaleY(0);
 }
 
-/* круг = обёртка на всю сцену (её центр совпадает с центром круга, поэтому
-   масштаб в анимации идёт ровно от центра). внутри — чёткая линия (svg),
-   свечение рисует canvas (см. java-script.js) */
 .circle_img {
   position: absolute;
   inset: 0;
@@ -182,8 +171,6 @@ html.is_locked body {
   height: 45.14cqw;
 }
 
-/* орбита — точка вращения в центре сцены.
-   в начале все точки стоят друг под другом на вертикальной линии сверху */
 .orbit {
   position: absolute;
   left: 50%;
@@ -193,7 +180,6 @@ html.is_locked body {
   transform: rotate(-90deg);
 }
 
-/* orbit_spin — общий оборот, orbit_fan — сдвиг каждой точки веером */
 .orbit_spin,
 .orbit_fan {
   position: absolute;
@@ -215,7 +201,6 @@ html.is_locked body {
   opacity: 0;
 }
 
-/* радиус орбиты минус половина точки */
 .orbit1 .dot {
   left: 34.03cqw;
 }
@@ -235,7 +220,6 @@ html.is_locked body {
   left: 3.68cqw;
 }
 
-/* подписи по углам закреплены и видны на всех экранах */
 .corner_txt {
   position: fixed;
   z-index: 10;
@@ -255,7 +239,6 @@ html.is_locked body {
   text-decoration-thickness: 0.1vw;
 }
 
-/* кнопка с плюсом + надпись 33⅓ RPM */
 .rpm_wrap {
   right: 2.22vw;
   top: 2.22vw;
@@ -297,13 +280,11 @@ html.is_locked body {
   outline-color: #111111;
 }
 
-/* кнопка закрытия в плашке крупнее плюса: 40px */
 .rpm_close {
   width: 2.78vw;
   height: 2.78vw;
 }
 
-/* плашка с пояснением, 1194×306 */
 .rpm_panel {
   position: fixed;
   right: 2.22vw;
@@ -397,9 +378,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block2 — график «253 000 000 → 1 диск» и лид.
-   анимация привязана к скроллу: секция высотой 500vh, внутри неё экран
-   «прилипает» (sticky), а screens.js по прокрутке двигает элементы */
 
 .block2 {
   height: 500vh;
@@ -412,7 +390,6 @@ html.is_locked body {
   overflow: hidden;
 }
 
-/* сцена 1440×1024, как на первом экране: 1cqw = 14.4px макета */
 .block2_stage {
   position: absolute;
   left: 50%;
@@ -423,7 +400,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* весь график — один слой, его уменьшаем и уводим вверх */
 .block2_graph {
   position: absolute;
   inset: 0;
@@ -431,7 +407,6 @@ html.is_locked body {
   will-change: transform;
 }
 
-/* прямая: в svg линия от x=250 до x=1627, ставим её на 32px от краёв */
 .graph_line {
   position: absolute;
   left: -15.17cqw;
@@ -442,7 +417,6 @@ html.is_locked body {
   transform-origin: 50% 50%;
 }
 
-/* внутри — чёткая линия (svg); свечение рисует canvas */
 .graph_line img {
   position: absolute;
   inset: 0;
@@ -450,7 +424,6 @@ html.is_locked body {
   height: 100%;
 }
 
-/* засечка у начала прямой */
 .graph_tick {
   position: absolute;
   left: -2.39cqw;
@@ -459,8 +432,6 @@ html.is_locked body {
   transform: scaleY(0);
 }
 
-/* кривая: чёткая линия рисуется точно по пути (stroke-dashoffset),
-   свечение рисует canvas */
 .graph_curve_line {
   position: absolute;
   left: 1.67cqw;
@@ -470,13 +441,10 @@ html.is_locked body {
   aspect-ratio: 1604 / 750;
 }
 
-/* путь в svg идёт справа налево, поэтому видна его последняя часть:
-   длину этой части задаёт screens.js. в начале линии нет */
 .graph_curve_line path {
   stroke-dasharray: 0 1;
 }
 
-/* точка «1 диск» в конце кривой, 64px */
 .graph_dot {
   position: absolute;
   left: 92.92cqw;
@@ -490,8 +458,6 @@ html.is_locked body {
   transform: scale(0.6);
 }
 
-/* подписи графика: в начале 32px, к финалу плавно уменьшаются до 20px
-   (масштаб считает screens.js) */
 .graph_label {
   position: absolute;
   color: #fff;
@@ -502,16 +468,13 @@ html.is_locked body {
   opacity: 0;
 }
 
-/* подписи не уменьшаются вместе с графиком: screens.js их компенсирует,
-   поэтому у каждой своя точка опоры — угол, ближний к линии */
 .label_tracks {
   left: 2.22cqw;
-  /* низ подписи стоит над прямой (y = 31.59cqw), подпись растёт вверх */
+
   bottom: 39.52cqw;
   transform-origin: 0% 100%;
 }
 
-/* пояснение к числу: мельче и серее, отдельной строкой */
 .graph_cap {
   display: block;
   color: #b5b5b5;
@@ -536,7 +499,6 @@ html.is_locked body {
   transform-origin: 100% 0%;
 }
 
-/* лид — появляется под уменьшенным графиком */
 .block2_text {
   position: absolute;
   left: 25.9cqw;
@@ -556,9 +518,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block3 — «формат, который похоронили дважды».
-   анимация по скроллу, как на втором экране: эллипсы рисуются, диск уезжает
-   вправо вниз и уменьшается, появляются заголовок, текст и точки с годами */
 
 .block3 {
   height: 700vh;
@@ -581,7 +540,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* весь диск — один слой, общий центр эллипсов = центр сцены */
 .block3_disk {
   position: absolute;
   inset: 0;
@@ -589,15 +547,12 @@ html.is_locked body {
   will-change: transform;
 }
 
-/* в каждом svg: свечение (webp) и линия, обе открываются по одному контуру —
-   линия тонкой маской, свечение широкой размытой */
 .disk_line {
   position: absolute;
   overflow: visible;
   height: auto;
 }
 
-/* маска рисует линию: screens.js меняет длину видимого отрезка */
 .disk_mask_path {
   stroke-dasharray: 0 100000;
 }
@@ -626,7 +581,6 @@ html.is_locked body {
   width: 35.56cqw;
 }
 
-/* точки с годами, 44px; появляются по очереди от 1948 к 2025 */
 .year_dot {
   position: absolute;
   width: 3.06cqw;
@@ -639,15 +593,13 @@ html.is_locked body {
   transform: translate(-50%, -50%) scale(0.6);
   opacity: 0;
   cursor: pointer;
-  /* scale — отдельное свойство: складывается с transform из screens.js */
+
   scale: 1;
   transition:
     scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.35s ease;
 }
 
-/* при наведении: точка увеличивается, свечение сильнее,
-   вокруг расходится тонкое кольцо */
 .year_dot::after {
   content: "";
   position: absolute;
@@ -682,7 +634,6 @@ html.is_locked body {
   }
 }
 
-/* подпись года при наведении тоже светится */
 .year_label {
   transition: text-shadow 0.35s ease;
 }
@@ -712,8 +663,6 @@ html.is_locked body {
   white-space: nowrap;
 }
 
-/* карточка года: 308px, открывается по клику на точку и перекрывает её,
-   нижний край стоит над подписью года. положение считает screens.js */
 .year_card {
   position: absolute;
   width: 21.39cqw;
@@ -743,7 +692,7 @@ html.is_locked body {
 .year_card_title {
   padding-right: 2.5cqw;
   font-family: "Bebas Neue", sans-serif;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1.67cqw;
   line-height: 110%;
 }
@@ -789,8 +738,6 @@ html.is_locked body {
   outline-color: #111111;
 }
 
-/* фактоиды: появляются на месте текста. цифры Bebas 128px, подписи 20px,
-   между группами 80px */
 .block3_facts {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
@@ -825,7 +772,7 @@ html.is_locked body {
 
 .block3_title {
   position: absolute;
-  /* 30px от левого края окна, даже если сцена уже окна */
+
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
   top: 6.94cqw;
   color: #fff;
@@ -839,7 +786,7 @@ html.is_locked body {
 
 .block3_text {
   position: absolute;
-  /* 30px от левого края окна, даже если сцена уже окна */
+
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
   top: 13.75cqw;
   width: 48.6cqw;
@@ -856,9 +803,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block4 — «пластинку не включают фоном. её ставят.»
-   по скроллу: слова появляются по очереди, абзацы выезжают сбоку,
-   затем рисуется волна и появляются точки */
 
 .block4 {
   height: 600vh;
@@ -881,7 +825,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* большие слова: Bebas 128px, 30px от левого края окна */
 .big_word {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
@@ -916,7 +859,6 @@ html.is_locked body {
   left: calc((100cqw - 100vw) / 2 + 2.08vw + 56.88cqw);
 }
 
-/* абзацы: 20px, в 30px справа от своего слова, по центру слова по высоте */
 .word_txt {
   position: absolute;
   color: #fff;
@@ -947,8 +889,6 @@ html.is_locked body {
   width: 45.56cqw;
 }
 
-/* волна внизу экрана во всю ширину окна и чуть шире (по 2vw за края).
-   по высоте сжата до 60% от макета, чтобы освободить место тексту */
 .wave {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 - 2vw);
@@ -959,12 +899,10 @@ html.is_locked body {
   overflow: visible;
 }
 
-/* маска волны: пока screens.js не задал длину, линии не видно */
 .wave_mask_path {
   stroke-dasharray: 0 100000;
 }
 
-/* точки на своём слое: их движение не перерисовывает свечение */
 .wave_dots {
   will-change: transform;
 }
@@ -974,7 +912,6 @@ html.is_locked body {
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
 }
 
-/* стенки бороздки: рисуются вместе с волной (длину задаёт screens.js) */
 .wave_wall {
   stroke: #fff;
   stroke-opacity: 0.28;
@@ -982,8 +919,6 @@ html.is_locked body {
   stroke-dasharray: 0 100000;
 }
 
-/* заставка «сторона а» по центру экрана, как этикетка пластинки перед
-   первой дорожкой. Bebas 128px, под ним моно 20px со свечением */
 .block4_side,
 .block5_side {
   position: absolute;
@@ -1019,9 +954,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block5 — «сторона б: цифра точнее»
-   по скроллу: заголовок и абзацы, затем рисуются ступени со свечением,
-   потом точки едут по ступеням по кругу (как на 4 экране) */
 
 .block5 {
   height: 900vh;
@@ -1044,7 +976,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* заголовок как на 3 экране: Bebas 64px, 30px от левого края окна */
 .block5_title {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
@@ -1059,7 +990,6 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* текст 24px */
 .block5_text {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
@@ -1085,8 +1015,6 @@ html.is_locked body {
   margin-top: 1.3cqw;
 }
 
-/* ступени: 1644×656 по макету, рисунок по центру сцены, низ у нижнего края.
-   концы линии уходят далеко за svg, чтобы на широком окне их не было видно */
 .steps {
   position: absolute;
   left: -10.24cqw;
@@ -1096,7 +1024,6 @@ html.is_locked body {
   overflow: visible;
 }
 
-/* точки на своём слое: их движение не перерисовывает свечение */
 .steps_dots {
   will-change: transform;
 }
@@ -1111,7 +1038,6 @@ html.is_locked body {
   filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
 }
 
-/* вторая часть: линейки диапазона и пунктиры (рисуются в svg, в единицах макета) */
 .steps_guides,
 .guide_txt {
   fill: #fff;
@@ -1120,7 +1046,6 @@ html.is_locked body {
   letter-spacing: 0.02em;
 }
 
-/* столбики второй части: значения, названия, продажи (в единицах svg ≈ px макета) */
 .bar_val,
 .bar_name,
 .bar_sale,
@@ -1156,7 +1081,6 @@ html.is_locked body {
   opacity: 0;
 }
 
-/* винил: подпись светится, столбик слегка залит */
 .bar_name.is_vinyl,
 .bar_sale.is_vinyl {
   filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
@@ -1173,7 +1097,6 @@ html.is_locked body {
   letter-spacing: 0.02em;
 }
 
-/* цифры над ступенями: Bebas 128px, подпись 20px, по центру над своей половиной */
 .b5_fact {
   position: absolute;
   top: 6.11cqw;
@@ -1185,7 +1108,6 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* центры над столбиками компакт-диска и винила */
 .b5_fact_cd {
   left: 30.27cqw;
 }
@@ -1210,7 +1132,6 @@ html.is_locked body {
   line-height: 125%;
 }
 
-/* белая плашка с плюсом, на всю ширину окна с отступами как у подписей в углах */
 .b5_more {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.22vw);
@@ -1238,15 +1159,12 @@ html.is_locked body {
   pointer-events: auto;
 }
 
-/* plus.svg белый — на белой плашке делаем его чёрным */
 .b5_more img {
   width: 2.78cqw;
   height: 2.78cqw;
   filter: invert(1);
 }
 
-/* раскрытая плашка: той же ширины, нижний край там же, где у закрытой,
-   растёт вверх. текст 28px, снизу линия, минус и заголовок */
 .b5_panel {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.22vw);
@@ -1306,7 +1224,6 @@ html.is_locked body {
   transition: transform 0.3s ease;
 }
 
-/* minus.svg уже тёмный — как в плашке 33⅓ RPM */
 .b5_close img {
   display: block;
   width: 100%;
@@ -1324,8 +1241,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block6 — «если дело не в звуке, тогда в чём?»
-   по скроллу: абзац, кружок, линия от кружка к краям окна, затем вопрос */
 
 .block6 {
   height: 400vh;
@@ -1348,7 +1263,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* абзац 24px по центру экрана, строки выровнены по левому краю */
 .block6_txt {
   position: absolute;
   left: 50%;
@@ -1364,7 +1278,6 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* линия: на всю ширину окна, центр на 404px макета */
 .b6_line {
   position: absolute;
   left: calc((100cqw - 100vw) / 2);
@@ -1384,7 +1297,6 @@ html.is_locked body {
   transform-origin: 50% 50%;
 }
 
-/* кружок 48px по центру линии */
 .b6_point {
   position: absolute;
   left: 50cqw;
@@ -1403,7 +1315,6 @@ html.is_locked body {
   height: 100%;
 }
 
-/* вопрос: Bebas 128px, по центру */
 .block6_q {
   position: absolute;
   left: 0;
@@ -1425,8 +1336,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block7 — «50 %»
-   по скроллу: рисуется круг, цифра считает от 0 до 50, подпись, затем абзацы */
 
 .block7 {
   height: 400vh;
@@ -1449,12 +1358,10 @@ html.is_locked body {
   container-type: size;
 }
 
-/* круг r=380 с центром в (410, 512) макета, 30px от левого края окна; svg во всю сцену */
 .b7_circle {
   position: absolute;
   inset: 0;
-  /* круг привязан к левому краю окна, как тексты: на широком экране
-     он не отходит от края вместе со сценой */
+
   left: calc((100cqw - 100vw) / 2);
   width: 100%;
   height: 100%;
@@ -1465,13 +1372,9 @@ html.is_locked body {
   stroke-dasharray: 0 1;
 }
 
-/* фактоид: Bebas 256px, подпись 20px #B5B5B5, между ними 15px.
-   вместе стоят по центру видимой части круга: по высоте — центр круга
-   (y = 512 макета), по горизонтали — середина между краем экрана
-   и правым краем круга (x = 348 макета). цифра и подпись — по центру друг друга */
 .b7_fact {
   position: absolute;
-  /* центр круга: x = 410 px макета от левого края окна */
+
   left: calc((100cqw - 100vw) / 2 + 28.47cqw);
   top: 35.56cqw;
   display: flex;
@@ -1487,14 +1390,13 @@ html.is_locked body {
   font-weight: 400;
   font-size: 20.47cqw;
   line-height: 100%;
-  /* срезаем пустоту над и под цифрами: блок = ровно высота цифр */
+
   margin: -0.05em 0 -0.25em;
   white-space: nowrap;
   opacity: 0;
   will-change: transform, opacity;
 }
 
-/* число: ширина задаётся из screens.js, цифры прижаты вправо к «%» */
 .b7_count {
   display: inline-block;
   text-align: right;
@@ -1512,13 +1414,12 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* наборный текст 24px справа */
 .block7_text {
   position: absolute;
-  /* в 45px от правого края круга */
+
   left: calc((100cqw - 100vw) / 2 + 58cqw);
   top: 27.6cqw;
-  /* до правого края окна, с отступом 30px, как у подписей в углах */
+
   width: calc(100vw - 58cqw - 2.08vw);
   color: #fff;
   font-family: "Iosevka Charon", monospace;
@@ -1537,9 +1438,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block8 — «двадцать минут, которые нельзя пролистать»
-   по скроллу: заголовок и подзаголовок, затем 6 шагов по очереди в центре:
-   рисунок прорисовывается, появляются подпись и описание, шаг уезжает вверх */
 
 .block8 {
   height: 1100vh;
@@ -1562,7 +1460,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* заголовок Bebas 64px по центру */
 .block8_title {
   position: absolute;
   left: 0;
@@ -1579,7 +1476,6 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* подзаголовок 20px */
 .block8_sub {
   position: absolute;
   left: 0;
@@ -1595,7 +1491,6 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* шаг: рисунок 447×447 по центру, под ним подпись и описание */
 .b8_step {
   position: absolute;
   inset: 0;
@@ -1621,7 +1516,6 @@ html.is_locked body {
   opacity: 0;
 }
 
-/* подпись с номером: моно 20px, светится */
 .b8_label {
   position: absolute;
   left: 0;
@@ -1640,7 +1534,6 @@ html.is_locked body {
   opacity: 0;
 }
 
-/* итоговый текст 24px: колонка по центру экрана, строки по левому краю */
 .block8_text {
   position: absolute;
   left: 50%;
@@ -1663,7 +1556,6 @@ html.is_locked body {
   margin-top: 1.67cqw;
 }
 
-/* описание 24px */
 .b8_txt {
   position: absolute;
   left: 0;
@@ -1679,8 +1571,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* бегущая строка «стриминг экономит время…» между 8 и 9 экраном.
-   Bebas 180px при сцене 1440 (масштабируется вместе со сценой) */
 
 .marquee {
   --marquee-size: calc(min(100vw, 140.625vh) * 0.125);
@@ -1710,7 +1600,6 @@ html.is_locked body {
   white-space: nowrap;
 }
 
-/* разделитель — кольцо, как курсор и кружок на 6 экране */
 .marquee_sep {
   flex-shrink: 0;
   width: calc(var(--marquee-size) * 0.27);
@@ -1723,7 +1612,6 @@ html.is_locked body {
     inset 0 0 calc(var(--marquee-size) * 0.04) rgba(255, 255, 255, 0.4);
 }
 
-/* сдвиг ровно на одну копию — и строка бесшовно начинается заново */
 @keyframes marqueeRun {
   from {
     transform: translateX(0);
@@ -1740,8 +1628,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* block9 — «музыка, которую можно держать в руках».
-   слева заголовок и текст, справа круг с цитатой Беньямина */
 
 .block9 {
   height: 700vh;
@@ -1764,7 +1650,6 @@ html.is_locked body {
   container-type: size;
 }
 
-/* заголовок как на 3 экране: Bebas 64px, 30px от левого края окна */
 .block9_title {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
@@ -1779,12 +1664,11 @@ html.is_locked body {
   will-change: transform, opacity;
 }
 
-/* текст 24px */
 .block9_text {
   position: absolute;
   left: calc((100cqw - 100vw) / 2 + 2.08vw);
   top: 13.75cqw;
-  /* узкая колонка слева: справа от неё круг с цитатой (центр 1030, радиус ~372) */
+
   width: calc((100vw - 100cqw) / 2 + 40.5cqw - 2.08vw);
   color: #fff;
   font-family: "Iosevka Charon", monospace;
@@ -1802,7 +1686,6 @@ html.is_locked body {
   margin-top: 1.3cqw;
 }
 
-/* цитата для экранных читалок: на экране её показывает круг */
 .b9_quote_src {
   position: absolute;
   width: 1px;
@@ -1812,22 +1695,20 @@ html.is_locked body {
   white-space: nowrap;
 }
 
-/* круг с цитатой: svg во всю сцену, единицы = px макета 1440×1024 */
 .b9_rings {
   position: absolute;
   inset: 0;
-  /* привязка к правому краю окна, как текст — к левому */
+
   left: calc((100vw - 100cqw) / 2);
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-/* слой строк одной орбиты: крутится вокруг центра круга */
 .b9_layer {
   position: absolute;
   inset: 0;
-  /* привязка к правому краю окна, как текст — к левому */
+
   left: calc((100vw - 100cqw) / 2);
   width: 100%;
   height: 100%;
@@ -1837,7 +1718,6 @@ html.is_locked body {
   pointer-events: none;
 }
 
-/* точка в центре круга — как отверстие посередине пластинки */
 .b9_center {
   fill: #fff;
   opacity: 0;
@@ -1877,17 +1757,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
-/* анимация обложки, запускается классом is_playing из screens.js
-
-   0 – 0.8с     линии вырастают из центра
-   0.8 – 2.3с   круги появляются от маленького к большому
-   1.9 – 2.9с   точки мягко проявляются друг под другом на вертикали сверху
-   2.6 – 8.1с   все точки одновременно делают один оборот: расходятся ровным веером
-                (маленькие орбиты впереди) и вместе возвращаются на вертикаль
-   8.1с         точка большой орбиты не останавливается и дальше крутится медленно
-   8 – 9.2с     остальные точки плавно гаснут
-   8.4с         круги и линии затемняются
-   9с           заголовок и подзаголовок */
 
 .block1.is_playing .circle_img {
   animation:
@@ -1927,7 +1796,6 @@ html.is_locked body {
   animation-name: lineGrowY, fadeDim;
 }
 
-/* точки проявляются и гаснут только прозрачностью, без рывка размера */
 .block1.is_playing .dot {
   animation:
     dotIn 1s ease 1.9s forwards,
@@ -1938,13 +1806,6 @@ html.is_locked body {
   animation: dotIn 1s ease 1.9s forwards;
 }
 
-/* движение точки = общий оборот + веер.
-   orbit_spin: все точки вместе делают один оборот (0 → 360°) с мягким разгоном
-   и торможением и одновременно возвращаются на вертикаль.
-   orbit_fan: поверх оборота каждая точка плавно уходит вперёд и к концу
-   возвращается обратно. чем меньше орбита, тем дальше она уходит, поэтому
-   в середине движения точки стоят ровным веером через 36° и не обгоняют друг друга.
-   большая орбита почти не сдвигается, поэтому трогается вместе со всеми, без паузы */
 .block1.is_playing .orbit_spin {
   animation: orbitSpin 5.5s cubic-bezier(0.25, 0, 0.75, 1) 2.6s forwards;
 }
@@ -1975,9 +1836,6 @@ html.is_locked body {
   animation-name: fan6;
 }
 
-/* точка большой орбиты к концу оборота не тормозит до нуля, а выходит
-   ровно на скорость бесконечного вращения (один оборот за 20с),
-   поэтому переход в постоянное вращение не заметен */
 .block1.is_playing .orbit1 .orbit_spin {
   animation:
     orbitSpin 5.5s cubic-bezier(0.25, 0, 0.75, 0.93) 2.6s forwards,
@@ -1996,13 +1854,11 @@ html.is_locked body {
   animation: slideUpTitle 1s ease 9.3s forwards;
 }
 
-/* запуск таймера — короткое мигание */
 .block1.is_playing .timer_txt.is_running {
   opacity: 1;
   animation: timerStart 0.3s steps(1) 4;
 }
 
-/* без анимации: сразу финальное состояние обложки */
 @media (prefers-reduced-motion: reduce) {
   .block1.is_playing .circle_img,
   .block1.is_playing .line_horiz,
@@ -2200,8 +2056,6 @@ html.is_locked body {
 }
 
 /* \\\\\\\\\\\\\\\ */
-/* подвал: белый лист после последнего экрана.
-   размеры в vw от ширины 1440 (1vw = 14.4px макета) */
 
 .footer {
   position: relative;
@@ -2216,7 +2070,6 @@ html.is_locked body {
   flex-direction: column;
 }
 
-/* автор и куратор: Bebas 40px */
 .footer_credits {
   font-family: "Bebas Neue", sans-serif;
   font-weight: 400;
@@ -2225,7 +2078,6 @@ html.is_locked body {
   text-transform: uppercase;
 }
 
-/* подпись справа: курсив 14px */
 .footer_note {
   align-self: flex-end;
   margin-top: 0.69vw;
@@ -2237,7 +2089,6 @@ html.is_locked body {
   line-height: 140%;
 }
 
-/* чёрная плашка «Источники», как кнопка на 5 экране, только наоборот */
 .sources {
   margin-top: 1.53vw;
   background: #111;
@@ -2273,7 +2124,6 @@ html.is_locked body {
   transition: transform 0.4s ease;
 }
 
-/* открыто: плюс становится минусом, как на 5 экране */
 .sources.is_open .sources_icon_v {
   transform: scaleY(0);
 }
@@ -2283,7 +2133,6 @@ html.is_locked body {
   outline-offset: -6px;
 }
 
-/* список раскрывается вниз: высота 0 → по содержимому */
 .sources_wrap {
   display: grid;
   grid-template-rows: 0fr;
@@ -2294,7 +2143,6 @@ html.is_locked body {
   grid-template-rows: 1fr;
 }
 
-/* номера и текст стоят ровно под словом «Источники» */
 .sources_list {
   min-height: 0;
   overflow: hidden;
@@ -2337,9 +2185,6 @@ html.is_locked body {
   text-decoration: none;
 }
 
-/* у подвала угловые подписи (SIDE B, таймер, 33⅓ RPM, лонгрид) прячутся,
-   чтобы не лечь поверх белого листа. filter, а не opacity — opacity у них
-   занята анимацией появления */
 .corner_txt {
   transition: filter 0.4s ease;
 }

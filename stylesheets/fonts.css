@@ -3,20 +3,7 @@
   src: url("../fonts/BebasNeue-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
-  /* одинаковая высота строки во всех системах: без этого Windows
-     берёт другие метрики шрифта и опускает текст ниже */
-  ascent-override: 75%;
-  descent-override: 25%;
-  line-gap-override: 0%;
-}
 
-@font-face {
-  font-family: "Bebas Neue";
-  src: url("../fonts/BebasNeue-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  /* одинаковая высота строки во всех системах: без этого Windows
-     берёт другие метрики шрифта и опускает текст ниже */
   ascent-override: 75%;
   descent-override: 25%;
   line-gap-override: 0%;

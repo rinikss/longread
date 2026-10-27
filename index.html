@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- iPhone не превращает числа вроде «253 000 000» в ссылки-телефоны -->
     <meta name="format-detection" content="telephone=no" />
     <title>33⅓</title>
     <link href="./stylesheets/style.css" rel="stylesheet" type="text/css" />
@@ -513,7 +512,6 @@
     <section class="block4">
       <div class="block4_sticky">
         <div class="block4_stage">
-          <!-- заставка стороны А: появляется по центру и уходит вверх перед строками -->
           <h2 class="block4_side">
             <span class="b4_side_big">Сторона А</span>
             <span class="b4_side_sub">«винил теплее»</span>
@@ -577,9 +575,6 @@
               />
             </g>
           </svg>
-          <!-- игла — в отдельном svg поверх, чтобы её движение
-               не перерисовывало размытое свечение под волной.
-               кончик иглы — в точке (0, 0), screens.js ведёт её по бороздке -->
           <svg
             class="wave wave_dots"
             viewBox="0 0 1451 111"
@@ -592,8 +587,6 @@
               stroke-width="1.9"
               stroke-linecap="round"
             >
-              <!-- тонарм как на рисунке «3. Положить»: сверху кольцо-ось, от него
-                   почти вертикальная линия, у конца — излом и точка-игла -->
               <g class="wave_needle_body">
                 <circle cx="0" cy="0" r="5" fill="white" stroke="none" />
                 <line x1="0" y1="0" x2="22" y2="-16" />
@@ -609,7 +602,6 @@
     <section class="block5">
       <div class="block5_sticky">
         <div class="block5_stage">
-          <!-- заставка стороны Б, как у стороны А перед 4 экраном -->
           <h2 class="block5_side">
             <span class="b4_side_big">Сторона Б</span>
             <span class="b4_side_sub">«цифра точнее»</span>
@@ -632,10 +624,6 @@
             </p>
           </div>
 
-          <!-- ступени: линия идёт слева направо и уходит далеко за края,
-               чтобы на широком экране не было видно её концов.
-               форму линии (атрибут d) строит screens.js: во второй части
-               правая половина (винил) сжимается к верхней линии -->
           <svg
             class="steps"
             viewBox="0 0 1644 656"
@@ -645,16 +633,12 @@
             <path class="steps_line" stroke="white" stroke-width="2" />
           </svg>
 
-          <!-- точки и линейки — в отдельном svg поверх, чтобы их движение
-               не перерисовывало размытое свечение под ними -->
           <svg
             class="steps steps_dots"
             viewBox="0 0 1644 656"
             fill="none"
             aria-hidden="true"
           >
-            <!-- вторая часть: ступени становятся столбиками — диапазон носителей.
-                 подписи стоят в единицах этого svg и двигаются вместе со ступенями -->
             <g class="steps_guides" stroke="white" stroke-width="1.5">
               <line
                 class="guide_96"
@@ -689,7 +673,6 @@
             <text class="bar_name" data-bar="2">катушечная лента</text>
             <text class="bar_name is_key is_vinyl" data-bar="3">винил</text>
             <text class="bar_name" data-bar="4">кассета</text>
-            <!-- продажи в США за 2024 (RIAA): полоска длиной по числу проданных -->
             <line
               class="sale_bar"
               data-bar="1"
@@ -718,7 +701,6 @@
             <circle class="steps_dot" r="22" />
           </svg>
 
-          <!-- вторая часть экрана: цифры над ступенями -->
           <div class="b5_fact b5_fact_cd">
             <p class="b5_num">≈96&nbsp;дБ</p>
             <p class="b5_cap">динамический диапазон компакт-диска</p>
@@ -728,7 +710,6 @@
             <p class="b5_cap">динамический диапазон винила</p>
           </div>
 
-          <!-- раскрытая плашка: открывается по клику на «откуда берётся теплота» -->
           <div class="b5_panel" id="b5_panel" aria-hidden="true">
             <p class="b5_panel_txt">
               Ощущение тепла не&nbsp;выдумка, но&nbsp;и&nbsp;не&nbsp;точность.
@@ -770,10 +751,7 @@
             компрессией и&nbsp;тембром.
           </p>
 
-          <!-- линия на всю ширину окна: рисуется от кружка к краям -->
           <div class="b6_line">
-            <!-- сама линия — простая полоска 2px: svg-картинка не растягивается
-                 на окна шире 1440 -->
             <div class="b6_line_svg"></div>
           </div>
 
@@ -792,7 +770,6 @@
     <section class="block7">
       <div class="block7_sticky">
         <div class="block7_stage">
-          <!-- круг: рисуется от верхней точки по часовой стрелке -->
           <svg
             class="b7_circle"
             viewBox="0 0 1440 1024"
@@ -846,7 +823,6 @@
             несколько действий.
           </p>
 
-          <!-- шаги сменяют друг друга в центре по скроллу -->
           <div class="b8_step" data-step="1">
             <svg
               class="b8_pic"
@@ -1308,7 +1284,6 @@
             </p>
           </div>
 
-          <!-- после всех шагов: итоговый текст -->
           <div class="block8_text">
             <p class="b8_p">
               Чтобы послушать пластинку, нужно сделать несколько действий.
@@ -1336,8 +1311,6 @@
       </div>
     </section>
 
-    <!-- бегущая строка между 8 и 9 экраном. текст повторён дважды:
-         когда первая копия уезжает, на её место встаёт вторая — без шва -->
     <section
       class="marquee"
       aria-label="Стриминг экономит время. Пластинка заставляет его потратить."
@@ -1389,8 +1362,6 @@
             </p>
           </div>
 
-          <!-- финал: цитата Беньямина по орбитам, как текст песен в буклете.
-               круг строит screens.js, текст для экранных читалок — здесь -->
           <blockquote class="b9_quote_src">
             «Эту ауру можно определить как&nbsp;уникальное ощущение дали,
             как&nbsp;бы близок при&nbsp;этом предмет ни&nbsp;был. Скользить
@@ -1434,7 +1405,6 @@
           aria-expanded="false"
           aria-controls="sources_list"
         >
-          <!-- плюс как plus.svg, вертикальная черта прячется → минус -->
           <svg
             class="sources_icon"
             viewBox="0 0 29 29"

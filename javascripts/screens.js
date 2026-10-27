@@ -1,9 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // висячие предлоги: короткие предлоги и союзы склеиваем со следующим словом
-  // неразрывным пробелом, частицы «же», «ли», «бы» и тире — с предыдущим.
-  // делается при загрузке, поэтому в разметке ничего вписывать не нужно,
-  // а строки на любой ширине (десктоп, планшет, мобилка) переносятся сами
 
   const NBSP = " ";
   const SHORT_WORDS = [
@@ -45,11 +41,10 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const RE_BEFORE = / (же|ли|бы)(?=[\s.,!?;:»]|$)/giu;
   const RE_DASH = / (—|–)/g;
-  const RE_NUM = /(\d) (?=[а-яёa-z%])/giu; // «120 миллионов», «41 %»
+  const RE_NUM = /(\d) (?=[а-яёa-z%])/giu;
 
   function glueText(text) {
     let t = text;
-    // дважды: «и в звуке» — после первого прохода «в» ещё не склеено
     t = t.replace(RE_AFTER, "$1$2" + NBSP).replace(RE_AFTER, "$1$2" + NBSP);
     t = t.replace(RE_BEFORE, NBSP + "$1");
     t = t.replace(RE_DASH, NBSP + "$1");
@@ -60,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const GLUE_SELECTOR =
     "p, h2, li, blockquote, .b6_q_line, .year_card_title, .year_card_txt";
   document.querySelectorAll(GLUE_SELECTOR).forEach(function (el) {
-    // svg-подписи и бегущую строку не трогаем
     if (el.closest("svg, .marquee")) return;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     let node;
@@ -71,10 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // \\\\\\\\\\\\\\\
-  // адаптив: какой сейчас макет. те же границы, что в adaptive.css
-  //   d — десктоп (от 1024px), t — планшет (600–1023px), m — мобилка (до 599px)
-  // pick(десктоп, планшет, мобилка) — выбрать число под текущий макет.
-  // на десктопе всегда первое значение, поэтому там ничего не меняется
 
   const MQ_TABLET = window.matchMedia("(max-width: 1023px)");
   const MQ_MOBILE = window.matchMedia("(max-width: 599px)");
@@ -93,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   window.pick = pick;
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block1 — запуск анимации обложки и таймер
 
   const block1 = document.querySelector(".block1");
   const timerTxt = document.querySelector(".timer_txt");
@@ -103,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
-  // блокируем скролл до конца интро и всегда начинаем с самого верха
   function lockScroll() {
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
@@ -122,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (block1) block1.classList.add("is_playing");
   }
 
-  // ждём загрузки шрифтов и svg, чтобы анимация не стартовала на пустом экране
   if (document.readyState === "complete") {
     startIntro();
   } else {
@@ -133,8 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return num < 10 ? "0" + num : String(num);
   }
 
-  // формат ММ:СС:мс — минуты, секунды и сотые доли секунды (две цифры),
-  // чтобы длина строки не менялась
   function formatTime(totalMs) {
     const minutes = Math.floor(totalMs / 60000);
     const seconds = Math.floor((totalMs % 60000) / 1000);
@@ -151,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const startTime = performance.now();
 
-    // обновляем каждый кадр, чтобы миллисекунды бежали плавно
     function tick() {
       timerTxt.textContent = formatTime(performance.now() - startTime);
       window.requestAnimationFrame(tick);
@@ -160,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block1 — плашка «33⅓ RPM что это?»
 
   const rpmBtn = document.querySelector(".rpm_btn");
   const rpmPanel = document.querySelector(".rpm_panel");
@@ -183,7 +166,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (rpmBtn) rpmBtn.addEventListener("click", openRpm);
   if (rpmClose) rpmClose.addEventListener("click", closeRpm);
 
-  // закрыть кликом мимо плашки или клавишей Esc
   document.addEventListener("click", function (e) {
     if (!rpmPanel || !rpmBtn) return;
     if (!rpmPanel.contains(e.target) && !rpmBtn.contains(e.target)) {
@@ -196,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // когда заголовок закончил появляться: запускаем таймер и открываем скролл
   if (reduceMotion) {
     startTimer();
   } else if (subtitle) {
@@ -209,17 +190,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block2 — график рисуется по скроллу
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.12   прямая вырастает из центра
-  // 0.1  – 0.16   засечка слева
-  // 0.12 – 0.18   подпись «253 000 000»
-  // 0.18 – 0.5    кривая рисуется слева направо
-  // 0.5  – 0.58   точка и «1 диск»
-  // 0.6  – 0.78   график уменьшается и уходит вверх
-  // 0.78 – 0.92   появляется текст
-  // 0.92 – 1      пауза, всё стоит на месте
 
   const block2 = document.querySelector(".block2");
   const graph = document.querySelector(".block2_graph");
@@ -232,30 +202,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const labelDisc = document.querySelector(".label_disc");
   const block2Text = document.querySelector(".block2_text");
 
-  // подписи: в начале 28px, в финале 20px
-  // финал графика: масштаб 0.505 и подъём на 244px макета
-  // (на планшете и мобилке график крупнее и уходит выше — над текстом)
   const GRAPH_SCALE_ = [0.505, 0.78, 0.8];
   const GRAPH_SHIFT_ = [16.94, 24, 38.5];
 
-  // точка в финале 45px (а не 64 × 0.505)
   const DOT_FINAL = 45 / 64;
 
-  // подписи: 32px → 20px
-  // (на планшете 24 → 17px, на мобилке 12 → 11px)
   const LABEL_FINAL_ = [20 / 28, 0.85, 1];
 
-  // линии графика гаснут до 35%, как круги на первом экране
   const GRAPH_DIM = 0.35;
 
-  // часть отрезка [from, to], которую уже прошёл прогресс: 0…1
   function part(progress, from, to) {
     if (progress <= from) return 0;
     if (progress >= to) return 1;
     return (progress - from) / (to - from);
   }
 
-  // мягкий разгон и торможение, как ease-in-out
   function ease(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
@@ -263,32 +224,23 @@ document.addEventListener("DOMContentLoaded", function () {
   function drawBlock2() {
     if (!block2) return;
 
-    // сколько секции уже прокручено (без последнего экрана, где она отпускает)
     const rect = block2.getBoundingClientRect();
     const scrollable = block2.offsetHeight - window.innerHeight;
     const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
 
-    // прямая
     const lineK = ease(part(progress, 0, 0.12));
     graphLine.style.transform = "scaleX(" + lineK + ")";
 
-    // засечка
     const tickK = ease(part(progress, 0.1, 0.16));
     graphTick.style.transform = "scaleY(" + tickK + ")";
 
-    // подпись 253 000 000
     const tracksK = ease(part(progress, 0.12, 0.18));
     labelTracks.style.opacity = tracksK;
 
-    // кривая рисуется точно по пути (свечение повторяет её само — canvas)
     const curveK = part(progress, 0.18, 0.5);
-    // видна последняя доля пути длиной curveK (путь в svg идёт справа налево).
-    // без stroke-dashoffset: Safari и Chrome на iPhone не пересчитывают его
-    // по pathLength, и линия рисовалась не с того конца
     graphCurvePath.style.strokeDasharray =
       "0 " + (1 - curveK) + " " + curveK + " 1";
 
-    // график уменьшается и уходит вверх
     const shrinkK = ease(part(progress, 0.6, 0.78));
     const GRAPH_SCALE = pick.apply(null, GRAPH_SCALE_);
     const GRAPH_SHIFT = pick.apply(null, GRAPH_SHIFT_);
@@ -297,35 +249,36 @@ document.addEventListener("DOMContentLoaded", function () {
     graph.style.transform =
       "translateY(" + -GRAPH_SHIFT * shrinkK + "cqw) scale(" + scale + ")";
 
-    // прямая, засечка и кривая гаснут, пока график уходит вверх;
-    // точка и подписи остаются яркими, как точка на первом экране
     const dim = 1 - (1 - GRAPH_DIM) * shrinkK;
     graphLine.style.opacity = dim;
     graphTick.style.opacity = dim;
     graphCurveLine.style.opacity = dim;
 
-    // подписи: 32px в начале → 20px в финале, плавно вместе с графиком.
-    // делим на масштаб графика, чтобы размер зависел только от shrinkK
     const labelSize = 1 - (1 - LABEL_FINAL) * shrinkK;
     const labelScale = labelSize / scale;
     labelTracks.style.transform =
       "translateY(" + (1 - tracksK) * 1 + "cqw) scale(" + labelScale + ")";
     labelDisc.style.transform = "scale(" + labelScale + ")";
 
-    // точка и подпись 1 диск
     const dotK = ease(part(progress, 0.5, 0.58));
     const dotGrow = 1 + (DOT_FINAL / GRAPH_SCALE - 1) * shrinkK;
     graphDot.style.opacity = dotK;
     graphDot.style.transform = "scale(" + (0.6 + 0.4 * dotK) * dotGrow + ")";
     labelDisc.style.opacity = dotK;
 
-    // текст
     const textK = ease(part(progress, 0.78, 0.92));
     block2Text.style.opacity = textK;
-    block2Text.style.transform = "translateY(" + (1 - textK) * 2 + "cqw)";
+    let push = 0;
+    if (bp() !== "d" && textK > 0) {
+      block2Text.style.transform = "none";
+      const gap = graph.parentNode.getBoundingClientRect().width * 0.05;
+      const under = labelDisc.getBoundingClientRect().bottom + gap;
+      push = Math.max(0, under - block2Text.getBoundingClientRect().top);
+    }
+    block2Text.style.transform =
+      "translateY(calc(" + push + "px + " + (1 - textK) * 2 + "cqw))";
   }
 
-  // пересчитываем не чаще одного раза за кадр
   let block2Ticking = false;
 
   function onScroll() {
@@ -343,22 +296,11 @@ document.addEventListener("DOMContentLoaded", function () {
     drawBlock2();
   }
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block3 — диск: эллипсы рисуются, диск уезжает вправо вниз, появляются
-  // заголовок, текст и точки с годами. всё по скроллу, как на втором экране
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.38   эллипсы рисуются одновременно, каждый со своей точки
-  // 0.4  – 0.58   диск уезжает вправо вниз, уменьшается и гаснет
-  // 0.56 – 0.68   заголовок и текст
-  // 0.66 – 0.9    точки с годами по очереди, от 1948 к 2025
-  // 0.9  – 1      пауза
-  // (всё выше — в первых 68% секции; дальше текст уходит и появляются фактоиды)
 
   const block3 = document.querySelector(".block3");
   const disk = document.querySelector(".block3_disk");
   const diskMasks = document.querySelectorAll(".disk_mask_path");
 
-  // длина контура каждого эллипса — нужна, чтобы рисовать его по частям
   const diskLengths = [];
   diskMasks.forEach(function (path) {
     diskLengths.push(path.getTotalLength());
@@ -368,24 +310,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const block3Text = document.querySelector(".block3_text");
   const yearDots = document.querySelectorAll(".year_dot");
 
-  // с какого места контура начинает рисоваться каждый эллипс (доля длины)
   const DISK_STARTS = [0.12, 0.62, 0.37, 0.87];
 
-  // финал диска: центр сдвигается на 456 и 108 px макета, масштаб 0.83
   const DISK_SHIFT_X = 31.67;
   const DISK_SHIFT_Y = 7.5;
   const DISK_SCALE = 0.83;
 
-  // на планшете и мобилке диск уезжает не вправо, а вниз, под текст
   const DISK_SHIFT_X_ = [DISK_SHIFT_X, 0, 0];
   const DISK_SHIFT_Y_ = [DISK_SHIFT_Y, 25.8, 37.5];
   const DISK_SCALE_ = [DISK_SCALE, 0.8, 0.78];
 
-  // точки с годами в разметке стоят на десктопном финале диска.
-  // находим, где эта точка была на диске до сдвига, и переносим её
-  // на финал диска текущего макета. центр диска — центр сцены
   const DISK_CX = 50;
-  const DISK_CY = 35.56; // 1024 / 1440 / 2 × 100
+  const DISK_CY = 35.56;
   const dotHome = [];
   document.querySelectorAll(".year_dot").forEach(function (dot) {
     const x = parseFloat(dot.style.left);
@@ -397,9 +333,6 @@ document.addEventListener("DOMContentLoaded", function () {
       qy: DISK_CY + (y - DISK_SHIFT_Y - DISK_CY) / DISK_SCALE,
     });
   });
-  // положения точек на неподвижном диске для планшета и мобилки (cqw сцены):
-  // как на десктопе, но чуть сдвинуты по своим орбитам вправо, чтобы
-  // заполнить и правую часть диска, которая здесь видна целиком
   const DOT_ROUND = {
     1948: [18.29, 62.18],
     1983: [29.01, 21.15],
@@ -425,8 +358,6 @@ document.addEventListener("DOMContentLoaded", function () {
         dot.style.top = h.top;
         return;
       }
-      // на десктопе видна только левая часть диска, а здесь он целиком —
-      // поэтому точки разнесены по всему кругу (каждая на своей орбите)
       const q = DOT_ROUND[dot.dataset.year] || [h.qx, h.qy];
       dot.style.left = DISK_CX + (q[0] - DISK_CX) * sc + sx + "cqw";
       dot.style.top = DISK_CY + (q[1] - DISK_CY) * sc + sy + "cqw";
@@ -434,11 +365,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   const DISK_DIM = 0.55;
 
-  // с какой доли секции текст сменяется фактоидами
   const FACTS_FROM = 0.68;
   const block3Facts = document.querySelectorAll(".fact");
 
-  const diskDrawn = []; // какой кусок каждого эллипса нарисован — для свечения
+  const diskDrawn = [];
 
   function drawBlock3() {
     if (!block3) return;
@@ -447,25 +377,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const scrollable = block3.offsetHeight - window.innerHeight;
     const full = Math.min(Math.max(-rect.top / scrollable, 0), 1);
 
-    // первая часть секции (до FACTS_FROM) — диск, текст и точки,
-    // вторая — текст уходит, появляются фактоиды
     const progress = Math.min(full / FACTS_FROM, 1);
 
-    // эллипсы: видимый отрезок растёт от 0 до всей длины.
-    // смещение задаёт, откуда он начинается
     const drawK = ease(part(progress, 0, 0.38));
-    // свечение canvas читает эту же маску, поэтому рисуется вместе с линией
     diskMasks.forEach(function (path, i) {
       const len = diskLengths[i];
       const start = DISK_STARTS[i];
       const shown = drawK * len;
-      diskDrawn[i] = [start * len, start * len + shown]; // для свечения
+      diskDrawn[i] = [start * len, start * len + shown];
       path.style.strokeDasharray = shown + " " + (len - shown + 1);
       path.style.strokeDashoffset = -start * len;
     });
 
-    // диск уезжает вправо вниз, уменьшается и гаснет
-    // (на планшете и мобилке — вниз, под текст)
     placeYearDots();
     const moveK = ease(part(progress, 0.4, 0.58));
     const diskScale = 1 - (1 - pick.apply(null, DISK_SCALE_)) * moveK;
@@ -483,12 +406,10 @@ document.addEventListener("DOMContentLoaded", function () {
       line.style.opacity = diskDim;
     });
 
-    // заголовок и текст
     const titleK = ease(part(progress, 0.56, 0.64));
 
     const textK = ease(part(progress, 0.6, 0.68));
 
-    // текст с заголовком уходят вверх, на их место по очереди встают фактоиды
     const outK = ease(part(full, 0.7, 0.78));
     block3Title.style.opacity = titleK * (1 - outK);
     block3Title.style.transform =
@@ -504,7 +425,6 @@ document.addEventListener("DOMContentLoaded", function () {
       fact.style.transform = "translateY(" + (1 - factK) * 2 + "cqw)";
     });
 
-    // точки с годами по очереди
     yearDots.forEach(function (dot, i) {
       const from = 0.66 + i * 0.034;
       const dotK = ease(part(progress, from, from + 0.034));
@@ -531,7 +451,6 @@ document.addEventListener("DOMContentLoaded", function () {
     drawBlock3();
   }
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block3 — карточки годов: клик по точке открывает её карточку
 
   const yearCards = document.querySelectorAll(".year_card");
   const stage3 = document.querySelector(".block3_stage");
@@ -545,8 +464,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return found;
   }
 
-  // ставим карточку по центру над точкой: она закрывает точку,
-  // а нижний край оказывается над подписью года
   function placeCard(card, dot) {
     const stageRect = stage3.getBoundingClientRect();
     const dotRect = dot.getBoundingClientRect();
@@ -559,8 +476,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let left = dotRect.left + dotRect.width / 2 - stageRect.left - cardW / 2;
     const top = labelRect.top - stageRect.top - cardH - 0.3 * unit;
 
-    // не даём карточке уйти за правый край окна
-    // (а на узком экране — и за левый: отступ 16px)
     const maxLeft = window.innerWidth - stageRect.left - cardW - 2.08 * unit;
     if (left > maxLeft) left = maxLeft;
     if (bp() !== "d") {
@@ -597,7 +512,6 @@ document.addEventListener("DOMContentLoaded", function () {
   yearDots.forEach(function (dot) {
     dot.addEventListener("click", function (e) {
       e.stopPropagation();
-      // точка ещё не появилась — не реагируем
       if (parseFloat(dot.style.opacity) < 0.9) return;
       openYearCard(dot);
     });
@@ -617,7 +531,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.key === "Escape") closeYearCard();
   });
 
-  // если прокрутили назад и точки исчезли — закрываем карточку
   window.addEventListener(
     "scroll",
     function () {
@@ -630,19 +543,6 @@ document.addEventListener("DOMContentLoaded", function () {
     { passive: true },
   );
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block4 — слова по очереди, абзацы выезжают сбоку, затем волна и точки
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.6    слова и абзацы по очереди, длинными перекрывающимися отрезками
-  // 0.56 – 0.78   рисуется волна слева направо (со свечением)
-  // 0.7  – 0.86   точки по очереди появляются на волне
-  //
-  // точки сами по себе (не от скролла) бесконечно едут по волне слева направо
-  // друг за другом: доезжают до правого края за экраном и снова выезжают слева.
-  // скорость — DOT_LOOP (секунд на один проезд всей волны)
-  //
-  // прогресс не прыгает за скроллом, а догоняет его каждый кадр (SMOOTH_4),
-  // поэтому текст доплывает до места, даже когда колесо уже остановилось
 
   const block4 = document.querySelector(".block4");
   const bigWords = document.querySelectorAll(".big_word");
@@ -653,28 +553,20 @@ document.addEventListener("DOMContentLoaded", function () {
   const needleBody = document.querySelector(".wave_needle_body");
   const block4Side = document.querySelector(".block4_side");
 
-  // линия волны, по которой едут точки
   const waveLine = document.querySelector(".wave_line_path");
   const waveLen = waveLine ? waveLine.getTotalLength() : 0;
 
-  // секунд на один проезд иглы по всей бороздке (меньше — быстрее)
   const DOT_LOOP = 24;
-  // на каком отрезке у краёв волны игла гаснет/проявляется (в единицах svg)
   const DOT_EDGE = 80;
-  // размер иглы: svg волны на узком экране мельче, игла — крупнее в его единицах
   const NEEDLE_K_ = [0.85, 0.85, 1.15];
-  // видимость иглы от скролла (0–1), обновляется в drawBlock4
   const dotShow = [0];
 
+  let waveDrawn = null;
   const waveLengths = [];
   waveMasks.forEach(function (path) {
     waveLengths.push(path.getTotalLength());
   });
 
-  // порядок появления: заставка «сторона а», потом все строки по очереди,
-  // потом абзацы. последний абзац раздвигает «её» и «ставят»
-  // [элемент, начало, конец] в долях прогресса
-  // заставка «сторона а»: 0–0.06 появляется по центру, 0.1–0.15 уходит вверх
   const block4Steps = [
     [bigWords[0], 0.14, 0.21],
     [bigWords[1], 0.17, 0.24],
@@ -686,11 +578,9 @@ document.addEventListener("DOMContentLoaded", function () {
     [wordTxts[1], 0.42, 0.52],
     [wordTxts[2], 0.48, 0.58],
   ];
-  // «ставят» сначала стоит сразу за «её», потом уезжает на своё место
   const SPLIT_FROM = 0.46;
   const SPLIT_TO = 0.57;
 
-  // на сколько px «ставят» сдвинуть влево, чтобы встало вплотную к «её»
   function splitGap() {
     const w5 = bigWords[4];
     const w6 = bigWords[5];
@@ -702,12 +592,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // насколько абзацы выезжают сбоку (справа), в cqw
   const SIDE_SHIFT = 4;
-  // насколько быстро показанный прогресс догоняет скролл за кадр (0–1)
   const SMOOTH_4 = 0.09;
 
-  // мягкое торможение без рывка в начале — для текста
   function easeOut(t) {
     return 1 - Math.pow(1 - t, 3);
   }
@@ -735,8 +622,6 @@ document.addEventListener("DOMContentLoaded", function () {
       el.style.opacity = k;
       const gap = splitGap();
       if (el === wordTxts[2] && gap > 0) {
-        // последний абзац «разворачивается» слева направо и толкает «ставят»:
-        // видимая часть абзаца всегда заканчивается перед словом
         const split = ease(part(progress, SPLIT_FROM, SPLIT_TO));
         const w6 = bigWords[5];
         const finalGap = w6.offsetLeft - (el.offsetLeft + el.offsetWidth);
@@ -758,17 +643,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // волна: путь в svg идёт справа налево, поэтому открываем его с конца
-    // на планшете и мобилке волна начинается, когда весь текст уже на месте
     const WAVE_FROM = pick(0.6, 0.62, 0.62);
     const waveK = ease(part(progress, WAVE_FROM, WAVE_FROM + 0.22));
     waveMasks.forEach(function (path, i) {
       const len = waveLengths[i];
       const shown = waveK * len;
-      path.style.strokeDasharray = shown + " " + (len - shown + 1);
-      path.style.strokeDashoffset = -(len - shown);
+      path.style.strokeDasharray =
+        "0 " + (len - shown) + " " + shown + " " + (len + 1);
+      if (i === 0) waveDrawn = shown > 0.5 ? [len - shown, len] : null;
     });
-    // стенки бороздки — та же волна, рисуются вместе с ней
     waveWalls.forEach(function (wall) {
       const len = waveLengths[0];
       const shown = waveK * len;
@@ -776,20 +659,16 @@ document.addEventListener("DOMContentLoaded", function () {
       wall.style.strokeDashoffset = -(len - shown);
     });
 
-    // игла опускается, когда бороздка дорисована
     const nFrom = WAVE_FROM + 0.18;
     dotShow[0] = ease(part(progress, nFrom, nFrom + 0.06));
     startDots();
   }
 
-  // \\\\\\\\\\\\\\  // бесконечное движение точек по волне.
-  // точки стоят на равном расстоянии друг от друга и едут вместе, как бусины на нитке
+  // \\\\\\\\\\\\\\
   let dotsRunning = false;
   let block4Visible = false;
   const dotsStart = performance.now();
 
-  // игла едет по бороздке слева направо и по кругу, как звукосниматель
-  // по дорожке пластинки. у краёв (за экраном) гаснет, чтобы перескок был незаметен
   function moveDots(now) {
     if (!needle) return;
     const reduce = window.matchMedia(
@@ -797,7 +676,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ).matches;
     const t = reduce ? 0 : (now - dotsStart) / 1000;
     const d = ((t / DOT_LOOP) * waveLen + waveLen * 0.3) % waveLen;
-    // путь в svg идёт справа налево: левый край — конец пути
     const pt = waveLine.getPointAtLength(waveLen - d);
     needle.setAttribute("transform", "translate(" + pt.x + " " + pt.y + ")");
     needleBody.setAttribute(
@@ -805,7 +683,6 @@ document.addEventListener("DOMContentLoaded", function () {
       "scale(" + pick.apply(null, NEEDLE_K_) + ")",
     );
     const edge = Math.min(1, d / DOT_EDGE, (waveLen - d) / DOT_EDGE);
-    // игла не появляется резко: в начале чуть «опускается» сверху
     needle.style.opacity = dotShow[0] * edge;
     needleBody.style.translate = "0 " + (1 - dotShow[0]) * -30 + "px";
   }
@@ -828,8 +705,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.requestAnimationFrame(dotsFrame);
   }
 
-  // каждый кадр подтягиваем показанный прогресс к настоящему,
-  // пока не догоним — потом цикл засыпает до следующего скролла
   function tick4() {
     const target = getProgress4();
     const reduce = window.matchMedia(
@@ -854,7 +729,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (block4) {
     window.addEventListener("scroll", onScroll4, { passive: true });
     window.addEventListener("resize", onScroll4);
-    // точки крутятся, только пока экран виден — чтобы не грузить страницу зря
     new IntersectionObserver(function (entries) {
       block4Visible = entries[0].isIntersecting;
       if (block4Visible) startDots();
@@ -865,32 +739,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block5 — «сторона б: цифра точнее». две части в одной секции
-  //
-  // прогресс секции от 0 до 1:
-  // часть 1
-  // 0    – 0.18   заголовок и два абзаца по очереди
-  // 0.16 – 0.35   ступени рисуются слева направо, свечение — шторкой вместе с линией
-  // 0.35 – 0.45   точки по очереди появляются
-  // часть 2 — диаграмма
-  // 0.5  – 0.57   текст уходит вверх и гаснет
-  // 0.52 – 0.64   ступени поднимаются
-  // 0.6  – 0.76   ступени перестраиваются в столбики: низы — в одну линию,
-  //               высота каждого столбика — динамический диапазон носителя
-  // 0.66 – 0.74   цифры «≈96 дБ» и «60–70 дБ» над столбиками CD и винила
-  // 0.72 – 0.8    пунктиры 96 и 65 дБ, значения и названия носителей
-  // 0.74 – 0.86   продажи: под CD и винилом вырастают полоски по числу
-  //               проданных в США в 2024 (33 и 44 млн)
-  // 0.88 – 0.95   плашка «откуда берётся теплота»
-  //
-  // цифры диапазона: CD 16 бит — 96 дБ, hi-res 24 бит — 144 дБ (теория:
-  // 6 дБ на бит), винил 55–65 дБ, кассета без шумоподавления 50–56 дБ,
-  // профессиональная катушечная лента — около 80 дБ на практике (Wikipedia,
-  // «Dynamic range»; Yamaha). продажи: RIAA, итоги 2024 года
-  //
-  //
-  // точки всё время сами по себе едут по ступеням слева направо друг за другом.
-  // скорость — STEP_LOOP (секунд на один проезд по видимой части ступеней)
 
   const block5 = document.querySelector(".block5");
   const block5Title = document.querySelector(".block5_title");
@@ -905,7 +753,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const barNames = document.querySelectorAll(".bar_name");
   const barSales = document.querySelectorAll(".bar_sale");
   const saleBars = document.querySelectorAll(".sale_bar");
-  // полоска продаж: px на 1 млн проданных (44 млн → 132 px)
   const PX_UNIT = 3;
   const vinylFill = document.querySelector(".vinyl_fill");
   const vinylHl = document.querySelector(".vinyl_hl");
@@ -916,15 +763,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const STEP_LOOP = 24;
   const STEP_EDGE = 80;
   const SMOOTH_5 = 0.09;
-  // насколько поднимаются ступени во второй части, в cqw
-  // (на планшете и мобилке ступени стоят ниже, поэтому поднимаются выше)
-  const STEPS_LIFT_ = [18.99, 43, 81.1];
+  const STEPS_LIFT_ = [18.99, 43, 66];
 
-  // на узком экране svg мельче, поэтому подписи в нём крупнее (в единицах svg),
-  // и отступы подписей от столбиков растут вместе с ними
   const LBL_ = [1, 1.53, 2.2];
   const DOT_R_ = [22, 26, 30];
-  // короткие названия на мобилке, чтобы соседние подписи не слипались
   const NAME_SHORT = { 0: "hi-res", 2: "лента" };
   const nameFull = [];
   document.querySelectorAll(".bar_name").forEach(function (t) {
@@ -945,21 +787,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ступени как ломаная: [x, y] в единицах svg (как в макете 1644×656)
-  const TOP = 88.9; // верх шкалы — 144 дБ
-  const FLOOR = 566.9; // общая нижняя линия столбиков — 0 дБ
+  const TOP = 88.9;
+  const FLOOR = 566.9;
   const PX_DB = (FLOOR - TOP) / 144;
+  const DIAG_TALL_ = [1, 1, 1.7];
   const yDb = function (db) {
-    return FLOOR - db * PX_DB;
+    return FLOOR - db * PX_DB * pick.apply(null, DIAG_TALL_);
   };
 
-  // пять «столбиков» ступеней → пять носителей (по убыванию диапазона)
   const BARS = [
-    { x1: 230.165, x2: 371.43, db: 144, top: [2, 3] }, // hi-res 24 бит
-    { x1: 512.695, x2: 653.96, db: 96, top: [6, 7] }, // компакт-диск
-    { x1: 795.224, x2: 936.574, db: 80, top: [10, 11] }, // катушечная лента
-    { x1: 1077.84, x2: 1219.1, db: 65, top: [16, 17] }, // винил
-    { x1: 1360.37, x2: 1501.63, db: 56, top: [20, 21] }, // кассета
+    { x1: 230.165, x2: 371.43, db: 144, top: [2, 3] },
+    { x1: 512.695, x2: 653.96, db: 96, top: [6, 7] },
+    { x1: 795.224, x2: 936.574, db: 80, top: [10, 11] },
+    { x1: 1077.84, x2: 1219.1, db: 65, top: [16, 17] },
+    { x1: 1360.37, x2: 1501.63, db: 56, top: [20, 21] },
   ];
   const MIDDLE = 1007.2;
   const BASE = [
@@ -976,7 +817,6 @@ document.addEventListener("DOMContentLoaded", function () {
     [795.224, 278.712],
     [936.574, 278.712],
     [936.574, 530.781],
-    // на границе половин нижняя линия делает ступеньку вверх — «пол» винила
     [MIDDLE, 530.781],
     [MIDDLE, 530.781, true],
     [1077.84, 530.781],
@@ -994,24 +834,20 @@ document.addEventListener("DOMContentLoaded", function () {
   let cum = [];
   let total = 0;
 
-  // куда встаёт каждая точка ступеней в диаграмме
-  const TARGET = BASE.map(function (p, i) {
+  function targetY(i) {
     for (let b = 0; b < BARS.length; b++) {
       if (BARS[b].top.indexOf(i) !== -1) return yDb(BARS[b].db);
     }
     return FLOOR;
-  });
+  }
 
-  // пересобрать ломаную: m = 0 — ступени, 1 — диаграмма
-  // на планшете и мобилке ступени в начале вытянуты вверх (от нижней линии),
-  // в диаграмме — обычной высоты
   const STEPS_TALL_ = [1, 1.4, 1.8];
 
   function buildSteps(m) {
     const tall = pick.apply(null, STEPS_TALL_);
     pts = BASE.map(function (p, i) {
       const y0 = FLOOR - (FLOOR - p[1]) * tall;
-      return [p[0], y0 + (TARGET[i] - y0) * m];
+      return [p[0], y0 + (targetY(i) - y0) * m];
     });
     cum = [0];
     for (let i = 1; i < pts.length; i++) {
@@ -1031,7 +867,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // точка на ломаной по длине от её начала
   function pointAt(l) {
     l = Math.min(Math.max(l, 0), total);
     let i = 1;
@@ -1044,7 +879,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
   }
 
-  // длина ломаной до места, где она доходит до нужного x
   function lengthAtX(x) {
     if (x <= pts[0][0]) return 0;
     for (let i = 1; i < pts.length; i++) {
@@ -1055,7 +889,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return total;
   }
 
-  // какие x (в единицах svg) сейчас по краям окна, и сколько px в одной единице
   function viewX() {
     const rect = steps.getBoundingClientRect();
     const scale = rect.width / 1644;
@@ -1083,8 +916,7 @@ document.addEventListener("DOMContentLoaded", function () {
     el.setAttribute("y", y);
   }
 
-  // пунктиры, связи с цифрами и подписи столбиков
-  let saleGrow = 0; // 0…1 — насколько выросли полоски продаж
+  let saleGrow = 0;
 
   function drawGuides() {
     const v = viewX();
@@ -1102,12 +934,11 @@ document.addEventListener("DOMContentLoaded", function () {
       v[1],
       yDb(65),
     );
-    const pad = (window.innerWidth * 0.0222) / v[2]; // 32px от края окна
+    const pad = (window.innerWidth * 0.0222) / v[2];
     const lf = pick.apply(null, LBL_);
     setText(guideTxts[0], v[0] + pad, yDb(96) - 10);
     setText(guideTxts[1], v[0] + pad, yDb(65) - 10);
 
-    // пунктир от подписи цифры (низ блока фактоида) до верха столбика
     const svgRect = steps.getBoundingClientRect();
     [
       [factCd, 1, ".link_cd"],
@@ -1138,7 +969,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const b = BARS[+t.dataset.bar];
       setText(t, (b.x1 + b.x2) / 2, FLOOR + 72 * lf);
     });
-    // полоски продаж под названиями: растут из центра
     saleBars.forEach(function (l) {
       const b = BARS[+l.dataset.bar];
       const cx = (b.x1 + b.x2) / 2;
@@ -1146,12 +976,11 @@ document.addEventListener("DOMContentLoaded", function () {
       setLine(l, cx - half, FLOOR + 46 * lf, cx + half, FLOOR + 46 * lf);
     });
 
-    // винил: заливка и вторая обводка (свечение сильнее)
     const vb = BARS[3];
     vinylFill.setAttribute("x", vb.x1);
     vinylFill.setAttribute("y", yDb(vb.db));
     vinylFill.setAttribute("width", vb.x2 - vb.x1);
-    vinylFill.setAttribute("height", vb.db * PX_DB);
+    vinylFill.setAttribute("height", FLOOR - yDb(vb.db));
     vinylHl.setAttribute(
       "d",
       "M" + vb.x1 + " " + FLOOR + "V" + yDb(vb.db) + "H" + vb.x2 + "V" + FLOOR,
@@ -1176,18 +1005,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   let shown5 = 0;
-  let stepsDrawn = 0; // доля нарисованных ступеней — для свечения
+  let stepsDrawn = 0;
   let running5 = false;
 
-  // появление снизу: прозрачность и сдвиг
   function rise(el, k, extra) {
     el.style.opacity = k;
     el.style.transform =
       (extra || "") + " translateY(" + (1 - k) * 1.5 + "cqw)";
   }
 
-  // заставка «сторона б»: 0–0.05 появляется, 0.08–0.12 уходит вверх.
-  // остальная анимация экрана идёт после неё (прогресс пересчитан от 0.12)
   const block5Side = document.querySelector(".block5_side");
   const B5_CARD = 0.12;
 
@@ -1203,7 +1029,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function drawBlock5Main(progress) {
-    // часть 1: текст появляется, в части 2 уходит вверх
     const out = ease(part(progress, 0.5, 0.57));
     block5Steps.forEach(function (step) {
       const el = step[0];
@@ -1212,7 +1037,6 @@ document.addEventListener("DOMContentLoaded", function () {
       el.style.transform = "translateY(" + ((1 - k) * 1.5 - out * 2) + "cqw)";
     });
 
-    // ступени перестраиваются в столбики и поднимаются
     fitB5Labels();
     const STEPS_LIFT = pick.apply(null, STEPS_LIFT_);
     const morphK = ease(part(progress, 0.6, 0.76));
@@ -1222,7 +1046,6 @@ document.addEventListener("DOMContentLoaded", function () {
       svg.style.transform = "translateY(" + -STEPS_LIFT * lift + "cqw)";
     });
 
-    // ступени рисуются: только видимая часть, чтобы скорость не уходила на хвосты
     const k = ease(part(progress, 0.16, 0.35));
     const vis = visibleRange();
     let dash = vis[0] + (vis[1] - vis[0]) * k;
@@ -1233,13 +1056,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     stepsDots.forEach(function (dot, i) {
       const from = 0.35 + i * 0.015;
-      // во второй части (диаграмма) точки гаснут — там их место занимают цифры
       stepsShow[i] =
         ease(part(progress, from, from + 0.02)) *
         (1 - ease(part(progress, 0.5, 0.56)));
     });
 
-    // часть 2: цифры над столбиками, пунктиры, подписи
     rise(factCd, easeOut(part(progress, 0.66, 0.72)), "translateX(-50%)");
     rise(factVinyl, easeOut(part(progress, 0.68, 0.74)), "translateX(-50%)");
 
@@ -1295,7 +1116,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.requestAnimationFrame(tick5);
   }
 
-  // бесконечное движение точек по ступеням
   let stepsRunning = false;
   let block5Visible = false;
   const stepsStart = performance.now();
@@ -1306,7 +1126,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ).matches;
     const t = reduce ? 0 : (now - stepsStart) / 1000;
     const vis = visibleRange();
-    // чуть шире окна, чтобы точка уезжала за край целиком
     const from = Math.max(0, vis[0] - 60);
     const span = Math.min(total, vis[1] + 60) - from;
     const n = stepsDots.length;
@@ -1339,8 +1158,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.requestAnimationFrame(stepsFrame);
   }
 
-  // плашка «откуда берётся теплота»: открывается по клику, закрывается минусом,
-  // кликом мимо, клавишей Esc и если прокрутить экран назад
   const b5Panel = document.querySelector(".b5_panel");
   const b5Close = document.querySelector(".b5_close");
 
@@ -1390,14 +1207,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block6 — «если дело не в звуке, тогда в чём?»
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.14   абзац
-  // 0.14 – 0.24   кружок
-  // 0.2  – 0.42   линия расходится от кружка к краям окна, свечение — вместе с ней
-  // 0.42 – 0.6    вопрос, по строке
-  // 0.6  – 1      пауза
 
   const block6 = document.querySelector(".block6");
   const b6Txt = document.querySelector(".block6_txt");
@@ -1422,7 +1231,6 @@ document.addEventListener("DOMContentLoaded", function () {
     b6Point.style.transform =
       "translate(-50%, -50%) scale(" + (0.6 + 0.4 * p) + ")";
 
-    // линия расходится от центра к краям (свечение повторяет её само — canvas)
     const l = ease(part(progress, 0.2, 0.42));
     b6LineSvg.style.transform = "scaleX(" + l + ")";
 
@@ -1466,8 +1274,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // подпись в левом верхнем углу: SIDE A → SIDE B,
-  // когда 5 экран («сторона б») доходит до середины окна
   const sideTxt = document.querySelector(".side_txt");
 
   function updateSide() {
@@ -1481,15 +1287,6 @@ document.addEventListener("DOMContentLoaded", function () {
   updateSide();
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block7 — «50 %»
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.3    круг рисуется от верхней точки по часовой стрелке
-  // 0.2  – 0.45   цифра появляется и считает от 0 до 50
-  // 0.4  – 0.5    подпись под цифрой
-  // 0.48 – 0.62   первый абзац
-  // 0.58 – 0.72   второй абзац
-  // 0.72 – 1      пауза
 
   const block7 = document.querySelector(".block7");
   const b7Circle = document.querySelector(".b7_circle_line");
@@ -1500,8 +1297,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const SMOOTH_7 = 0.09;
   const COUNT_TO = 50;
 
-  // пока цифра считает, её ширина меняется, а блок стоит по центру и дёргался бы.
-  // поэтому фиксируем ширину по финальному числу (в em — масштабируется вместе с текстом)
   function fixCountWidth() {
     if (!b7Count) return;
     const saved = b7Count.textContent;
@@ -1521,15 +1316,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return Math.min(Math.max(-rect.top / scrollable, 0), 1);
   }
 
-  // круг: [cx, cy, r] в единицах сцены 1440×1024. на десктопе он слева
-  // и уходит за край, на планшете и мобилке — по центру сверху, текст под ним
   const B7_CIRCLE_ = [
     [410, 512, 380],
     [720, 246, 544],
     [720, -3.5, 609],
   ];
   let circleBp = "d";
-  let b7Drawn = 0; // доля нарисованного круга — для свечения
+  let b7Drawn = 0;
   if (b7Circle) b7Circle.removeAttribute("pathLength");
 
   function fitB7Circle() {
@@ -1547,7 +1340,6 @@ document.addEventListener("DOMContentLoaded", function () {
     fitB7Circle();
     const c = ease(part(progress, 0, 0.3));
     b7Drawn = c;
-    // в настоящих единицах длины, без pathLength: так одинаково во всех браузерах
     const len7 = b7Circle.getTotalLength();
     b7Circle.style.strokeDasharray =
       c >= 1 ? "none" : c * len7 + " " + (1.01 - c) * len7;
@@ -1602,20 +1394,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block8 — «двадцать минут, которые нельзя пролистать»
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.06   заголовок и подзаголовок
-  // дальше 6 шагов, на каждый STEP8 = 0.12 прогресса. внутри шага:
-  //   0    – 0.2   шаг выезжает снизу
-  //   0    – 0.55  линии рисунка прорисовываются (свечение вместе с ними)
-  //   0.45 – 0.6   точки и заливки
-  //   0.4  – 0.6   подпись с номером
-  //   0.5  – 0.7   описание
-  //   0.82 – 1     шаг уезжает вверх и гаснет
-  // 0.77 – 0.81   заголовок и подзаголовок уходят
-  // 0.8  – 0.93   итоговый текст, по абзацу
-  // 0.93 – 1      пауза
 
   const block8 = document.querySelector(".block8");
   const b8Title = document.querySelector(".block8_title");
@@ -1637,10 +1415,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // рисунки разного размера: у одного всё в середине листа 447×447, у другого
-  // до самых краёв. подгоняем каждый под общую рамку над подписью, чтобы
-  // рисунок не наезжал на текст: рамка 420×300 px макета с центром в (720, 550)
-  // на планшете и мобилке рамка крупнее в единицах сцены (сцена там мельче)
   const PIC_BOX_ = [
     { cx: 720, cy: 550, w: 420, h: 300 },
     { cx: 720, cy: 564, w: 937, h: 620 },
@@ -1658,8 +1432,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const pad = 4;
       const bw = bb.width + pad * 2;
       const bh = bb.height + pad * 2;
-      // px макета на единицу рисунка (на десктопе рисунок не крупнее исходного,
-      // на планшете и мобилке сцена мельче, поэтому рисунок можно увеличивать)
       const k = Math.min(pick(1, 10, 10), PIC_BOX.w / bw, PIC_BOX.h / bh);
       const w = bw * k;
       const h = bh * k;
@@ -1702,7 +1474,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     b8Parts.forEach(function (s, i) {
       const from = STEP8_FROM + i * STEP8;
-      const k = (progress - from) / STEP8; // 0…1 внутри своего шага
+      const k = (progress - from) / STEP8;
 
       const inK = easeOut(Math.min(Math.max(k / 0.2, 0), 1));
       const outK = ease(Math.min(Math.max((k - 0.82) / 0.18, 0), 1));
@@ -1714,7 +1486,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "translateY(" + ((1 - inK) * 4 - outK * 4) + "cqw)";
 
       const d = ease(Math.min(Math.max(k / 0.55, 0), 1));
-      s.drawn = d; // эту долю читает свечение (java-script.js)
+      s.drawn = d;
       s.draws.forEach(function (p) {
         p.style.strokeDasharray = d >= 1 ? "none" : d + " " + (1.01 - d);
       });
@@ -1761,20 +1533,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // block9 — «музыка, которую можно держать в руках» + финальный круг
-  //
-  // прогресс секции от 0 до 1:
-  // 0    – 0.12   заголовок
-  // 0.06 – 0.2    первый абзац
-  // 0.12 – 0.26   второй абзац
-  // 0.22 – 0.34   справа от текста прочерчиваются орбиты (текст остаётся)
-  // 0.3  – 0.9    строки цитаты проявляются по очереди, песня за песней
-  // 0.9  – 1      пауза
-  //
-  // круг всё время медленно вращается сам по себе (не от скролла).
-  // у каждой орбиты своя скорость: она чуть «гуляет» вокруг общей, поэтому
-  // строки слегка смещаются друг относительно друга, но песни не рассыпаются.
-  // строки одной орбиты (из разных песен) всегда едут вместе и не сталкиваются
 
   const block9 = document.querySelector(".block9");
   const b9Title = document.querySelector(".block9_title");
@@ -1783,17 +1541,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const SMOOTH_9 = 0.09;
 
   const B9 = {
-    cx: 1015, // центр круга, px макета: круг справа от текста
+    cx: 1015,
     cy: 545,
-    r0: 330, // орбита заголовков
-    size: 21, // кегль строк
-    gap: 1, // зазор между орбитами
-    step: 3.5, // насколько каждая строка начинается дальше предыдущей, °
-    speed: 1.6, // общая скорость вращения, ° в секунду
-    sway: 5, // насколько орбиты «гуляют» друг относительно друга, °
+    r0: 330,
+    size: 21,
+    gap: 1,
+    step: 3.5,
+    speed: 1.6,
+    sway: 5,
   };
 
-  // четыре «песни» по четвертям круга: [начало в °, заголовок, подпись, строки]
   const B9_SONGS = [
     [
       160,
@@ -1848,8 +1605,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const B9_JITTER = [0, 3, -2, 4, 1, -3, 2, 5, -1, 3, 0, 2];
 
   const SVGNS = "http://www.w3.org/2000/svg";
-  const b9Orbits = []; // { r, circle, len, group, phase, k }
-  const b9Lines = []; // { el, order }
+  const b9Orbits = [];
+  const b9Lines = [];
 
   function svgEl(tag, attrs, parent) {
     const el = document.createElementNS(SVGNS, tag);
@@ -1860,7 +1617,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return el;
   }
 
-  // путь-круг, начинающийся в точке под углом a (по часовой)
   function circlePath(r, aDeg) {
     const a = (aDeg * Math.PI) / 180;
     const x1 = B9.cx + r * Math.cos(a);
@@ -1899,9 +1655,6 @@ document.addEventListener("DOMContentLoaded", function () {
       { class: "b9_orbit", cx: B9.cx, cy: B9.cy, r: r - 2, pathLength: 1 },
       b9Svg,
     );
-    // строки каждой орбиты — в отдельном svg-слое поверх сцены. слой крутится
-    // css-трансформом: браузер один раз рисует текст и дальше только
-    // поворачивает готовую картинку на видеокарте, без перерисовки букв
     o.layer = svgEl(
       "svg",
       {
@@ -1913,7 +1666,6 @@ document.addEventListener("DOMContentLoaded", function () {
       null,
     );
     o.group = o.layer;
-    // своя скорость: каждая орбита по-своему «гуляет» вокруг общей
     o.phase = index * 1.7;
     o.k = 0.55 + ((index * 37) % 10) / 20;
     b9Orbits[index] = o;
@@ -1925,20 +1677,17 @@ document.addEventListener("DOMContentLoaded", function () {
   function buildB9() {
     if (!b9Svg) return;
     let order = 0;
-    // точка в центре — как отверстие посередине пластинки
     b9Center = svgEl(
       "circle",
       { class: "b9_center", cx: B9.cx, cy: B9.cy, r: 6 },
       b9Svg,
     );
-    // индекс 0 — орбита заголовков, дальше орбиты строк
     orbitAt(0, B9.r0);
     B9_SONGS.forEach(function (song, si) {
       const a0 = song[0];
       song[3].forEach(function (_, i) {
         orbitAt(i + 1, B9.r0 - 32 - i * (B9.size + B9.gap));
       });
-      // заголовок
       const hid = "b9p" + si + "h";
       svgEl("path", { id: hid, d: circlePath(B9.r0, a0) }, b9Orbits[0].group);
       const ht = svgEl("text", { class: "b9_head" }, b9Orbits[0].group);
@@ -1947,7 +1696,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const sub = svgEl("tspan", { class: "b9_sub", dx: 8, dy: -12 }, htp);
       sub.textContent = song[2];
       b9Lines.push({ el: ht, order: order++ });
-      // строки
       song[3].forEach(function (line, i) {
         const o = b9Orbits[i + 1];
         const id = "b9p" + si + "_" + i;
@@ -1959,8 +1707,6 @@ document.addEventListener("DOMContentLoaded", function () {
         b9Lines.push({ el: t, order: order++ });
       });
     });
-    // слои строк — поверх круга с орбитами
-    // каждый слой крутится вокруг центра круга, а не центра сцены
     const origin = (B9.cx / 1440) * 100 + "% " + (B9.cy / 1024) * 100 + "%";
     b9Orbits.forEach(function (o) {
       o.layer.style.transformOrigin = origin;
@@ -1975,7 +1721,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return Math.min(Math.max(-rect.top / scrollable, 0), 1);
   }
 
-  let b9RingsOn = 0; // видны ли орбиты — от этого зависит вращение
+  let b9RingsOn = 0;
 
   function drawBlock9(progress) {
     [
@@ -1988,7 +1734,6 @@ document.addEventListener("DOMContentLoaded", function () {
       st[0].style.transform = "translateY(" + (1 - k) * 1.5 + "cqw)";
     });
 
-    // орбиты прочерчиваются от центра наружу
     b9Orbits.forEach(function (o, i) {
       const from = 0.22 + (b9Orbits.length - 1 - i) * 0.008;
       const k = ease(part(progress, from, from + 0.06));
@@ -1997,7 +1742,6 @@ document.addEventListener("DOMContentLoaded", function () {
     b9RingsOn = part(progress, 0.22, 0.24);
     if (b9Center) b9Center.style.opacity = easeOut(part(progress, 0.22, 0.28));
 
-    // строки по очереди
     const n = b9Lines.length;
     b9Lines.forEach(function (l) {
       const from = 0.3 + (l.order / n) * 0.56;
@@ -2006,7 +1750,6 @@ document.addEventListener("DOMContentLoaded", function () {
     startB9();
   }
 
-  // вращение
   let b9Running = false;
   let b9Visible = false;
   const b9Start = performance.now();
@@ -2073,22 +1816,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // бегущая строка: одинаковое видимое расстояние сверху и снизу.
-  // над ней — пустой низ 8 экрана (текст стоит по центру), под ней — отступ
-  // до заголовка 9 экрана. считаем оба и добиваем меньший до большего
   const marquee = document.querySelector(".marquee");
-  const MARQUEE_GAP = 0; // минимальный добавочный отступ, доля высоты окна
+  const MARQUEE_GAP = 0;
 
   function fitMarquee() {
     if (!marquee || !block8 || !block9) return;
     const s8 = document.querySelector(".block8_sticky").getBoundingClientRect();
     const t8 = document.querySelector(".block8_text").getBoundingClientRect();
-    const above = s8.height - (t8.bottom - s8.top); // пусто под текстом 8 экрана
+    const above = s8.height - (t8.bottom - s8.top);
 
     const st9 = document.querySelector(".block9_stage").getBoundingClientRect();
     const s9 = document.querySelector(".block9_sticky").getBoundingClientRect();
-    let below = st9.top - s9.top + st9.width * 0.0694; // до заголовка 9 экрана
-    // на планшете и мобилке заголовок стоит в другом месте сцены
+    let below = st9.top - s9.top + st9.width * 0.0694;
     if (bp() !== "d")
       below =
         st9.top - s9.top + document.querySelector(".block9_title").offsetTop;
@@ -2104,10 +1843,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", fitMarquee);
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // свечение линий: говорим canvas из java-script.js, какие линии светятся.
-  // он сам берёт их форму, положение, прозрачность и сколько уже нарисовано
   if (window.glow) {
-    // 1 экран: кольца. r — радиус круга в долях ширины svg-картинки
     const RING_R = [
       511 / 1524,
       411.5 / 1325,
@@ -2117,7 +1853,6 @@ document.addEventListener("DOMContentLoaded", function () {
       74 / 650,
     ];
     document.querySelectorAll(".ring_line").forEach(function (img, i) {
-      // у самого большого кольца линия 80% яркости — и свечение тоже
       window.glow.add({
         el: img,
         kind: "ring",
@@ -2126,7 +1861,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // 2 экран: прямая (в svg от x=250 до 1627 из 1877, y=251 из 503) и кривая
     const g2line = document.querySelector(".graph_line img");
     if (g2line) {
       window.glow.add({
@@ -2140,11 +1874,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const g2curve = document.querySelector(".graph_curve_line path");
     if (g2curve) window.glow.add({ el: g2curve, kind: "svg", dash: g2curve });
 
-    // 3 экран: эллипсы диска; сколько нарисовано — по их маскам
     const diskEls = document.querySelectorAll(".disk_ellipse");
     const diskDash = document.querySelectorAll(".disk_mask_path");
-    // свечение берёт нарисованный кусок напрямую, а не из пунктира маски:
-    // на iPhone пунктир эллипса считается иначе, и свет обгонял линию
     diskEls.forEach(function (el, i) {
       window.glow.add({
         el: el,
@@ -2155,43 +1886,39 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // 4 экран: волна
     const wave = document.querySelector(".wave_line_path");
     if (wave) {
       window.glow.add({
         el: wave,
         kind: "svg",
-        dash: document.querySelector(".wave_mask_path"),
+        range: function () {
+          return waveDrawn;
+        },
       });
     }
 
-    // 5 экран: ступени
     const stepsEl = document.querySelector(".steps_line");
     if (stepsEl) {
       window.glow.add({
         el: stepsEl,
         kind: "svg",
-        // ступени — прямые линии, поэтому свечению передаём долю напрямую
         drawn: function () {
           return stepsDrawn;
         },
       });
     }
 
-    // 5 экран: вторая обводка столбика винила — свечение у него сильнее
     const vinylHlEl = document.querySelector(".vinyl_hl");
     if (vinylHlEl) window.glow.add({ el: vinylHlEl, kind: "svg" });
     document.querySelectorAll(".sale_bar").forEach(function (el) {
       window.glow.add({ el: el, kind: "svg", gain: 0.7 });
     });
 
-    // 6 экран: линия и кружок
     const b6line = document.querySelector(".b6_line_svg");
     if (b6line) window.glow.add({ el: b6line, kind: "line" });
     const b6point = document.querySelector(".b6_point_svg");
     if (b6point) window.glow.add({ el: b6point, kind: "ring", r: 23 / 48 });
 
-    // 7 экран: большой круг
     const b7c = document.querySelector(".b7_circle_line");
     if (b7c) {
       window.glow.add({
@@ -2203,10 +1930,8 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // 8 экран: все линии и точки рисунков (у скрытых шагов свечение не считается)
     b8Parts.forEach(function (s) {
       if (!s.draws.length) return;
-      // все линии рисунка — одним источником свечения (так в разы легче)
       window.glow.add({
         el: s.draws[0],
         parts: Array.prototype.slice.call(s.draws),
@@ -2231,8 +1956,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // \\\\\\\\\\\\\\\
-  // подвал: «Источники» раскрываются по клику,
-  // а угловые подписи прячутся, как только подвал показался снизу
 
   const footer = document.querySelector(".footer");
   const sources = document.querySelector(".sources");
@@ -2253,7 +1976,6 @@ document.addEventListener("DOMContentLoaded", function () {
       sources.classList.toggle("is_open", open);
       sourcesBtn.setAttribute("aria-expanded", open);
       if (!open) return;
-      // когда список раскрылся — мягко докручиваем, чтобы он был виден
       window.setTimeout(function () {
         if (window.lenis) {
           window.lenis.resize();
@@ -2264,7 +1986,7 @@ document.addEventListener("DOMContentLoaded", function () {
             behavior: "smooth",
           });
         }
-      }, 650); // ждём, пока список раскроется (0.6с в css)
+      }, 650);
     });
   }
 });

@@ -1,27 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // плавная прокрутка (библиотека Lenis)
-  // lerp — насколько мягко страница догоняет колесо: меньше = плавнее
-
   const reduceMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
   if (typeof Lenis !== "undefined" && !reduceMotion) {
-    // ограничение скорости: как сильно ни крути, страница не убегает вперёд
-    // больше чем на MAX_LEAD высоты окна от того места, где она сейчас.
-    // поэтому сильный рывок колеса или тачпада не проскакивает анимации,
-    // а просто листает с предельной скоростью — плавно и непрерывно
     const MAX_LEAD = 0.45;
 
     const lenis = new Lenis({
-      lerp: 0.06, // мягкость: меньше — плавнее и медленнее догоняет
+      lerp: 0.06,
       wheelMultiplier: 1,
       virtualScroll: function (data) {
         const l = window.lenis;
         if (!l) return true;
         const max = window.innerHeight * MAX_LEAD;
-        const lead = l.targetScroll - l.animatedScroll; // насколько уже «впереди»
+        const lead = l.targetScroll - l.animatedScroll;
         const want = lead + data.deltaY;
         if (Math.abs(want) > max) {
           data.deltaY = Math.sign(want) * max - lead;
@@ -37,57 +29,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     window.requestAnimationFrame(raf);
 
-    // доступ из screens.js (блокировка скролла на обложке)
     window.lenis = lenis;
   }
 
   // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // общее: свечение линий на canvas
-  //
-  // вместо картинок-свечений под контентом лежит canvas на весь экран.
-  // каждый кадр он рисует размытую копию каждой линии, которая сейчас видна:
-  // берёт её форму, положение, прозрачность и то, насколько она уже нарисована.
-  // поэтому свечение всегда совпадает с линией, что бы с ней ни происходило.
-  //
-  // экраны добавляют свои линии через window.glow.add({...}) в screens.js:
-  //   el      — элемент линии
-  //   kind    — "svg"  (path, ellipse, circle или line внутри svg),
-  //             "ring" (картинка-кольцо: круг по центру картинки),
-  //             "line" (картинка или div-полоска: прямая по центру)
-  //   dash    — svg-элемент, чей stroke-dasharray показывает, сколько линии
-  //             уже нарисовано (сама линия или её маска). если нет — линия целиком
-  //   drawn   — вместо dash: функция, которая возвращает, какая доля линии
-  //             нарисована (0…1). надёжнее, чем читать stroke-dasharray
-  //   parts   — для "svg": несколько линий одного рисунка, светятся одним путём
-  //             (el — любая из них, по ней берётся положение)
-  //   r       — для "ring": радиус круга в долях ширины картинки
-  //   x1, x2, y — для "line": где лежит линия в картинке, в долях (необязательно)
-  //   gain    — яркость свечения этой линии относительно остальных (1 = как у всех)
-  //
-  // свечение из двух слоёв, как в макете: яркий узкий ореол у самой линии
-  // и широкий слабый свет вокруг. width — толщина размываемой копии линии,
-  // blur — радиус размытия, alpha — яркость. всё в px макета 1440
-  // (значения подобраны по свечению из твоих PNG)
-  //
-  // про «кольца» в слабом свете: экран показывает 256 оттенков, и очень
-  // слабый плавный свет на тёмном распадается на полосы. поэтому широкий слой
-  // рисуется в усиленном виде (×boost — так у него в несколько раз больше оттенков),
-  // а видеокарта (WebGL) ослабляет его обратно и добавляет к каждому пикселю
-  // случайную долю оттенка. так полосы растворяются, а шума глазом не видно.
-  // если WebGL недоступен — всё рисуется обычным способом
 
   const GLOW = {
     layers: [
-      { width: 4, blur: 11, alpha: 0.43 }, // ореол у линии
-      { width: 20, blur: 95, alpha: 0.3, smooth: true }, // широкий свет (без полос)
+      { width: 4, blur: 11, alpha: 0.43 },
+      { width: 20, blur: 95, alpha: 0.3, smooth: true },
     ],
-    res: 1, // чёткость ореола: 1 — пиксели экрана; меньше — быстрее
-    smoothRes: 0.5, // широкий свет очень размыт — ему хватает половины разрешения
-    // во сколько раз точнее считается широкий свет. alpha × boost не должно
-    // быть больше 1, иначе свет обрежется (0.3 × 3 = 0.9)
+    res: 1,
+    smoothRes: 0.5,
     boost: 3,
-    dither: 1, // сила сглаживания полос: 0 — выключить, 1 — норма, 2 — сильнее
+    dither: 1,
   };
 
   const glowSources = [];
@@ -99,13 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   };
 
-  // холст ореола (обычный 2d)
   const glowCanvas = document.createElement("canvas");
   glowCanvas.className = "glow_canvas";
   glowCanvas.setAttribute("aria-hidden", "true");
   const gctx = glowCanvas.getContext("2d");
 
-  // широкий свет: считается на невидимом 2d-холсте, показывается через WebGL
   const softCanvas = document.createElement("canvas");
   softCanvas.className = "glow_canvas";
   softCanvas.setAttribute("aria-hidden", "true");
@@ -132,7 +85,6 @@ document.addEventListener("DOMContentLoaded", function () {
       "void main(){" +
       "  float a = texture2D(tex, uv).a / boost;" +
       "  vec2 c = floor(gl_FragCoord.xy);" +
-      // треугольный шум ±1 оттенок: незаметен, но растворяет полосы
       "  float n = (hash(c) + hash(c + 31.7) - 1.0) * dither / 255.0;" +
       "  float v = a > 0.0005 ? clamp(a + n, 0.0, 1.0) : 0.0;" +
       "  gl_FragColor = vec4(v, v, v, v);" +
@@ -172,8 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // во сколько раз холсты подробнее css-пикселей: учитываем масштаб экрана
-  // (на Windows с масштабом 125–150% пикселей экрана больше, чем css-пикселей)
   let glowScale = 1;
   let softScale = 1;
 
@@ -187,9 +137,6 @@ document.addEventListener("DOMContentLoaded", function () {
     work.height = Math.round(window.innerHeight * softScale);
     softCanvas.width = Math.round(window.innerWidth * dpr);
     softCanvas.height = Math.round(window.innerHeight * dpr);
-    // размер на экране — ровно видимая часть окна. в css стоит 100vh, но на
-    // телефоне 100vh — это окно без панели браузера, и холст растягивался по
-    // высоте: свечение съезжало вниз относительно линий
     [glowCanvas, softCanvas].forEach(function (c) {
       c.style.width = window.innerWidth + "px";
       c.style.height = window.innerHeight + "px";
@@ -198,13 +145,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   sizeGlow();
   window.addEventListener("resize", sizeGlow);
-
-  // во сколько раз сцена (1440 по макету) сейчас больше или меньше макета
   function stageK() {
     return Math.min(window.innerWidth, window.innerHeight * 1.40625) / 1440;
   }
 
-  // итоговая прозрачность элемента с учётом всех родителей
   function opacityOf(el) {
     let op = 1;
     let node = el;
@@ -217,12 +161,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return op;
   }
 
-  // форма svg-элемента для canvas (кэшируется, пока не меняется)
-  // где элемент svg стоит на экране: матрица из его единиц в css-пиксели окна.
-  // getScreenCTM() на iPhone (Safari и Chrome там на одном движке) ошибается
-  // у элементов с атрибутом transform — например, у эллипсов диска и круга
-  // 7 экрана, и свечение съезжало. поэтому считаем сами: положение svg на
-  // экране (его рамка) × viewBox × transform самого элемента и его групп
   function screenMatrix(el) {
     const svg = el.ownerSVGElement;
     if (!svg) return el.getScreenCTM();
@@ -230,7 +168,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const vb = svg.viewBox && svg.viewBox.baseVal;
     let m = new DOMMatrix();
     if (vb && vb.width && vb.height) {
-      // preserveAspectRatio по умолчанию: вписать по центру
       const k = Math.min(r.width / vb.width, r.height / vb.height);
       m = m
         .translate(
@@ -241,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       m = m.translate(r.left, r.top);
     }
-    // transform элемента и его групп внутри svg, от внешних к внутреннему
     const chain = [];
     for (let n = el; n && n !== svg; n = n.parentNode) chain.unshift(n);
     chain.forEach(function (n) {
@@ -287,11 +223,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return p;
   }
 
-  // начало линии длиной k (0…1) от полной — ломаной по точкам линии.
-  // где точки далеко друг от друга (разрыв в пунктире), перо поднимается
-  // точки линии считаем один раз и запоминаем: getPointAtLength у сложных
-  // путей (пунктир из десятков кусочков, как на 3 рисунке 8 экрана) очень
-  // медленный, и раньше он вызывался сотни раз в каждом кадре
   const sampleCache = new WeakMap();
 
   function samplesOf(el) {
@@ -326,7 +257,6 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 0; i < sm.pts.length; i++) {
       const pt = sm.pts[i];
       if (pt[0] > end) break;
-      // где точки далеко друг от друга (разрыв в пунктире), перо поднимается
       if (
         !prev ||
         Math.hypot(pt[1] - prev[1], pt[2] - prev[2]) > sm.step * 1.6
@@ -340,9 +270,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return p;
   }
 
-  // кусок линии от длины from до длины to (для замкнутых — через начало),
-  // ломаной по точкам самой линии. точки даёт браузер (getPointAtLength), поэтому
-  // свечение идёт ровно там же, где он рисует чёткую линию, — в любом браузере
   function rangePath(el, from, to) {
     const sm = samplesOf(el);
     const p = new Path2D();
@@ -367,7 +294,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return p;
   }
 
-  // сколько линии нарисовано: читаем stroke-dasharray у линии или её маски
   function dashOf(el) {
     const cs = window.getComputedStyle(el);
     if (!cs.strokeDasharray || cs.strokeDasharray === "none") return null;
@@ -391,12 +317,8 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // сама линия рисуется далеко за краем холста, а её размытая тень
-  // сдвигается обратно на место — видно только тень. shadowBlur работает
-  // во всех браузерах, в отличие от ctx.filter
   const OFF = 30000;
 
-  // всё, что нужно знать о линии в этом кадре (считаем один раз на оба слоя)
   function measure(src) {
     const el = src.el;
     const box = el.getBoundingClientRect();
@@ -408,21 +330,16 @@ document.addEventListener("DOMContentLoaded", function () {
       m.ctm = screenMatrix(el);
       if (!m.ctm) return null;
       if (src.range) {
-        // какой кусок линии сейчас нарисован: [от, до] в единицах её длины
         const r = src.range();
         if (!r || r[1] - r[0] <= 0.5) return null;
-        m.k = r[0] * 7 + r[1]; // для «отпечатка» кадра: поменялся кусок — перерисовать
+        m.k = r[0] * 7 + r[1];
         m.path = rangePath(el, r[0], r[1]);
       } else if (src.drawn) {
         const k = src.drawn();
-        if (k <= 0.001) return null; // ещё ничего не нарисовано
+        if (k <= 0.001) return null;
         m.k = k;
-        // недорисованную линию строим как ломаную по точкам самой линии,
-        // а не пунктиром: Chrome на Windows у прямых пунктирных линий
-        // не рисует тень, и свечение пропадало
+
         if (src.parts) {
-          // несколько линий одного рисунка — одним общим путём: тогда размытие
-          // считается один раз на весь рисунок, а не отдельно на каждую линию
           m.path = new Path2D();
           src.parts.forEach(function (p) {
             m.path.addPath(k < 1 ? partialPath(p, k) : svgPath(p));
@@ -432,8 +349,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } else {
         m.dash = src.dash ? dashOf(src.dash) : null;
-        if (m.dash && m.dash.arr.some(isNaN)) m.dash = null; // не разобрали — рисуем целиком
-        if (m.dash && m.dash.arr[0] <= 0.01) return null; // ещё ничего не нарисовано
+        if (m.dash && m.dash.arr.some(isNaN)) m.dash = null;
+        if (m.dash && m.dash.arr[0] <= 0.01) return null;
       }
       if (!m.path) m.path = svgPath(el);
     }
@@ -443,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function strokeLayer(ctx, S, src, m, L, sk, alphaK) {
     ctx.shadowOffsetX = OFF;
     ctx.shadowOffsetY = 0;
-    ctx.shadowBlur = 2 * L.blur * sk * S; // shadowBlur ≈ 2 × радиус размытия
+    ctx.shadowBlur = 2 * L.blur * sk * S;
     ctx.shadowColor =
       "rgba(255, 255, 255, " + Math.min(1, L.alpha * m.gain * alphaK) + ")";
     ctx.strokeStyle = "#fff";
@@ -493,13 +410,9 @@ document.addEventListener("DOMContentLoaded", function () {
     ctx.stroke();
   }
 
-  let glowEmpty = false; // в прошлом кадре светиться было нечему
-  let glowSig = ""; // «отпечаток» прошлого кадра: где и какие линии светились
-
+  let glowEmpty = false;
+  let glowSig = "";
   function glowFrame() {
-    // сначала узнаём, какие линии сейчас видны. если ни одной (например, на
-    // экране только текст или круг с цитатой) — холсты уже пустые, и кадр
-    // пропускаем целиком: не чистим, не рисуем, не гоняем видеокарту
     const sk = stageK();
     const visible = [];
     for (let i = 0; i < glowSources.length; i++) {
@@ -512,9 +425,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     glowEmpty = !visible.length;
 
-    // если с прошлого кадра ничего не сдвинулось и не поменялось (страница
-    // стоит, линия дорисована) — свечение уже нарисовано, кадр пропускаем.
-    // размытие большой тенью — самая дорогая часть, и это экономит почти всё
     const sig =
       visible
         .map(function (v) {
@@ -543,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "@" +
       glowCanvas.width +
       "x" +
-      glowCanvas.height; // смена размера холста его очищает
+      glowCanvas.height;
     if (sig === glowSig) {
       window.requestAnimationFrame(glowFrame);
       return;
@@ -590,21 +500,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   window.requestAnimationFrame(glowFrame);
 
-  // \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-  // общее: курсор
-  //
-  // кольцо как на 6 экране. в режиме «разница» (mix-blend-mode: difference)
-  // оно становится негативом того, что под ним: на тёмном — белое,
-  // на белом (плашки, кружки) — чёрное, поэтому никогда не сливается.
-  // кольцо мягко догоняет мышь (CURSOR_LERP), над кнопками увеличивается.
-  // на телефонах и планшетах курсора нет — там остаётся обычное касание
-
   const finePointer = window.matchMedia(
     "(hover: hover) and (pointer: fine)",
   ).matches;
 
   if (finePointer) {
-    const CURSOR_LERP = 0.25; // насколько быстро кольцо догоняет мышь: 1 — сразу
+    const CURSOR_LERP = 0.25;
     const cursor = document.createElement("div");
     cursor.className = "cursor";
     cursor.setAttribute("aria-hidden", "true");
@@ -626,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function () {
         shown = true;
         cursor.classList.add("is_visible");
       }
-      // над кнопками и ссылками кольцо увеличивается
+
       const hover =
         e.target.closest && e.target.closest("button, a, [role='button']");
       cursor.classList.toggle("is_hover", !!hover);
